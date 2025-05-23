@@ -36,7 +36,7 @@ class BodybuildingFragment : Fragment(R.layout.fragment_bodybuilding) {
     private val section1 = listOf(
         Exercise(
             imageRes = R.drawable.pancadescrizione,
-            descriptionImage = R.drawable.pancadescrizione,
+            descriptionImage = R.drawable.plank,
             title = "PANCA PIANA",
             subtitle = "PANCA PIANA",
             videoUrl = "https://www.youtube.com/watch?v=nclAIgM4NJE",
