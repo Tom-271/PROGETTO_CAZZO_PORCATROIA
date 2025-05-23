@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/mobile_navigation"
+    app:startDestination="@id/navigation_home">
+
+    <!-- Home (tab 1) -->
+    <fragment
+        android:id="@+id/navigation_home"
+        android:name="com.example.progetto_tosa.ui.home.HomeFragment"
+        android:label="@string/title_home"
+        tools:layout="@layout/fragment_home" />
+
+    <!-- Workout (tab 2) con le azioni verso i 4 sotto‑fragment -->
+    <fragment
+        android:id="@+id/navigation_workout"
+        android:name="com.example.progetto_tosa.ui.workout.WorkoutFragment"
+        android:label="@string/title_workout"
+        tools:layout="@layout/fragment_workout" >
+        <action
+            android:id="@+id/action_workout_to_bodybuilding"
+            app:destination="@id/navigation_bodybuilding" />
+        <action
+            android:id="@+id/action_workout_to_cardio"
+            app:destination="@id/navigation_cardio" />
+        <action
+            android:id="@+id/action_workout_to_corpolibero"
+            app:destination="@id/navigation_corpolibero" />
+        <action
+            android:id="@+id/action_workout_to_stretching"
+            app:destination="@id/navigation_stretching" />
+    </fragment>
+
+    <!-- Stepwatch (tab 3) -->
+    <fragment
+        android:id="@+id/navigation_notifications"
+        android:name="com.example.progetto_tosa.ui.stepwatch.StepwatchFragment"
+        android:label="@string/title_stepwatch"
+        tools:layout="@layout/fragment_stepwatch" />
+
+    <!-- Account (tab 4) -->
+    <fragment
+        android:id="@+id/navigation_account"
+        android:name="com.example.progetto_tosa.ui.account.AccountFragment"
+        android:label="@string/title_account"
+        tools:layout="@layout/fragment_account" />
+
+    <!-- Sotto‑fragment di Workout -->
+    <fragment
+        android:id="@+id/navigation_bodybuilding"
+        android:name="com.example.progetto_tosa.ui.workout.BodybuildingFragment"
+        android:label="@string/title_bodybuilding"
+        tools:layout="@layout/fragment_bodybuilding" />
+
+
+    <fragment
+        android:id="@+id/navigation_cardio"
+        android:name="com.example.progetto_tosa.ui.workout.CardioFragment"
+        android:label="@string/title_cardio"
+        tools:layout="@layout/fragment_cardio" />
+
+    <fragment
+        android:id="@+id/navigation_corpolibero"
+        android:name="com.example.progetto_tosa.ui.workout.CorpoliberoFragment"
+        android:label="@string/title_corpolibero"
+        tools:layout="@layout/fragment_corpolibero" />
+
+    <fragment
+        android:id="@+id/navigation_stretching"
+        android:name="com.example.progetto_tosa.ui.workout.StretchingFragment"
+        android:label="@string/title_stretching"
+        tools:layout="@layout/fragment_stretching" />
+
+</navigation>

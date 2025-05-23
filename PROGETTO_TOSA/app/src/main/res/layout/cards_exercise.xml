@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="6dp"
+    android:clickable="true"
+    android:focusable="true">
+
+    <!-- La card principale -->
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/cardExercise"
+        android:layout_width="0dp"
+        android:layout_height="180dp"
+        android:clickable="true"
+        android:focusable="true"
+        android:foreground="?attr/selectableItemBackground"
+        app:strokeColor="@color/dark_gray"
+        app:strokeWidth="1dp"
+        app:cardElevation="30dp"
+        app:shapeAppearanceOverlay="@style/ShapeAppearance.TopRounded"
+        app:cardBackgroundColor="@color/white"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="4dp">
+
+            <!-- TITOLO sopra l'immagine -->
+            <TextView
+                android:id="@+id/textViewTitleTop"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Titolo"
+                android:textStyle="bold"
+                android:gravity="center"
+                android:textColor="@android:color/black"
+                android:paddingTop="4dp"
+                android:paddingBottom="4dp"/>
+
+            <ImageView
+                android:id="@+id/imageViewExercise"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:adjustViewBounds="true"
+                android:scaleType="centerCrop" />
+
+            <ImageView
+                android:id="@+id/imageViewTitleIcon"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:paddingTop="4dp"
+                android:paddingBottom="4dp" />
+
+            <TextView
+                android:id="@+id/textViewSubtitleExercise"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Sottotitolo"
+                android:textStyle="bold"
+                android:gravity="center"
+                android:paddingTop="4dp"
+                android:paddingBottom="4dp" />
+
+        </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
