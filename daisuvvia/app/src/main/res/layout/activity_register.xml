@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="16dp">
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Crea il tuo account"
+            android:textSize="24sp"
+            android:layout_marginBottom="16dp"/>
+
+        <EditText
+            android:id="@+id/etFirstName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Nome"
+            android:inputType="textPersonName"/>
+
+        <EditText
+            android:id="@+id/etLastName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Cognome"
+            android:inputType="textPersonName"/>
+
+        <EditText
+            android:id="@+id/etEmailReg"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Email"
+            android:inputType="textEmailAddress"/>
+
+        <EditText
+            android:id="@+id/etPasswordReg"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Password (minimo 6)"
+            android:inputType="textPassword"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Data di nascita"
+            android:layout_marginTop="16dp"/>
+
+        <DatePicker
+            android:id="@+id/datePickerReg"
+            android:calendarViewShown="true"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+
+        <EditText
+            android:id="@+id/etWeight"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Peso (kg)"
+            android:inputType="numberDecimal"/>
+
+        <EditText
+            android:id="@+id/etHeight"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Altezza (cm)"
+            android:inputType="number"/>
+
+        <Button
+            android:id="@+id/btnRegisterSubmit"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Registrati"
+            android:layout_marginTop="24dp"/>
+
+    </LinearLayout>
+</ScrollView>

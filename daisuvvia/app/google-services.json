@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "1041503427752",
+    "project_id": "esame-9aa37",
+    "storage_bucket": "esame-9aa37.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1041503427752:android:c627e34f06a63a8ca2f69d",
+        "android_client_info": {
+          "package_name": "com.example.progetto_tosa"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1041503427752-3eff7fjg9cmji1b8m4rtvsle30di8bn8.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBlnoQ9lOlonXE2rfWl2IygcAzhO4eC7nU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1041503427752-3eff7fjg9cmji1b8m4rtvsle30di8bn8.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

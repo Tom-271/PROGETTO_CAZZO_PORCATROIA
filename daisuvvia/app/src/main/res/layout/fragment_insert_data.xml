@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <!-- Nome -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Nome" />
+        <EditText
+            android:id="@+id/editTextFirstName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Es. Mario"
+            android:inputType="textPersonName" />
+
+        <!-- Cognome -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Cognome" />
+        <EditText
+            android:id="@+id/editTextLastName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Es. Rossi"
+            android:inputType="textPersonName" />
+
+        <!-- Email -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Email" />
+        <EditText
+            android:id="@+id/editTextEmail"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="tuo@email.it"
+            android:inputType="textEmailAddress" />
+
+        <!-- Data di nascita -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Data di nascita" />
+        <EditText
+            android:id="@+id/editTextBirthDate"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="gg/mm/aaaa"
+            android:focusable="false" />
+
+        <!-- Età -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Età" />
+        <EditText
+            android:id="@+id/editTextAge"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Es. 30"
+            android:inputType="number" />
+
+        <!-- Peso -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Peso (kg)" />
+        <EditText
+            android:id="@+id/editTextWeight"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Es. 70"
+            android:inputType="numberDecimal" />
+
+        <!-- Altezza -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Altezza (cm)" />
+        <EditText
+            android:id="@+id/editTextHeight"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Es. 175"
+            android:inputType="number" />
+
+        <!-- Massa grassa -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="BF (%)" />
+        <EditText
+            android:id="@+id/editTextBF"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Es. 15"
+            android:inputType="numberDecimal" />
+
+        <!-- Bottone Salva -->
+        <Button
+            android:id="@+id/buttonSave"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Salva"
+            android:layout_marginTop="24dp" />
+
+    </LinearLayout>
+</ScrollView>
