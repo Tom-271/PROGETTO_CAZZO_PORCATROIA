@@ -51,7 +51,7 @@ class MainActivity : AppCompatActivity() {
         navView.itemIconTintList = null
 
         // ⬇️ Menu a tendina per "Strumenti"
-        navView.setOnItemSelectedListener { item ->
+        navView.setOnItemSelectedListener {  item ->
             when (item.itemId) {
                 R.id.navigation_tools -> {
                     // Usa navView come ancora del popup

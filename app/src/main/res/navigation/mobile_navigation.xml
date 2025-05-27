@@ -58,6 +58,9 @@
         <action
             android:id="@+id/action_account_to_UserData"
             app:destination="@id/navigation_UserData" />
+        <action
+            android:id="@+id/action_account_to_Settings"
+            app:destination="@id/navigation_Settings" />
 
     </fragment>
 
@@ -66,6 +69,12 @@
         android:name="com.example.progetto_tosa.ui.account.InsertData"
         android:label="I miei dati"
         tools:layout="@layout/fragment_insert_data" />
+
+    <fragment
+        android:id="@+id/navigation_Settings"
+        android:name="com.example.progetto_tosa.ui.account.SettingsFragment"
+        android:label="IMPOSTAZIONI"
+        tools:layout="@layout/fragment_settings" />
 
 
     <!-- Sotto‑fragment di Workout -->

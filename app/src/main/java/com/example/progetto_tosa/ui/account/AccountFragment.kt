@@ -5,8 +5,8 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.appcompat.app.AppCompatDelegate
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import com.example.progetto_tosa.R
 import com.example.progetto_tosa.databinding.FragmentAccountBinding
@@ -18,6 +18,7 @@ class AccountFragment : Fragment() {
 
     private var _binding: FragmentAccountBinding? = null
     private val binding get() = _binding!!
+    private val settingsViewModel: SettingsViewModel by activityViewModels()
 
     private val auth by lazy { FirebaseAuth.getInstance() }
     private val db   by lazy { FirebaseFirestore.getInstance() }
@@ -33,29 +34,6 @@ class AccountFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        // --- TEMA ---
-        val prefs = requireActivity().getSharedPreferences("settings", 0)
-        val isDarkMode = prefs.getBoolean("darkMode", true)
-        AppCompatDelegate.setDefaultNightMode(
-            if (isDarkMode) AppCompatDelegate.MODE_NIGHT_YES
-            else AppCompatDelegate.MODE_NIGHT_NO
-        )
-        binding.switch1.isChecked = isDarkMode
-        binding.switch1.text = if (isDarkMode) "Disable dark mode" else "Enable dark mode"
-        val textColor = if (isDarkMode)
-            resources.getColor(android.R.color.white, null)
-        else
-            resources.getColor(android.R.color.black, null)
-        binding.NomeUtente.setTextColor(textColor)
-        binding.switch1.setOnCheckedChangeListener { _, isChecked ->
-            prefs.edit().putBoolean("darkMode", isChecked).apply()
-            AppCompatDelegate.setDefaultNightMode(
-                if (isChecked) AppCompatDelegate.MODE_NIGHT_YES
-                else AppCompatDelegate.MODE_NIGHT_NO
-            )
-            binding.switch1.text = if (isChecked) "Disable dark mode" else "Enable dark mode"
-        }
 
         // --- Pulsante Login ---
         binding.ButtonLogin.setOnClickListener {
@@ -74,6 +52,19 @@ class AccountFragment : Fragment() {
         // --- Navigazione UserData ---
         binding.UserData.setOnClickListener {
             findNavController().navigate(R.id.action_account_to_UserData)
+        }
+
+        // --- Navigazione Settings ---
+        binding.Settings.setOnClickListener {
+            findNavController().navigate(R.id.action_account_to_Settings)
+        }
+
+        settingsViewModel.isDarkMode.observe(viewLifecycleOwner) { isDark ->
+            val textColor = if (isDark)
+                resources.getColor(android.R.color.white, null)
+            else
+                resources.getColor(android.R.color.black, null)
+            binding.NomeUtente.setTextColor(textColor)
         }
     }
 
