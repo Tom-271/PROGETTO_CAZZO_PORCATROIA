@@ -1,6 +1,8 @@
 package com.example.progetto_tosa.ui.account
 
 import android.os.Bundle
+import android.view.View
+import android.widget.PopupMenu
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import com.example.progetto_tosa.databinding.ActivityMainBinding
@@ -36,8 +38,9 @@ class MainActivity : AppCompatActivity() {
             setOf(
                 R.id.navigation_home,
                 R.id.navigation_workout,
-                R.id.navigation_notifications,
-                R.id.navigation_account
+                R.id.navigation_stepwatch,
+                R.id.navigation_account,
+                R.id.navigation_tools // Assicurati che esista anche questo
             )
         )
 
@@ -46,11 +49,37 @@ class MainActivity : AppCompatActivity() {
 
         // ⬇️ Disattiva il cambio automatico di colore delle icone
         navView.itemIconTintList = null
+
+        // ⬇️ Menu a tendina per "Strumenti"
+        navView.setOnItemSelectedListener { item ->
+            when (item.itemId) {
+                R.id.navigation_tools -> {
+                    // Usa navView come ancora del popup
+                    val popup = PopupMenu(this, navView)
+                    popup.menu.add("Cronometro")
+                    popup.menu.add("Timer")
+
+                    popup.setOnMenuItemClickListener { menuItem ->
+                        when (menuItem.title) {
+                            "Cronometro" -> navController.navigate(R.id.navigation_stepwatch)
+                            "Timer" -> navController.navigate(R.id.navigation_timer)
+                        }
+                        true
+                    }
+
+                    popup.show()
+                    true
+                }
+                else -> {
+                    navController.navigate(item.itemId)
+                    true
+                }
+            }
+        }
     }
 
     override fun onSupportNavigateUp(): Boolean {
         val navController = findNavController(R.id.nav_host_fragment_activity_main)
         return navController.navigateUp() || super.onSupportNavigateUp()
     }
-
 }

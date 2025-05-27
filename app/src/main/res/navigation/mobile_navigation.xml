@@ -34,17 +34,27 @@
 
     <!-- Stepwatch (tab 3) -->
     <fragment
-        android:id="@+id/navigation_notifications"
+        android:id="@+id/navigation_timer"
+        android:name="com.example.progetto_tosa.ui.stepwatch.TimerFragment"
+        android:label="Timer"
+        tools:layout="@layout/fragment_timer" >
+        <action
+            android:id="@+id/action_timer_to_stepwatch"
+            app:destination="@id/navigation_stepwatch" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/navigation_stepwatch"
         android:name="com.example.progetto_tosa.ui.stepwatch.StepwatchFragment"
-        android:label="@string/title_stepwatch"
+        android:label="Cronometro"
         tools:layout="@layout/fragment_stepwatch" />
 
     <!-- Account (tab 4) -->
     <fragment
-            android:id="@+id/navigation_account"
-            android:name="com.example.progetto_tosa.ui.account.AccountFragment"
-            android:label="@string/title_account"
-            tools:layout="@layout/fragment_account" >
+        android:id="@+id/navigation_account"
+        android:name="com.example.progetto_tosa.ui.account.AccountFragment"
+        android:label="@string/title_account"
+        tools:layout="@layout/fragment_account" >
         <action
             android:id="@+id/action_account_to_UserData"
             app:destination="@id/navigation_UserData" />
@@ -54,10 +64,8 @@
     <fragment
         android:id="@+id/navigation_UserData"
         android:name="com.example.progetto_tosa.ui.account.InsertData"
-        android:label="@string/title_data"
+        android:label="I miei dati"
         tools:layout="@layout/fragment_insert_data" />
-
-
 
 
     <!-- Sotto‑fragment di Workout -->

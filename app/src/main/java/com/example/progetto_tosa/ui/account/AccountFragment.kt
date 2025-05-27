@@ -100,7 +100,7 @@ class AccountFragment : Fragment() {
 
                     // Popola le TextView
                     binding.NomeUtente.text = if (fn.isNotBlank()) "$fn $ln" else email
-                    binding.tvFirstLast.visibility = View.VISIBLE
+                    binding.tvFirstLast.visibility = View.GONE
 
                 }
             binding.signOut.visibility      = View.VISIBLE

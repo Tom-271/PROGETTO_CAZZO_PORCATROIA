@@ -1,105 +1,165 @@
 package com.example.progetto_tosa.ui.stepwatch
 
-import android.animation.ValueAnimator
 import android.os.Bundle
-import android.os.CountDownTimer
 import android.os.Handler
 import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
+import android.widget.LinearLayout
+import android.widget.ScrollView
+import android.widget.TextView
 import androidx.fragment.app.Fragment
-import com.example.progetto_tosa.databinding.FragmentStepwatchBinding
+import com.example.progetto_tosa.R
 
 class StepwatchFragment : Fragment() {
 
-    private var _binding: FragmentStepwatchBinding? = null
-    private val binding get() = _binding!!
+    private lateinit var timerText: TextView
+    private lateinit var startButton: Button
+    private lateinit var pauseButton: Button
+    private lateinit var resetButton: Button
+    private lateinit var roundButton: Button
 
-    private var countDownTimer: CountDownTimer? = null
-    private lateinit var heartbeat: ValueAnimator
-    private val handler = Handler(Looper.getMainLooper())
+    private var handler = Handler(Looper.getMainLooper())
+    private var startTime = 0L
+    private var timeInMillis = 0L
+    private var isRunning = false
+    private var hasStartedOnce = false  // Indica se il cronometro è mai stato avviato
+    private lateinit var lapContainer: LinearLayout
+    private var lastLapTime: Long = 0L
+    private var lapCount = 0
+    private val updateRunnable = object : Runnable {
+        override fun run() {
+            if (isRunning) {
+                val now = System.currentTimeMillis()
+                timeInMillis = now - startTime
+                updateTimerText(timeInMillis)
+                handler.postDelayed(this, 1000)
+            }
+        }
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        _binding = FragmentStepwatchBinding.inflate(inflater, container, false)
-        return binding.root
-    }
+        val view = inflater.inflate(R.layout.fragment_stepwatch, container, false)
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
+        timerText = view.findViewById(R.id.cronometro_text)
+        startButton = view.findViewById(R.id.start_button)
+        pauseButton = view.findViewById(R.id.pause_button)
+        resetButton = view.findViewById(R.id.reset_button)
+        roundButton = view.findViewById(R.id.round_button)
+        val lapScrollView = view.findViewById<ScrollView>(R.id.lap_scrollview)
+        lapContainer = view.findViewById(R.id.lap_container)
 
-        // Heartbeat: two quick bumps then a pause, total 960ms
-        heartbeat = ValueAnimator.ofFloat(0f, 1f).apply {
-            duration = 960L
-            repeatCount = ValueAnimator.INFINITE
-            repeatMode = ValueAnimator.RESTART
-            addUpdateListener { anim ->
-                val t = anim.animatedFraction * duration
-                val scale = when {
-                    t < 100 -> 1f + (t / 100f) * 0.05f        // up1
-                    t < 200 -> 1.05f - ((t - 100) / 100f) * 0.05f // down1
-                    t < 280 -> 1f + ((t - 200) / 80f) * 0.05f   // up2
-                    t < 360 -> 1.05f - ((t - 280) / 80f) * 0.05f  // down2
-                    else     -> 1f                             // pause
+        // Visibilità iniziale: solo Start visibile
+        startButton.visibility = View.VISIBLE
+        pauseButton.visibility = View.GONE
+        resetButton.visibility = View.GONE
+        roundButton.visibility = View.GONE
+
+        startButton.setOnClickListener {
+            if (!isRunning) {
+                startTime = System.currentTimeMillis() - timeInMillis
+                handler.post(updateRunnable)
+                isRunning = true
+                hasStartedOnce = true
+
+                // Mostra Pause e Reset, nascondi Start
+                startButton.visibility = View.GONE
+                pauseButton.visibility = View.VISIBLE
+                resetButton.visibility = View.VISIBLE
+                roundButton.visibility = View.VISIBLE
+            }
+        }
+
+        pauseButton.setOnClickListener {
+            if (isRunning) {
+                handler.removeCallbacks(updateRunnable)
+                isRunning = false
+
+                // Mostra di nuovo Start se il cronometro è in pausa
+                pauseButton.visibility = View.GONE
+                roundButton.visibility = View.VISIBLE
+                resetButton.visibility = View.VISIBLE
+                startButton.visibility = View.VISIBLE
+                // Reset resta visibile
+            }
+        }
+
+        resetButton.setOnClickListener {
+            handler.removeCallbacks(updateRunnable)
+            isRunning = false
+            timeInMillis = 0L
+            updateTimerText(timeInMillis)
+
+            // Torna alla visibilità iniziale
+            startButton.visibility = View.VISIBLE
+            pauseButton.visibility = View.GONE
+            resetButton.visibility = View.GONE
+            roundButton.visibility = View.GONE
+
+            hasStartedOnce = true
+
+
+            lapContainer.removeAllViews()
+            lapCount = 0
+            lastLapTime = 0L
+        }
+
+        roundButton.setOnClickListener {
+            if (isRunning) {
+                val currentLapTime = System.currentTimeMillis() - startTime
+                val lapDuration = currentLapTime - lastLapTime
+                lastLapTime = currentLapTime
+                lapCount++
+
+                val currentFormatted = formatTime(currentLapTime)
+                val diffFormatted = formatTime(lapDuration)
+
+                val lapView = TextView(requireContext()).apply {
+                    text = "N$lapCount   $currentFormatted   +$diffFormatted"
+                    textSize = 16f
+                    textAlignment = View.TEXT_ALIGNMENT_CENTER
+                    layoutParams = LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.MATCH_PARENT,
+                        LinearLayout.LayoutParams.WRAP_CONTENT
+                    )
                 }
-                binding.cardClock.scaleX = scale
-                binding.cardClock.scaleY = scale
-                binding.progressTimer.scaleX = scale
-                binding.progressTimer.scaleY = scale
+
+                lapContainer.addView(lapView)
+
+                lapScrollView.post {
+                    lapScrollView.fullScroll(View.FOCUS_DOWN)
+                }
+
             }
         }
-        heartbeat.start() // pulsazione in idle
 
-        binding.cardClock.setOnClickListener {
-            // ferma battito
-            heartbeat.cancel()
-            resetScale()
-
-            val totalSecs = binding.editSeconds.text.toString().toLongOrNull() ?: 30L
-            binding.progressTimer.max = totalSecs.toInt()
-            binding.progressTimer.progress = totalSecs.toInt()
-            binding.textStepwatch.text = "${totalSecs}s"
-
-            startCountdown(totalSecs)
-        }
+        return view
     }
 
-    private fun resetScale() {
-        binding.cardClock.scaleX = 1f
-        binding.cardClock.scaleY = 1f
-        binding.progressTimer.scaleX = 1f
-        binding.progressTimer.scaleY = 1f
+    private fun updateTimerText(millis: Long) {
+        val totalSeconds = millis / 1000
+        val hours = totalSeconds / 3600
+        val minutes = (totalSeconds % 3600) / 60
+        val seconds = totalSeconds % 60
+
+        timerText.text = String.format("%02d:%02d:%02d", hours, minutes, seconds)
     }
 
-    private fun startCountdown(totalSecs: Long) {
-        countDownTimer?.cancel()
-        countDownTimer = object : CountDownTimer(totalSecs * 1000, 1000) {
-            override fun onTick(millis: Long) {
-                val left = (millis / 1000).toInt()
-                binding.textStepwatch.text = "${left}s"
-                binding.progressTimer.progress = left
-            }
-
-            override fun onFinish() {
-                binding.textStepwatch.text = "Fine!"
-                binding.progressTimer.progress = 0
-                handler.postDelayed({
-                    binding.textStepwatch.text = "30s"
-                    binding.progressTimer.progress = binding.progressTimer.max
-                    heartbeat.start() // riprende battito
-                }, 2000)
-            }
-        }.start()
+    private fun formatTime(millis: Long): String {
+        val totalSeconds = millis / 1000
+        val hours = totalSeconds / 3600
+        val minutes = (totalSeconds % 3600) / 60
+        val seconds = totalSeconds % 60
+        return String.format("%02d:%02d:%02d", hours, minutes, seconds)
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
-        countDownTimer?.cancel()
-        heartbeat.cancel()
-        handler.removeCallbacksAndMessages(null)
-        _binding = null
+        handler.removeCallbacks(updateRunnable)
     }
 }

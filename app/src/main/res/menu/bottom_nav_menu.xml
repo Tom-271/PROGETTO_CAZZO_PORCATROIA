@@ -12,9 +12,9 @@
         android:title="@string/title_workout" />
 
     <item
-        android:id="@+id/navigation_notifications"
-        android:icon="@drawable/stepwatch"
-        android:title="@string/title_stepwatch" />
+        android:id="@+id/navigation_tools"
+        android:icon="@drawable/ic_tools"
+        android:title="Timer" />
 
     <item
         android:id="@+id/navigation_account"
