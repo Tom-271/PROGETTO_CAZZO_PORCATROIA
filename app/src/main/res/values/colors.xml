@@ -20,6 +20,7 @@
     <color name="blue">#0147B4</color>
     <color name="surfaceLight">#FFFFFF</color>
     <color name="onSurfaceLight">#000000</color>
+    <color name="lightRed">#5CFF0000</color>
     <color name="transparent">#00000000</color>
 
 

@@ -68,6 +68,9 @@ dependencies {
     // FirebaseUI Auth
     implementation("com.firebaseui:firebase-ui-auth:9.0.0")
 
+    // Facebook Shimmer (effetto luccichio)
+    implementation("com.facebook.shimmer:shimmer:0.5.0")
+
     // Kotlin stdlib & reflect
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.9.0")
     implementation("org.jetbrains.kotlin:kotlin-reflect:1.9.0")

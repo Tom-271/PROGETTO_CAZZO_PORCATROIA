@@ -80,7 +80,7 @@ class InsertData : Fragment() {
                 "age"       to age,
                 "weight"    to weight,
                 "height"    to height,
-                "BF"        to bf
+                "bodyFat"   to bf
             )
 
             // **Ora usiamo update() per modificare i campi esistenti**
@@ -142,7 +142,7 @@ class InsertData : Fragment() {
                 doc.getLong("height")?.toInt()?.let {
                     binding.editTextHeight.setText(it.toString())
                 }
-                doc.getDouble("BF")?.let {
+                doc.getDouble("bodyFat")?.let {
                     binding.editTextBF.setText(it.toString())
                 }
 

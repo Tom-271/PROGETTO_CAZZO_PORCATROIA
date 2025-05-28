@@ -1,6 +1,8 @@
 package com.example.progetto_tosa.ui.account
 
+import android.animation.ValueAnimator
 import android.content.Intent
+import android.graphics.Color
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -10,6 +12,8 @@ import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import com.example.progetto_tosa.R
 import com.example.progetto_tosa.databinding.FragmentAccountBinding
+import com.facebook.shimmer.Shimmer
+import com.facebook.shimmer.ShimmerFrameLayout
 import com.firebase.ui.auth.AuthUI
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
@@ -23,9 +27,12 @@ class AccountFragment : Fragment() {
     private val auth by lazy { FirebaseAuth.getInstance() }
     private val db   by lazy { FirebaseFirestore.getInstance() }
 
+    // Shimmer e layout
+    private lateinit var shimmer: Shimmer
+    private lateinit var shimmerLayout: ShimmerFrameLayout
+
     override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
+        inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentAccountBinding.inflate(inflater, container, false)
@@ -35,36 +42,38 @@ class AccountFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // --- Pulsante Login ---
+        // Riferimento al ShimmerFrameLayout
+        shimmerLayout = binding.shimmerLogin
+
+        // 1) Costruzione del shimmer
+        shimmer = Shimmer.AlphaHighlightBuilder()
+            .setDuration(5000L)               // ciclo di 5s come nel CSS
+            .setBaseAlpha(1f)                 // opacità di base del pulsante
+            .setHighlightAlpha(0.6f)          // opacità dell'area di luce
+            .setDirection(Shimmer.Direction.LEFT_TO_RIGHT)
+            .setRepeatCount(ValueAnimator.INFINITE)
+            .build()
+
+        // 2) Assegna il shimmer al layout
+        shimmerLayout.setShimmer(shimmer)
+
+        // Pulsanti e navigazioni
         binding.ButtonLogin.setOnClickListener {
             startActivity(Intent(requireContext(), LoginActivity::class.java))
         }
-
-        // --- Pulsante Logout ---
         binding.signOut.setOnClickListener {
-            AuthUI.getInstance()
-                .signOut(requireContext())
-                .addOnCompleteListener {
-                    updateUI()
-                }
+            AuthUI.getInstance().signOut(requireContext())
+                .addOnCompleteListener { updateUI() }
         }
-
-        // --- Navigazione UserData ---
         binding.UserData.setOnClickListener {
             findNavController().navigate(R.id.action_account_to_UserData)
         }
 
-        // --- Navigazione Settings ---
-        binding.Settings.setOnClickListener {
-            findNavController().navigate(R.id.action_account_to_Settings)
-        }
-
+        // Dark mode per il testo
         settingsViewModel.isDarkMode.observe(viewLifecycleOwner) { isDark ->
-            val textColor = if (isDark)
-                resources.getColor(android.R.color.white, null)
-            else
-                resources.getColor(android.R.color.black, null)
-            binding.NomeUtente.setTextColor(textColor)
+            binding.NomeUtente.setTextColor(
+                if (isDark) Color.WHITE else Color.BLACK
+            )
         }
     }
 
@@ -76,33 +85,40 @@ class AccountFragment : Fragment() {
     private fun updateUI() {
         val user = auth.currentUser
         if (user != null) {
-            // Leggi il documento Firestore
+            // Utente loggato:
+            shimmerLayout.stopShimmer()
+            shimmerLayout.visibility = View.GONE
+            binding.signOut.visibility = View.VISIBLE
+
+            // Carica dati Firestore
             db.collection("users").document(user.uid)
                 .get()
                 .addOnSuccessListener { doc ->
-                    // Recupera i singoli campi
                     val fn = doc.getString("firstName") ?: ""
-                    val ln = doc.getString("lastName") ?: ""
+                    val ln = doc.getString("lastName")  ?: ""
                     val email = doc.getString("email") ?: user.email
-                    val birthday = doc.getTimestamp("birthday")?.toDate()
-                    val age = doc.getLong("age")?.toInt()
-                    val weight = doc.getDouble("weight")
-                    val height = doc.getLong("height")?.toInt()
-
-                    // Popola le TextView
-                    binding.NomeUtente.text = if (fn.isNotBlank()) "$fn $ln" else email
-                    binding.tvFirstLast.visibility = View.GONE
-
+                    binding.NomeUtente.text =
+                        if (fn.isNotBlank()) "$fn $ln" else email
                 }
-            binding.signOut.visibility      = View.VISIBLE
-            binding.ButtonLogin.visibility  = View.GONE
-        } else {
-            // utente non loggato
-            binding.NomeUtente.text         = "Ospite"
-            binding.signOut.visibility      = View.GONE
-            binding.ButtonLogin.visibility  = View.VISIBLE
 
-            // nascondi i campi extra
+            // Nascondi campi extra
+            listOf(
+                binding.tvFirstLast,
+                binding.tvEmail,
+                binding.tvBirthday,
+                binding.tvAge,
+                binding.tvWeight,
+                binding.tvHeight
+            ).forEach { it.visibility = View.GONE }
+
+        } else {
+            // Ospite:
+            binding.NomeUtente.text        = "Ospite"
+            binding.signOut.visibility     = View.GONE
+            shimmerLayout.visibility       = View.VISIBLE
+            shimmerLayout.startShimmer()
+
+            // Nascondi campi extra
             listOf(
                 binding.tvFirstLast,
                 binding.tvEmail,
@@ -114,9 +130,12 @@ class AccountFragment : Fragment() {
         }
     }
 
-
     override fun onDestroyView() {
         super.onDestroyView()
+        // Ferma shimmer per sicurezza
+        if (::shimmerLayout.isInitialized) {
+            shimmerLayout.stopShimmer()
+        }
         _binding = null
     }
 }

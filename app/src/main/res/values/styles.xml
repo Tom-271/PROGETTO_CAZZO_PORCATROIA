@@ -68,5 +68,62 @@
     </style>
 
 
+    <style name="Widget.App.UltraButton" parent="Widget.MaterialComponents.Button">
+        <!-- Forma e bordi -->
+        <item name="cornerRadius">12dp</item>
+        <item name="strokeWidth">2dp</item>
+        <item name="strokeColor">@color/dark_gray</item>
+
+        <!-- Colori di fondo e ripple -->
+        <item name="backgroundTint">@color/sky</item>
+        <item name="rippleColor">@color/white</item>
+
+        <!-- Elevazione/ombra -->
+        <item name="android:elevation">8dp</item>
+
+        <!-- Testo -->
+        <item name="android:textAllCaps">true</item>
+        <item name="android:letterSpacing">0.1</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:textColor">@color/white</item>
+
+        <!-- Icona (opzionale) -->
+        <item name="iconPadding">12dp</item>
+        <item name="iconGravity">textStart</item>
+    </style>
+
+
+    <style name="ShapeAppearance.App.Button" parent="ShapeAppearance.MaterialComponents.SmallComponent">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSizeTopLeft">30dp</item>
+        <item name="cornerSizeTopRight">6dp</item>
+        <item name="cornerSizeBottomRight">30dp</item>
+        <item name="cornerSizeBottomLeft">6dp</item>
+    </style>
+
+    <!-- Stile per il pulsante LOGIN -->
+    <style name="Widget.App.LoginButton" parent="Widget.MaterialComponents.Button">
+        <!-- forma arrotondata -->
+        <item name="shapeAppearanceOverlay">@style/ShapeAppearance.App.Button</item>
+
+        <!-- colori -->
+        <item name="backgroundTint">@color/sky</item>
+        <item name="android:textColor">@color/black</item>
+
+        <!-- altezza fissa -->
+        <item name="android:layout_height">70dp</item>
+
+        <!-- rimuove l’animazione di elevation di default -->
+        <item name="android:stateListAnimator">@null</item>
+        <item name="strokeColor">@color/white</item>"
+        <item name="strokeWidth">1dp</item>
+        <!-- padding -->
+        <item name="android:padding">12dp</item>
+
+        <!-- testo più piccolo, italic -->
+        <item name="android:textSize">20sp</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
 
 </resources>
