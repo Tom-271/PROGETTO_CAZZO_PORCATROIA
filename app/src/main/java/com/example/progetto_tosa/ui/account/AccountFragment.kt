@@ -1,14 +1,18 @@
 package com.example.progetto_tosa.ui.account
 
 import android.animation.ValueAnimator
+import android.content.Context
 import android.content.Intent
+import android.content.res.ColorStateList
 import android.graphics.Color
+
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.app.AppCompatDelegate
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import com.example.progetto_tosa.R
 import com.example.progetto_tosa.databinding.FragmentAccountBinding
@@ -16,18 +20,17 @@ import com.facebook.shimmer.Shimmer
 import com.facebook.shimmer.ShimmerFrameLayout
 import com.firebase.ui.auth.AuthUI
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
 
 class AccountFragment : Fragment() {
 
     private var _binding: FragmentAccountBinding? = null
     private val binding get() = _binding!!
-    private val settingsViewModel: SettingsViewModel by activityViewModels()
 
     private val auth by lazy { FirebaseAuth.getInstance() }
     private val db   by lazy { FirebaseFirestore.getInstance() }
 
-    // Shimmer e layout
     private lateinit var shimmer: Shimmer
     private lateinit var shimmerLayout: ShimmerFrameLayout
 
@@ -42,22 +45,45 @@ class AccountFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Riferimento al ShimmerFrameLayout
-        shimmerLayout = binding.shimmerLogin
+        // ─── THEME SWITCH VIA SharedPreferences ────────────────────────────────
 
-        // 1) Costruzione del shimmer
+        val prefs = requireActivity()
+            .getSharedPreferences("settings", Context.MODE_PRIVATE)
+        val isDarkMode = prefs.getBoolean("darkMode", true)
+
+        AppCompatDelegate.setDefaultNightMode(
+            if (isDarkMode) AppCompatDelegate.MODE_NIGHT_YES
+            else AppCompatDelegate.MODE_NIGHT_NO
+        )
+
+        binding.switch1.isChecked = isDarkMode
+        binding.switch1.text = if (isDarkMode)
+            "Disable dark mode" else "Enable dark mode"
+
+        binding.switch1.setOnCheckedChangeListener { _, isChecked ->
+            prefs.edit().putBoolean("darkMode", isChecked).apply()
+            AppCompatDelegate.setDefaultNightMode(
+                if (isChecked) AppCompatDelegate.MODE_NIGHT_YES
+                else AppCompatDelegate.MODE_NIGHT_NO
+            )
+            binding.switch1.text = if (isChecked)
+                "Disable dark mode" else "Enable dark mode"
+        }
+
+        // ─── SHIMMER SETUP ──────────────────────────────────────────────────────
+
+        shimmerLayout = binding.shimmerLogin
         shimmer = Shimmer.AlphaHighlightBuilder()
-            .setDuration(5000L)               // ciclo di 5s come nel CSS
-            .setBaseAlpha(1f)                 // opacità di base del pulsante
-            .setHighlightAlpha(0.6f)          // opacità dell'area di luce
+            .setDuration(5000L)
+            .setBaseAlpha(1f)
+            .setHighlightAlpha(0.6f)
             .setDirection(Shimmer.Direction.LEFT_TO_RIGHT)
             .setRepeatCount(ValueAnimator.INFINITE)
             .build()
-
-        // 2) Assegna il shimmer al layout
         shimmerLayout.setShimmer(shimmer)
 
-        // Pulsanti e navigazioni
+        // ─── BUTTONS & NAVIGATION ──────────────────────────────────────────────
+
         binding.ButtonLogin.setOnClickListener {
             startActivity(Intent(requireContext(), LoginActivity::class.java))
         }
@@ -69,12 +95,9 @@ class AccountFragment : Fragment() {
             findNavController().navigate(R.id.action_account_to_UserData)
         }
 
-        // Dark mode per il testo
-        settingsViewModel.isDarkMode.observe(viewLifecycleOwner) { isDark ->
-            binding.NomeUtente.setTextColor(
-                if (isDark) Color.WHITE else Color.BLACK
-            )
-        }
+        // ─── INITIAL UI LOAD ───────────────────────────────────────────────────
+
+        updateUI()
     }
 
     override fun onResume() {
@@ -85,57 +108,96 @@ class AccountFragment : Fragment() {
     private fun updateUI() {
         val user = auth.currentUser
         if (user != null) {
-            // Utente loggato:
             shimmerLayout.stopShimmer()
             shimmerLayout.visibility = View.GONE
-            binding.signOut.visibility = View.VISIBLE
+            binding.signOut.visibility     = View.VISIBLE
+            binding.TrainerProgram.visibility = View.VISIBLE
 
-            // Carica dati Firestore
-            db.collection("users").document(user.uid)
+            // carica e colora in bindUserData…
+            val uid = user.uid
+            db.collection("users").document(uid)
                 .get()
                 .addOnSuccessListener { doc ->
-                    val fn = doc.getString("firstName") ?: ""
-                    val ln = doc.getString("lastName")  ?: ""
-                    val email = doc.getString("email") ?: user.email
-                    binding.NomeUtente.text =
-                        if (fn.isNotBlank()) "$fn $ln" else email
+                    if (doc.exists()) bindUserData(doc)
+                    else db.collection("personal_trainers").document(uid)
+                        .get()
+                        .addOnSuccessListener { ptDoc ->
+                            if (ptDoc.exists()) bindUserData(ptDoc)
+                            else binding.NomeUtente.text = "Utente sconosciuto"
+                        }
                 }
 
-            // Nascondi campi extra
-            listOf(
-                binding.tvFirstLast,
-                binding.tvEmail,
-                binding.tvBirthday,
-                binding.tvAge,
-                binding.tvWeight,
-                binding.tvHeight
-            ).forEach { it.visibility = View.GONE }
-
         } else {
-            // Ospite:
-            binding.NomeUtente.text        = "Ospite"
-            binding.signOut.visibility     = View.GONE
-            shimmerLayout.visibility       = View.VISIBLE
+            // Ospite
             shimmerLayout.startShimmer()
+            shimmerLayout.visibility   = View.VISIBLE
 
-            // Nascondi campi extra
+            binding.signOut.visibility     = View.GONE
+            binding.TrainerProgram.visibility = View.GONE   // <-- NASCONDI QUI
+
+            // nascondi i dettagli…
             listOf(
                 binding.tvFirstLast,
                 binding.tvEmail,
                 binding.tvBirthday,
                 binding.tvAge,
                 binding.tvWeight,
-                binding.tvHeight
+                binding.tvHeight,
+                binding.tvPTStatus1,
+                binding.tvPTStatus2
             ).forEach { it.visibility = View.GONE }
+
+            // e ripristina colori di default
+            val defaultStroke = ColorStateList.valueOf(ContextCompat.getColor(requireContext(), R.color.sky))
+            binding.iconaUtente.strokeColor = defaultStroke
         }
+    }
+
+
+    private fun bindUserData(doc: DocumentSnapshot) {
+        val fn    = doc.getString("firstName").orEmpty()
+        val ln    = doc.getString("lastName").orEmpty()
+        val email = doc.getString("email")
+            ?: auth.currentUser?.email.orEmpty()
+
+        binding.NomeUtente.text =
+            if (fn.isNotBlank()) "$fn $ln" else email
+
+        // Nascondo i dettagli extra
+        listOf(
+            binding.tvFirstLast,
+            binding.tvEmail,
+            binding.tvBirthday,
+            binding.tvAge,
+            binding.tvWeight,
+            binding.tvHeight
+        ).forEach { it.visibility = View.GONE }
+
+        // Se è PT: mostro il TextView e metto il bottone verde
+        // fuori dall'if, così sky è visibile in entrambi i rami
+        val green = ContextCompat.getColor(requireContext(), R.color.green)
+        val sky   = ContextCompat.getColor(requireContext(), R.color.sky)
+
+        if (doc.getBoolean("isPersonalTrainer") == true) {
+            binding.tvPTStatus1.visibility = View.VISIBLE
+            binding.tvPTStatus2.visibility = View.VISIBLE
+
+            // tinting per il personal trainer
+            binding.signOut.backgroundTintList = ColorStateList.valueOf(green)
+            binding.signOut.setTextColor(Color.BLACK)
+            binding.iconaUtente.strokeColor  = ColorStateList.valueOf(green)
+        } else {
+            // ripristina sky dove serve
+            binding.iconaUtente.strokeColor       = ColorStateList.valueOf(sky)
+            binding.signOut.backgroundTintList    = ColorStateList.valueOf(sky)
+            binding.signOut.setTextColor(Color.WHITE)  // o quello che preferisci
+        }
+
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
-        // Ferma shimmer per sicurezza
-        if (::shimmerLayout.isInitialized) {
-            shimmerLayout.stopShimmer()
-        }
+        if (::shimmerLayout.isInitialized) shimmerLayout.stopShimmer()
         _binding = null
     }
 }
