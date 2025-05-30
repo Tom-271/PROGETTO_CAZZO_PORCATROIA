@@ -6,8 +6,9 @@ import android.view.View
 import android.widget.EditText
 import android.widget.RadioButton
 import android.widget.RadioGroup
-import android.util.TypedValue
-import android.widget.TextView
+import java.time.LocalDate
+import java.time.Period
+import java.time.format.DateTimeFormatter
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.example.progetto_tosa.R

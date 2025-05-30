@@ -17,12 +17,15 @@
     <color name="deep_blue">#00008B</color>
     <color name="steel">#A2B5CD</color>
     <color name="spring_green">#00FA9A</color>
-    <color name="blue">#0147B4</color>
+    <color name="blue">#4682B4</color>
     <color name="surfaceLight">#FFFFFF</color>
     <color name="onSurfaceLight">#000000</color>
     <color name="lightRed">#5CFF0000</color>
     <color name="transparent">#00000000</color>
-
-
+    <color name="light_gray">#BABABA</color>
+    <color name="yellow">#FFFF00</color>"
+    <color name="navy_blue">#2C3E50</color>
+    <color name="coral">#E74C3C</color>
+    <color name="mint">#1ABC9C</color>
 
 </resources>
