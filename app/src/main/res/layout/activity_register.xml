@@ -97,6 +97,7 @@
 
         </com.google.android.material.textfield.TextInputLayout>
 
+
         <!-- Data di nascita -->
         <com.google.android.material.textfield.TextInputLayout
             style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.Dense"

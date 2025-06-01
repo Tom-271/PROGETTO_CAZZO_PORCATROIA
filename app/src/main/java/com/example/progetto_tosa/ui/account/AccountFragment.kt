@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.res.ColorStateList
 import android.graphics.Color
+import androidx.core.content.res.ResourcesCompat
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -107,7 +108,7 @@ class AccountFragment : Fragment() {
     private fun updateUI() {
         val user = auth.currentUser
         if (user != null) {
-            // Utente loggato
+            // Utente loggato (come già fai oggi)
             binding.ButtonLogin.visibility    = View.GONE
             binding.signOut.visibility        = View.VISIBLE
 
@@ -128,12 +129,14 @@ class AccountFragment : Fragment() {
                 }
 
         } else {
-            // Ospite
+            // Utente NON loggato: resettiamo tutto
             binding.ButtonLogin.visibility    = View.VISIBLE
             binding.signOut.visibility        = View.GONE
             binding.TrainerProgram.visibility = View.GONE
+
             binding.ruolo.text = "accedi per ulteriori specifiche"
 
+            // Nascondo i campi personali
             listOf(
                 binding.tvFirstLast,
                 binding.tvEmail,
@@ -143,19 +146,29 @@ class AccountFragment : Fragment() {
                 binding.tvHeight
             ).forEach { it.visibility = View.GONE }
 
-            // bordo arancione default per icona utente
+            // Resetto NomeUtente: lo azzero o imposto un placeholder generico
+            binding.NomeUtente.text = "NOME UTENTE"
+            binding.NomeUtente.setTextColor(
+                ContextCompat.getColorStateList(requireContext(), R.color.sky)
+            )           //fare questo e non un classico setTextColor(Color.RED) comporta la possibilità di selezionare un colore creato manualmente e non
+                        //accedendo dalla lista preimpostata R.colors
+            // Bordo arancione default per icona utente
             binding.iconaUtente.strokeColor = ColorStateList.valueOf(
-                ContextCompat.getColor(requireContext(), R.color.orange)
+                ContextCompat.getColor(requireContext(), R.color.sky)
             )
+
+            // (Opzionale) ripristino l’immagine di default
+            binding.iconaUtente.setImageResource(R.drawable.account_principal)
         }
     }
 
+
     private fun bindUserData(doc: DocumentSnapshot) {
-        val fn    = doc.getString("firstName").orEmpty()
-        val ln    = doc.getString("lastName").orEmpty()
+        val name    = doc.getString("firstName").orEmpty()
+        val surname    = doc.getString("lastName").orEmpty()
         val email = doc.getString("email") ?: auth.currentUser?.email.orEmpty()
         binding.NomeUtente.text =
-            if (fn.isNotBlank()) "$fn $ln" else email
+            if (name.isNotBlank()) "$name $surname" else email
 
         listOf(
             binding.tvFirstLast,
@@ -174,14 +187,22 @@ class AccountFragment : Fragment() {
             binding.signOut.setTextColor(Color.BLACK)
             binding.iconaUtente.strokeColor    = ColorStateList.valueOf(green)
             binding.ruolo.text = "Personal Trainer"
+            binding.iconaUtente.setImageResource(R.drawable.personal)
+            binding.NomeUtente.setTextColor(
+                ContextCompat.getColorStateList(requireContext(), R.color.perNomePersonal)
+            )
         } else {
             binding.TrainerProgram.visibility = View.GONE
+            val orange = ContextCompat.getColor(requireContext(), R.color.orange)
             val sky = ContextCompat.getColor(requireContext(), R.color.sky)
-            binding.signOut.backgroundTintList = ColorStateList.valueOf(sky)
+            binding.signOut.backgroundTintList = ColorStateList.valueOf(orange)
             binding.signOut.setTextColor(Color.WHITE)
-            binding.iconaUtente.strokeColor    = ColorStateList.valueOf(sky)
+            binding.iconaUtente.strokeColor    = ColorStateList.valueOf(orange)
             binding.ruolo.text = "Atleta"
-
+            binding.iconaUtente.setImageResource(R.drawable.atleta)
+            binding.NomeUtente.setTextColor(
+                ContextCompat.getColorStateList(requireContext(), R.color.perNomeAtleta)
+            )
         }
     }
 

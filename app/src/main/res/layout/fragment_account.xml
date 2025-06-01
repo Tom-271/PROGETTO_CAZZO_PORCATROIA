@@ -243,8 +243,6 @@
                         app:iconSize="30dp"
                         app:iconGravity="textStart"
                         android:text="" />
-
-
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
 
@@ -262,37 +260,47 @@
                     android:layout_height="110dp"
                     android:layout_marginEnd="4dp"
                     android:backgroundTint="@color/navy_blue"
+                    app:cornerRadius="0dp"
                     app:strokeWidth="0.5dp"
-                    app:strokeColor="@color/teal_200"
-                    android:text="I miei programmi" />
+                    app:strokeColor="@color/black"
+                    android:text="I miei programmi"
+                    android:textColor="@color/light_gray"/>
 
                 <Button
                     android:id="@+id/UserJourney"
                     android:layout_width="130dp"
                     android:layout_height="110dp"
                     android:layout_marginStart="4dp"
+                    app:cornerRadius="0dp"
                     android:backgroundTint="@color/navy_blue"
                     app:strokeWidth="0.5dp"
-                    app:strokeColor="@color/teal_200"
-                    android:text="Il mio percorso" />
+                    app:strokeColor="@color/black"
+                    android:text="Il mio percorso"
+                    android:textColor="@color/light_gray"/>
             </LinearLayout>
 
             <!-- TrainerProgram -->
-            <Button
+            <com.google.android.material.button.MaterialButton
+                xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:app="http://schemas.android.com/apk/res-auto"
                 android:id="@+id/TrainerProgram"
                 android:layout_width="match_parent"
                 android:layout_height="100dp"
                 android:layout_marginStart="10dp"
                 android:layout_marginEnd="10dp"
                 android:visibility="gone"
-                android:backgroundTint="@color/semi_transparent_red"
-                app:strokeWidth="1dp"
-                app:cornerRadius="10dp"
-                android:translationZ="7dp"
+                style="@style/Widget.MaterialComponents.Button"
+                app:shapeAppearanceOverlay="@style/ShapeAppearance.BottomRounded"
+                android:backgroundTint="@color/beige"
+                app:strokeWidth="0dp"
                 app:strokeColor="@color/dark_gray"
+                android:translationZ="7dp"
+                android:textColor="@color/white"
                 android:text="I TUOI ALLIEVI"
                 android:textStyle="bold"
-                android:textSize="30dp"/>
+                android:textSize="20dp" />
+
+
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
 
@@ -322,7 +330,7 @@
             android:layout_width="300dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:backgroundTint="@color/orange"
+            android:backgroundTint="@color/sky"
             android:text="LOGIN"
             app:shapeAppearanceOverlay="@style/ShapeAppearance.Rounded" />
     </LinearLayout>

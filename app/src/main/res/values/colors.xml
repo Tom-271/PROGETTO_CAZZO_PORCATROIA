@@ -27,5 +27,8 @@
     <color name="navy_blue">#2C3E50</color>
     <color name="coral">#E74C3C</color>
     <color name="mint">#1ABC9C</color>
+    <color name="beige">#877150</color>
+    <color name="perNomeAtleta">#F8BE81</color>
+    <color name="perNomePersonal">#CCDFF2</color>
 
 </resources>
