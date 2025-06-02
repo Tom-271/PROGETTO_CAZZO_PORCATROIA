@@ -8,169 +8,173 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginTop="60dp"
+        android:layout_gravity="center_vertical"
         android:paddingBottom="16dp">
 
-        <!-- BTN 4 in alto -->
+        <!-- BTN4 (Stretching) in alto a sinistra -->
         <FrameLayout
-            android:id="@+id/stretchingContainer"
-            android:layout_width="0dp"
-            android:layout_height="140dp"
+            android:id="@+id/btnItem4"
+            android:layout_width="170dp"
+            android:layout_height="250dp"
             android:layout_marginStart="16dp"
-            android:layout_marginEnd="16dp"
+            android:clickable="true"
+            android:focusable="true"
+            android:elevation="8dp"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent">
-
-            <Button
-                android:id="@+id/btnItem4"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:text="STRETCHING"
-                android:textSize="30dp"
-                android:textColor="@color/sky"
-                android:backgroundTint="@color/dark_gray"
-                android:elevation="8dp"
-                android:outlineAmbientShadowColor="@color/sky"
-                android:outlineSpotShadowColor="@color/sky"
-                app:strokeColor="@color/black"
-                android:layout_marginTop="28dp"
-                app:strokeWidth="1dp" />
-
-            <ImageView
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:elevation="100dp"
-                android:src="@drawable/stretchingmanichino"
-                android:layout_gravity="top|center_horizontal"
-                android:layout_marginTop="28dp" />
-        </FrameLayout>
-
-        <!-- BTN1 a sinistra -->
-        <FrameLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="20dp"
-            android:layout_marginTop="16dp"
-            app:layout_constraintTop_toBottomOf="@id/stretchingContainer"
             app:layout_constraintStart_toStartOf="parent">
 
-            <Button
-                android:id="@+id/btnItem1"
-                android:layout_width="165dp"
-                android:layout_height="210dp"
-                android:text="PESI"
-                android:textSize="30dp"
-                android:textColor="@color/sky"
-                android:backgroundTint="@color/dark_gray"
-                android:elevation="8dp"
-                android:outlineAmbientShadowColor="@color/sky"
-                android:outlineSpotShadowColor="@color/sky" />
+            <ImageButton
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scaleType="centerCrop"
+                android:background="@drawable/stretching"
+                android:contentDescription="STRETCHING"
+                android:clickable="false"
+                android:focusable="false" />
 
-            <ImageView
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:elevation="100dp"
-                android:src="@drawable/pesimanichino"
-                android:layout_gravity="top|center_horizontal"
-                android:layout_marginTop="48dp" />
+            <!-- Rettangolo semitrasparente nella metà bassa -->
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="100dp"
+                android:layout_gravity="bottom"
+                android:alpha="0.5"
+
+                android:background="@color/navy_blue" />
+
+            <!-- Testo centrato nel rettangolo -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="125dp"
+                android:layout_gravity="bottom"
+                android:gravity="center"
+                android:text="STRETCHING"
+                android:textColor="@android:color/black"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
         </FrameLayout>
 
-        <!-- SWITCH2 sotto BTN1 -->
-        <ImageSwitcher
-            android:id="@+id/imageSwitcher2"
-            android:layout_width="165dp"
-            android:layout_height="130dp"
-            android:layout_marginStart="20dp"
-            android:layout_marginTop="8dp"
-            android:layout_marginVertical="340dp"
-            android:elevation="8dp"
-            android:outlineAmbientShadowColor="@color/sky"
-            android:outlineSpotShadowColor="@color/sky"
-            android:inAnimation="@android:anim/fade_in"
-            android:outAnimation="@android:anim/fade_out"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintStart_toStartOf="parent" />
-
-        <!-- SWITCH1 a destra -->
-        <ImageSwitcher
-            android:id="@+id/imageSwitcher1"
-            android:layout_width="165dp"
-            android:layout_height="130dp"
-            android:layout_marginEnd="20dp"
-            android:layout_marginTop="16dp"
-            android:elevation="8dp"
-            android:outlineAmbientShadowColor="@color/sky"
-            android:outlineSpotShadowColor="@color/sky"
-            android:inAnimation="@android:anim/fade_in"
-            android:outAnimation="@android:anim/fade_out"
-            app:layout_constraintTop_toBottomOf="@id/stretchingContainer"
-            app:layout_constraintEnd_toEndOf="parent" />
-
-        <!-- BTN2 sotto SWITCH1 -->
+        <!-- BTN3 (Cardio) in alto a destra -->
         <FrameLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="20dp"
-            android:layout_marginTop="8dp"
-            android:layout_marginVertical="270dp"
+            android:id="@+id/btnItem3"
+            android:layout_width="170dp"
+            android:layout_height="250dp"
+            android:layout_marginEnd="16dp"
+            android:clickable="true"
+            android:focusable="true"
+            android:elevation="8dp"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintEnd_toEndOf="parent">
 
-            <Button
-                android:id="@+id/btnItem2"
-                android:layout_width="165dp"
-                android:layout_height="210dp"
-                android:text="CORPO LIBERO"
-                android:textSize="30dp"
-                android:textColor="@color/sky"
-                android:backgroundTint="@color/dark_gray"
-                android:elevation="8dp"
-                android:translationZ="8dp"
-                android:outlineAmbientShadowColor="@color/sky"
-                android:outlineSpotShadowColor="@color/sky" />
+            <ImageButton
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scaleType="centerCrop"
+                android:background="@drawable/cardio"
+                android:contentDescription="CARDIO"
+                android:clickable="false"
+                android:focusable="false" />
 
-            <ImageView
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:elevation="100dp"
-                android:src="@drawable/crunchmanichino"
-                android:layout_gravity="top|center_horizontal"
-                android:layout_marginTop="38dp" />
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="100dp"
+                android:layout_gravity="bottom"
+                android:alpha="0.5"
+                android:background="@color/yellow"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="125dp"
+                android:layout_gravity="bottom"
+                android:gravity="center"
+                android:text="CARDIO"
+                android:textColor="@android:color/black"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
         </FrameLayout>
 
-        <!-- BTN3 in basso -->
+        <!-- BTN1 (Pesi) in basso a sinistra -->
         <FrameLayout
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:id="@+id/btnItem1"
+            android:layout_width="170dp"
+            android:layout_height="250dp"
             android:layout_marginStart="16dp"
+            android:layout_marginTop="16dp"
+            android:clickable="true"
+            android:focusable="true"
+            android:elevation="8dp"
+            app:layout_constraintTop_toBottomOf="@id/btnItem4"
+            app:layout_constraintStart_toStartOf="parent">
+
+            <ImageButton
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scaleType="centerCrop"
+                android:background="@drawable/manubrio"
+                android:contentDescription="PESI"
+                android:clickable="false"
+                android:focusable="false" />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="100dp"
+                android:layout_gravity="bottom"
+                android:alpha="0.5"
+                android:background="@color/lightRed" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="100dp"
+                android:layout_gravity="bottom"
+                android:gravity="center"
+                android:text="PESI"
+                android:textColor="@android:color/black"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
+        </FrameLayout>
+
+        <!-- BTN2 (Corpo Libero) in basso a destra -->
+        <FrameLayout
+            android:id="@+id/btnItem2"
+            android:layout_width="170dp"
+            android:layout_height="250dp"
             android:layout_marginEnd="16dp"
             android:layout_marginTop="16dp"
-            app:layout_constraintTop_toBottomOf="@id/imageSwitcher2"
-            app:layout_constraintStart_toStartOf="parent"
+            android:clickable="true"
+            android:focusable="true"
+            android:elevation="8dp"
+            app:layout_constraintTop_toBottomOf="@id/btnItem3"
             app:layout_constraintEnd_toEndOf="parent">
 
-            <Button
-                android:id="@+id/btnItem3"
+            <ImageButton
                 android:layout_width="match_parent"
-                android:layout_height="140dp"
-                android:text="CARDIO"
-                android:textSize="30dp"
-                android:textColor="@color/sky"
-                android:backgroundTint="@color/dark_gray"
-                android:elevation="8dp"
-                android:translationZ="12dp"
-                android:outlineAmbientShadowColor="@color/sky"
-                android:outlineSpotShadowColor="@color/sky"
-                app:strokeColor="@color/black"
-                app:strokeWidth="1dp" />
+                android:layout_height="match_parent"
+                android:scaleType="centerCrop"
+                android:background="@drawable/pallamedica"
+                android:contentDescription="CORPO LIBERO"
+                android:clickable="false"
+                android:focusable="false" />
 
-            <ImageView
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:elevation="100dp"
-                android:src="@drawable/corsamanichino"
-                android:layout_gravity="top|center_horizontal"
-                android:layout_marginTop="8dp" />
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="100dp"
+                android:layout_gravity="bottom"
+                android:alpha="0.5"
+                android:background="@color/green" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="125dp"
+                android:layout_gravity="bottom"
+                android:gravity="center"
+                android:text="CORPO LIBERO"
+                android:textColor="@android:color/black"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
         </FrameLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>

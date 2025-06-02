@@ -47,32 +47,6 @@ class WorkoutFragment : Fragment() {
             findNavController().navigate(R.id.action_workout_to_stretching)
         }
 
-        binding.imageSwitcher1.setFactory {
-            ImageView(requireContext()).apply {
-                scaleType = ImageView.ScaleType.CENTER_CROP
-                layoutParams = FrameLayout.LayoutParams(
-                    FrameLayout.LayoutParams.MATCH_PARENT,
-                    FrameLayout.LayoutParams.MATCH_PARENT
-                ).apply {
-                    setMargins(0, 0, 0, 0) // ✅ questa è supportata da FrameLayout.LayoutParams
-                }
-            }
-        }
-
-        binding.imageSwitcher2.setFactory {
-            ImageView(requireContext()).apply {
-                scaleType = ImageView.ScaleType.CENTER_CROP
-                layoutParams = FrameLayout.LayoutParams(
-                    FrameLayout.LayoutParams.MATCH_PARENT,
-                    FrameLayout.LayoutParams.MATCH_PARENT
-                ).apply {
-                    setMargins(0, 0, 0, 0)
-                }
-            }
-        }
-
-
-
         // Immagini animate
         val imagesCorpoLibero = arrayOf(
             R.drawable.stretch,
@@ -87,28 +61,7 @@ class WorkoutFragment : Fragment() {
             R.drawable.bicips
         )
 
-
         var currentIndex = 0
-
-        // Switch automatico immagini
-        viewLifecycleOwner.lifecycleScope.launch {
-            while (true) {
-                binding.imageSwitcher1.setImageResource(imagesCorpoLibero[currentIndex])
-                currentIndex = (currentIndex + 1) % imagesCorpoLibero.size
-                delay(3500)
-
-            }
-        }
-
-        // Switch automatico immagini
-        viewLifecycleOwner.lifecycleScope.launch {
-            while (true) {
-                binding.imageSwitcher2.setImageResource(imagesPesi[currentIndex])
-                currentIndex = (currentIndex + 1) % imagesCorpoLibero.size
-                delay(3500)
-            }
-        }
-
         return root
     }
 
