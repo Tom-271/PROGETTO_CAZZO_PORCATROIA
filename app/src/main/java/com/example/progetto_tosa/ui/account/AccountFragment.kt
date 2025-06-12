@@ -4,7 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.res.ColorStateList
 import android.graphics.Color
-import androidx.core.content.res.ResourcesCompat
+import android.widget.Toast
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -77,8 +77,14 @@ class AccountFragment : Fragment() {
             startActivity(Intent(requireContext(), LoginActivity::class.java))
         }
         binding.signOut.setOnClickListener {
+            Toast
+                .makeText(requireContext(),
+                    "Ci vediamo al prossimo allenamento!",
+                    Toast.LENGTH_SHORT)
+                .show()
             AuthUI.getInstance().signOut(requireContext())
                 .addOnCompleteListener { updateUI() }
+
         }
         binding.userData.setOnClickListener {
             findNavController().navigate(R.id.action_account_to_UserData)
@@ -127,7 +133,6 @@ class AccountFragment : Fragment() {
                 .addOnFailureListener {
                     binding.TrainerProgram.visibility = View.GONE
                 }
-
         } else {
             // Utente NON loggato: resettiamo tutto
             binding.ButtonLogin.visibility    = View.VISIBLE

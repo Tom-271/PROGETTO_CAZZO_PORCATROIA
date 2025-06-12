@@ -12,15 +12,31 @@
         android:layout_gravity="center_vertical"
         android:paddingBottom="16dp">
 
+        <TextView
+            android:id="@+id/titoloMain"
+            android:layout_width="wrap_content"
+            android:layout_height="100dp"
+            android:text="SELEZIONA L'ALLENAMENTO!"
+            android:textStyle="bold"
+            android:textColor="@color/sky"
+            android:textSize="20dp"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"/>
+
         <!-- BTN4 (Stretching) in alto a sinistra -->
-        <FrameLayout
+        <com.google.android.material.card.MaterialCardView
             android:id="@+id/btnItem4"
             android:layout_width="170dp"
             android:layout_height="250dp"
             android:layout_marginStart="16dp"
+            android:layout_marginTop="50dp"
             android:clickable="true"
             android:focusable="true"
             android:elevation="8dp"
+            app:strokeWidth="1dp"
+            app:strokeColor="@color/dark_gray"
+            app:cardCornerRadius="20dp"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintStart_toStartOf="parent">
 
@@ -33,37 +49,51 @@
                 android:clickable="false"
                 android:focusable="false" />
 
-            <!-- Rettangolo semitrasparente nella metà bassa -->
-            <View
+            <!-- Rettangolo semitrasparente con separator orizzontale all’interno -->
+            <FrameLayout
                 android:layout_width="match_parent"
                 android:layout_height="100dp"
-                android:layout_gravity="bottom"
-                android:alpha="0.5"
+                android:layout_gravity="center_vertical"
+                android:alpha="0.6"
+                android:background="@color/dark_gray">
 
-                android:background="@color/navy_blue" />
+                <!-- Separator orizzontale all’interno della view opaca -->
+                <View
+                    android:id="@+id/separatorStretching"
+                    android:layout_width="120dp"
+                    android:layout_height="2dp"
+                    android:layout_marginTop="80dp"
+                    android:layout_gravity="top|center_horizontal"
+                    android:background="@color/light_gray" />
+            </FrameLayout>
 
             <!-- Testo centrato nel rettangolo -->
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="125dp"
-                android:layout_gravity="bottom"
                 android:gravity="center"
                 android:text="STRETCHING"
-                android:textColor="@android:color/black"
+                android:layout_gravity="center_vertical"
+                android:textColor="@android:color/white"
+                android:letterSpacing="0.1"
                 android:textSize="18sp"
                 android:textStyle="bold" />
 
-        </FrameLayout>
+        </com.google.android.material.card.MaterialCardView>
 
         <!-- BTN3 (Cardio) in alto a destra -->
-        <FrameLayout
+        <com.google.android.material.card.MaterialCardView
             android:id="@+id/btnItem3"
             android:layout_width="170dp"
             android:layout_height="250dp"
             android:layout_marginEnd="16dp"
+            android:layout_marginTop="50dp"
             android:clickable="true"
             android:focusable="true"
             android:elevation="8dp"
+            app:strokeWidth="1dp"
+            app:strokeColor="@color/dark_gray"
+            app:cardCornerRadius="20dp"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintEnd_toEndOf="parent">
 
@@ -76,35 +106,50 @@
                 android:clickable="false"
                 android:focusable="false" />
 
-            <View
+            <!-- Rettangolo semitrasparente con separator orizzontale all’interno -->
+            <FrameLayout
                 android:layout_width="match_parent"
                 android:layout_height="100dp"
-                android:layout_gravity="bottom"
-                android:alpha="0.5"
-                android:background="@color/yellow"/>
+                android:layout_gravity="center_vertical"
+                android:alpha="0.6"
+                android:background="@color/dark_gray">
+
+                <!-- Separator orizzontale all’interno della view opaca -->
+                <View
+                    android:id="@+id/separatorCardio"
+                    android:layout_width="120dp"
+                    android:layout_height="2dp"
+                    android:layout_marginTop="80dp"
+                    android:layout_gravity="top|center_horizontal"
+                    android:background="@color/light_gray" />
+            </FrameLayout>
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="125dp"
-                android:layout_gravity="bottom"
+                android:layout_gravity="center_vertical"
                 android:gravity="center"
                 android:text="CARDIO"
-                android:textColor="@android:color/black"
+                android:letterSpacing="0.1"
+                android:textColor="@android:color/white"
                 android:textSize="18sp"
                 android:textStyle="bold" />
 
-        </FrameLayout>
+        </com.google.android.material.card.MaterialCardView>
 
         <!-- BTN1 (Pesi) in basso a sinistra -->
-        <FrameLayout
+        <com.google.android.material.card.MaterialCardView
             android:id="@+id/btnItem1"
             android:layout_width="170dp"
             android:layout_height="250dp"
-            android:layout_marginStart="16dp"
             android:layout_marginTop="16dp"
+            android:layout_marginStart="16dp"
             android:clickable="true"
             android:focusable="true"
             android:elevation="8dp"
+            app:cardCornerRadius="20dp"
+            app:strokeWidth="1dp"
+            app:strokeColor="@color/dark_gray"
             app:layout_constraintTop_toBottomOf="@id/btnItem4"
             app:layout_constraintStart_toStartOf="parent">
 
@@ -117,27 +162,39 @@
                 android:clickable="false"
                 android:focusable="false" />
 
-            <View
+            <!-- Rettangolo semitrasparente con separator orizzontale all’interno -->
+            <FrameLayout
                 android:layout_width="match_parent"
                 android:layout_height="100dp"
-                android:layout_gravity="bottom"
-                android:alpha="0.5"
-                android:background="@color/lightRed" />
+                android:layout_gravity="center_vertical"
+                android:alpha="0.6"
+                android:background="@color/dark_gray">
+
+                <!-- Separator orizzontale all’interno della view opaca -->
+                <View
+                    android:id="@+id/separatorPesi"
+                    android:layout_width="120dp"
+                    android:layout_height="2dp"
+                    android:layout_marginTop="80dp"
+                    android:layout_gravity="top|center_horizontal"
+                    android:background="@color/light_gray" />
+            </FrameLayout>
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="100dp"
-                android:layout_gravity="bottom"
+                android:layout_gravity="center_vertical"
                 android:gravity="center"
                 android:text="PESI"
-                android:textColor="@android:color/black"
+                android:letterSpacing="0.1"
+                android:textColor="@android:color/white"
                 android:textSize="18sp"
                 android:textStyle="bold" />
 
-        </FrameLayout>
+        </com.google.android.material.card.MaterialCardView>
 
         <!-- BTN2 (Corpo Libero) in basso a destra -->
-        <FrameLayout
+        <com.google.android.material.card.MaterialCardView
             android:id="@+id/btnItem2"
             android:layout_width="170dp"
             android:layout_height="250dp"
@@ -146,6 +203,9 @@
             android:clickable="true"
             android:focusable="true"
             android:elevation="8dp"
+            app:strokeWidth="1dp"
+            app:strokeColor="@color/dark_gray"
+            app:cardCornerRadius="20dp"
             app:layout_constraintTop_toBottomOf="@id/btnItem3"
             app:layout_constraintEnd_toEndOf="parent">
 
@@ -158,24 +218,70 @@
                 android:clickable="false"
                 android:focusable="false" />
 
-            <View
+            <!-- Rettangolo semitrasparente con separator orizzontale all’interno -->
+            <FrameLayout
                 android:layout_width="match_parent"
                 android:layout_height="100dp"
-                android:layout_gravity="bottom"
-                android:alpha="0.5"
-                android:background="@color/green" />
+                android:layout_gravity="center_vertical"
+                android:alpha="0.6"
+                android:background="@color/dark_gray">
+
+                <!-- Separator orizzontale all’interno della view opaca -->
+                <View
+                    android:id="@+id/separatorCorpo"
+                    android:layout_width="120dp"
+                    android:layout_height="2dp"
+                    android:layout_marginTop="80dp"
+                    android:layout_gravity="top|center_horizontal"
+                    android:background="@color/light_gray" />
+            </FrameLayout>
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="125dp"
-                android:layout_gravity="bottom"
+                android:layout_gravity="center_vertical"
                 android:gravity="center"
                 android:text="CORPO LIBERO"
-                android:textColor="@android:color/black"
+                android:letterSpacing="0.1"
+                android:textColor="@android:color/white"
                 android:textSize="18sp"
                 android:textStyle="bold" />
+        </com.google.android.material.card.MaterialCardView>
 
-        </FrameLayout>
+        <TextView
+            android:id="@+id/suggerimenti"
+            android:layout_width="match_parent"
+            android:layout_height="125dp"
+            android:gravity="center_horizontal"
+            android:padding = "10dp"
+            android:text="Suggerimenti: "
+            android:letterSpacing="0.1"
+            android:layout_marginTop="30dp"
+            android:textColor="@color/white"
+            android:alpha="0.7"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            app:layout_constraintTop_toBottomOf="@id/btnItem1"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"/>
+
+        <ViewFlipper
+            android:id="@+id/vfTips"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor = "@color/dark_gray"
+            android:textSize ="12dp"
+            android:alpha="0.7"
+            android:layout_marginTop="60dp"
+            android:gravity="center_horizontal"
+            android:padding = "2dp"
+            app:layout_constraintTop_toBottomOf="@id/btnItem1"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:flipInterval="4000"
+            android:autoStart="true"
+            android:inAnimation="@android:anim/slide_in_left"
+            android:outAnimation="@android:anim/slide_out_right" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </ScrollView>

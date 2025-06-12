@@ -1,14 +1,12 @@
 package com.example.progetto_tosa.ui.account
 
 import android.app.DatePickerDialog
+import android.content.Context
 import android.os.Bundle
 import android.view.View
 import android.widget.EditText
 import android.widget.RadioButton
 import android.widget.RadioGroup
-import java.time.LocalDate
-import java.time.Period
-import java.time.format.DateTimeFormatter
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.example.progetto_tosa.R
@@ -35,7 +33,7 @@ class RegisterActivity : AppCompatActivity() {
     private lateinit var btnNo: RadioButton
 
     private val auth by lazy { FirebaseAuth.getInstance() }
-    private val db by lazy { FirebaseFirestore.getInstance() }
+    private val db   by lazy { FirebaseFirestore.getInstance() }
 
     private val calendar = Calendar.getInstance()
     private val dateFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
@@ -44,105 +42,119 @@ class RegisterActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_register)
 
-        // find views
-        etFirstName = findViewById(R.id.etFirstName)
-        etLastName = findViewById(R.id.etLastName)
-        etEmail = findViewById(R.id.etEmailReg)
-        etPassword = findViewById(R.id.etPasswordReg)
-        etBirthDate = findViewById(R.id.etBirthDate)
-        etWeight = findViewById(R.id.etWeight)
-        etHeight = findViewById(R.id.etHeight)
-        etBodyFat = findViewById(R.id.etBodyFat)
+        etFirstName      = findViewById(R.id.etFirstName)
+        etLastName       = findViewById(R.id.etLastName)
+        etEmail          = findViewById(R.id.etEmailReg)
+        etPassword       = findViewById(R.id.etPasswordReg)
+        etBirthDate      = findViewById(R.id.etBirthDate)
+        etWeight         = findViewById(R.id.etWeight)
+        etHeight         = findViewById(R.id.etHeight)
+        etBodyFat        = findViewById(R.id.etBodyFat)
         etCodiceVerifica = findViewById(R.id.etCodiceVerifica)
-        rgChoices = findViewById(R.id.rgChoices)
-        btnSi = findViewById(R.id.rbSI)
-        btnNo = findViewById(R.id.rbNO)
-        btnSubmit = findViewById(R.id.btnRegisterSubmit)
+        rgChoices        = findViewById(R.id.rgChoices)
+        btnSi            = findViewById(R.id.rbSI)
+        btnNo            = findViewById(R.id.rbNO)
+        btnSubmit        = findViewById(R.id.btnRegisterSubmit)
 
-        // date picker
         etBirthDate.apply {
             isFocusable = false
             isClickable = true
             setOnClickListener { showDatePicker() }
         }
 
-        // hide codice verifica field initially
         etCodiceVerifica.visibility = View.GONE
-
-        // toggle visibility based on radio selection
         rgChoices.setOnCheckedChangeListener { _, checkedId ->
-            etCodiceVerifica.visibility = if (checkedId == R.id.rbSI) View.VISIBLE else View.GONE
+            etCodiceVerifica.visibility =
+                if (checkedId == R.id.rbSI) View.VISIBLE else View.GONE
         }
 
         btnSubmit.setOnClickListener {
-            val fn = etFirstName.text.toString().trim()
-            val ln = etLastName.text.toString().trim()
-            val em = etEmail.text.toString().trim()
-            val pw = etPassword.text.toString()
-            val bd = etBirthDate.text.toString().trim()
-            val wt = etWeight.text.toString().trim()
-            val ht = etHeight.text.toString().trim()
-            val bf = etBodyFat.text.toString().trim()
+            val fn       = etFirstName.text.toString().trim()
+            val ln       = etLastName.text.toString().trim()
+            val em       = etEmail.text.toString().trim()
+            val pw       = etPassword.text.toString()
+            val bd       = etBirthDate.text.toString().trim()
+            val wt       = etWeight.text.toString().trim()
+            val ht       = etHeight.text.toString().trim()
+            val bf       = etBodyFat.text.toString().trim()
             val verifica = etCodiceVerifica.text.toString().trim()
-            val isPT = btnSi.isChecked
+            val isPT     = btnSi.isChecked
             val codiceUff = "00000"
 
+            // 1) Salvo sincrono
+            getSharedPreferences("myAppPrefs", Context.MODE_PRIVATE)
+                .edit()
+                .putBoolean("IS_PT", isPT)
+                .commit()
 
-            // basic validation
+            // validazione base
             if (fn.isEmpty() || ln.isEmpty() || em.isEmpty() ||
                 pw.length < 6 || bd.isEmpty() ||
                 wt.isEmpty() || ht.isEmpty() || bf.isEmpty()
             ) {
-                Toast.makeText(this, "Compila tutti i campi e password minimo 6 caratteri", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this,
+                    "Compila tutti i campi e password minimo 6 caratteri",
+                    Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 
-            // verify codice if PT
+            // verifica codice PT
             if (isPT) {
                 if (verifica.isEmpty()) {
-                    Toast.makeText(this, "Inserisci codice di verifica", Toast.LENGTH_LONG).show()
+                    Toast.makeText(this,
+                        "Inserisci codice di verifica",
+                        Toast.LENGTH_LONG).show()
                     return@setOnClickListener
                 }
                 if (verifica != codiceUff) {
-                    Toast.makeText(this, "Codicenon valido, se non lo ricordi/possiedi contatta l'Amministratore", Toast.LENGTH_LONG).show()
+                    Toast.makeText(this,
+                        "Codice non valido, contatta l'amministratore",
+                        Toast.LENGTH_LONG).show()
                     return@setOnClickListener
                 }
             }
 
-            // create user
+            // 2) Creazione utente
             auth.createUserWithEmailAndPassword(em, pw)
                 .addOnSuccessListener { res ->
                     val uid = res.user?.uid ?: return@addOnSuccessListener
                     val collectionName = if (isPT) "personal_trainers" else "users"
-
-                    // prepare data
                     val parts = bd.split("/")
-                    calendar.set(parts[2].toInt(), parts[1].toInt() - 1, parts[0].toInt())
+                    calendar.set(parts[2].toInt(),
+                        parts[1].toInt() - 1,
+                        parts[0].toInt())
                     val age = calculateAge(calendar)
                     val data = hashMapOf(
-                        "firstName" to fn,
-                        "lastName" to ln,
-                        "email" to em,
-                        "birthday" to calendar.time,
-                        "age" to age,
-                        "weight" to wt.toDouble(),
-                        "height" to ht.toInt(),
-                        "bodyFat" to bf.toDouble(),
+                        "firstName"         to fn,
+                        "lastName"          to ln,
+                        "email"             to em,
+                        "birthday"          to calendar.time,
+                        "age"               to age,
+                        "weight"            to wt.toDouble(),
+                        "height"            to ht.toInt(),
+                        "bodyFat"           to bf.toDouble(),
                         "isPersonalTrainer" to isPT
                     )
 
-                    db.collection(collectionName).document(uid)
+                    db.collection(collectionName)
+                        .document(uid)
                         .set(data)
                         .addOnSuccessListener {
-                            Toast.makeText(this, "Registrazione avvenuta con successo!", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(this,
+                                "Registrazione avvenuta con successo!",
+                                Toast.LENGTH_SHORT).show()
                             finish()
                         }
                         .addOnFailureListener { e ->
-                            Toast.makeText(this, "Errore salvataggio: ${e.message}", Toast.LENGTH_LONG).show()
+                            Toast.makeText(this,
+                                "Errore salvataggio: ${e.message}",
+                                Toast.LENGTH_LONG).show()
                         }
                 }
                 .addOnFailureListener { e ->
-                    Toast.makeText(this, "Errore creazione account: ${e.message}", Toast.LENGTH_LONG).show()
+                    Toast.makeText(this,
+                        "Errore creazione account: ${e.message}",
+                        Toast.LENGTH_LONG).show()
                 }
         }
     }
@@ -160,7 +172,8 @@ class RegisterActivity : AppCompatActivity() {
     private fun calculateAge(birthDate: Calendar): Int {
         val today = Calendar.getInstance()
         var age = today.get(Calendar.YEAR) - birthDate.get(Calendar.YEAR)
-        if (today.get(Calendar.DAY_OF_YEAR) < birthDate.get(Calendar.DAY_OF_YEAR)) age--
+        if (today.get(Calendar.DAY_OF_YEAR) < birthDate.get(Calendar.DAY_OF_YEAR))
+            age--
         return age
     }
 }

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="48dp"
+    android:height="48dp"
+    android:viewportWidth="48"
+    android:viewportHeight="48">
+
+    <!-- Cerchio esterno sottile azzurro -->
+    <path
+        android:pathData="M24,2
+                          A22,22 0 1,1 23.999,2"
+        android:strokeColor="#007AFF"
+        android:strokeWidth="2"
+        android:fillColor="@android:color/transparent"/>
+
+    <!-- Segno + interno rosso -->
+    <path
+        android:pathData="M24,14 L24,34
+                          M14,24 L34,24"
+        android:strokeColor="#ffff"
+        android:strokeWidth="4"
+        android:strokeLineCap="round"/>
+</vector>

@@ -5,6 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fillViewport="true"
+    android:layout_marginTop="30dp"
     android:clipToPadding="false"
     android:paddingBottom="80dp">
 
@@ -174,7 +175,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
-                    android:text="D   O   R   S   O"
+                    android:text="D   O   R   S   A   L  E"
                     android:textColor="@android:color/white"
                     android:shadowColor="@color/sky"
                     android:shadowDx="0"

@@ -4,71 +4,152 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:padding="6dp"
-    android:clickable="true"
-    android:focusable="true">
+    android:padding="16dp">
 
-    <!-- La card principale -->
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/cardExercise"
         android:layout_width="0dp"
-        android:layout_height="180dp"
-        android:clickable="true"
-        android:focusable="true"
-        android:foreground="?attr/selectableItemBackground"
-        app:strokeColor="@color/dark_gray"
-        app:strokeWidth="1dp"
-        app:cardElevation="30dp"
-        app:shapeAppearanceOverlay="@style/ShapeAppearance.TopRounded"
-        app:cardBackgroundColor="@color/white"
-        app:layout_constraintTop_toTopOf="parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="12dp"
+        app:cardBackgroundColor="#1C1C1E"
+        app:cardCornerRadius="12dp"
+        app:cardElevation="4dp"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
+        app:layout_constraintTop_toTopOf="parent">
 
         <LinearLayout
-            android:orientation="vertical"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:padding="4dp">
+            android:orientation="vertical"
+            android:padding="12dp">
 
-            <!-- TITOLO sopra l'immagine -->
+            <!-- Titolo -->
             <TextView
                 android:id="@+id/textViewTitleTop"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Titolo"
-                android:textStyle="bold"
                 android:gravity="center"
-                android:textColor="@android:color/black"
-                android:paddingTop="4dp"
-                android:paddingBottom="4dp"/>
+                android:text="Titolo Esercizio"
+                android:textAllCaps="true"
+                android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle1"
+                android:textColor="#FFF"/>
 
-            <ImageView
-                android:id="@+id/imageViewExercise"
+            <!-- Toggle Sets / Reps (equal weight) -->
+            <com.google.android.material.button.MaterialButtonToggleGroup
+                android:id="@+id/toggleGroup"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:adjustViewBounds="true"
-                android:scaleType="centerCrop" />
+                android:layout_marginTop="8dp">
 
-            <ImageView
-                android:id="@+id/imageViewTitleIcon"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal"
-                android:paddingTop="4dp"
-                android:paddingBottom="4dp" />
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/toggleSets"
+                    style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Sets"
+                    android:textColor="@color/white"
+                    app:strokeColor="@color/white"
+                    app:strokeWidth="1dp"/>
 
-            <TextView
-                android:id="@+id/textViewSubtitleExercise"
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/toggleReps"
+                    style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Reps"
+                    android:textColor="@color/white"
+                    app:strokeColor="@color/white"
+                    app:strokeWidth="1dp"/>
+            </com.google.android.material.button.MaterialButtonToggleGroup>
+
+            <!-- Quadrante circolare + counterSets / counterReps -->
+            <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Sottotitolo"
-                android:textStyle="bold"
-                android:gravity="center"
-                android:paddingTop="4dp"
-                android:paddingBottom="4dp" />
+                android:layout_height="140dp">
 
+                <!-- Sfondo circolare -->
+                <View
+                    android:id="@+id/circleBackground"
+                    android:layout_width="100dp"
+                    android:layout_height="100dp"
+                    android:background="@drawable/circle_background"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"/>
+
+                <!-- Counter per SETS -->
+                <TextView
+                    android:id="@+id/counterSets"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="0"
+                    android:textColor="#FFF"
+                    android:textSize="28sp"
+                    app:layout_constraintBottom_toBottomOf="@id/circleBackground"
+                    app:layout_constraintEnd_toEndOf="@id/circleBackground"
+                    app:layout_constraintStart_toStartOf="@id/circleBackground"
+                    app:layout_constraintTop_toTopOf="@id/circleBackground"/>
+
+                <!-- Counter per REPS -->
+                <TextView
+                    android:id="@+id/counterReps"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="0"
+                    android:textColor="#FFF"
+                    android:textSize="28sp"
+                    android:visibility="gone"
+                    app:layout_constraintBottom_toBottomOf="@id/circleBackground"
+                    app:layout_constraintEnd_toEndOf="@id/circleBackground"
+                    app:layout_constraintStart_toStartOf="@id/circleBackground"
+                    app:layout_constraintTop_toTopOf="@id/circleBackground"/>
+
+                <!-- Button – -->
+                <com.google.android.material.floatingactionbutton.FloatingActionButton
+                    android:id="@+id/buttonMinus"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    app:fabCustomSize="32dp"
+                    app:useCompatPadding="false"
+                    app:layout_constraintBottom_toBottomOf="@id/circleBackground"
+                    app:layout_constraintEnd_toStartOf="@id/circleBackground"
+                    app:layout_constraintTop_toTopOf="@id/circleBackground"
+                    android:translationX="25dp"
+                    app:backgroundTint="#3E3E3E"
+                    app:srcCompat="@drawable/ic_minus"
+                    app:tint="#FFF"/>
+
+                <!-- Button + -->
+                <com.google.android.material.floatingactionbutton.FloatingActionButton
+                    android:id="@+id/buttonPlus"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    app:fabCustomSize="32dp"
+                    app:useCompatPadding="false"
+                    app:layout_constraintBottom_toBottomOf="@id/circleBackground"
+                    app:layout_constraintStart_toEndOf="@id/circleBackground"
+                    app:layout_constraintTop_toTopOf="@id/circleBackground"
+                    android:translationX="-25dp"
+                    app:backgroundTint="#2979FF"
+                    app:srcCompat="@drawable/ic_plus"
+                    app:tint="#FFF"/>
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <!-- Pulsante Confirm -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/buttonConfirm"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:text="CONFIRM"
+                android:textAllCaps="true"
+                app:cornerRadius="20dp"
+                android:textSize="14sp"
+                android:textColor="#FFF"
+                app:backgroundTint="#2979FF"/>
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
-
 </androidx.constraintlayout.widget.ConstraintLayout>
