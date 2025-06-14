@@ -58,6 +58,7 @@ dependencies {
     implementation(libs.androidx.lifecycle.viewmodel.ktx)
     implementation(libs.androidx.navigation.fragment.ktx)
     implementation(libs.androidx.navigation.ui.ktx)
+    implementation("androidx.transition:transition:1.4.1")
     implementation(libs.androidx.activity)
 
     // Firebase (Auth + Firestore)

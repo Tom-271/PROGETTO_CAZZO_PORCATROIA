@@ -22,8 +22,9 @@ import com.google.firebase.firestore.FirebaseFirestore
 
 class BodybuildingFragment : Fragment(R.layout.fragment_bodybuilding) {
 
-    // modello dati per un esercizio con due contatori (sets/reps) e modalità corrente
+    /*──────────────── DATA CLASS (aggiunto muscoloPrincipale) ───────────────*/
     data class Exercise(
+        val muscoloPrincipale: String,          // «Petto», «Spalle», «Gambe», …
         val imageRes: Int,
         val descriptionImage: Int,
         val title: String,
@@ -39,128 +40,136 @@ class BodybuildingFragment : Fragment(R.layout.fragment_bodybuilding) {
         var isSetsMode: Boolean = true
     )
 
+    /*──────────────── Firebase ──────────────────────────────────────────────*/
     private val auth = FirebaseAuth.getInstance()
-    private val db   = FirebaseFirestore.getInstance()
-
-    // flag che indica se l'utente autenticato è Personal Trainer
+    private val db = FirebaseFirestore.getInstance()
     private var userIsPT: Boolean = false
 
-    // dati di esempio
+    /*──────────────── LISTE ORIGINALI (stesso formato) ─────────────────────*/
     private val sharedImage = R.drawable.pancadescrizione
+
+    // 1️⃣ PETTO
     private val section1 = listOf(
         Exercise(
-            imageRes           = sharedImage,
-            descriptionImage   = sharedImage,
-            title              = "PANCA PIANA",
-            videoUrl           = "https://www.youtube.com/watch?v=nclAIgM4NJE",
-            description        = "La panca piana è un esercizio fondamentale per lo sviluppo della forza e della massa muscolare del petto. Ideale per migliorare la spinta e la stabilità della parte superiore del corpo.",
-            subtitle2          = "MUSCOLI COINVOLTI",
-            description2       = "- Grande pettorale\n- Deltoide anteriore\n- Tricipite brachiale",
-            detailImage1Res    = sharedImage,
-            detailImage2Res    = sharedImage,
-            descrizioneTotale  = "Per l’ipertrofia del pettorale si consigliano 3–4 serie da 8–12 ripetizioni per esercizio, con pause di 60–90 s e due sedute settimanali."
+            muscoloPrincipale = "Petto",
+            imageRes = sharedImage,
+            descriptionImage = sharedImage,
+            title = "PANCA PIANA",
+            videoUrl = "https://youtu.be/...",
+            description = "Esercizio fondamentale per il petto.",
+            subtitle2 = "MUSCOLI COINVOLTI",
+            description2 = "- Grande pettorale\n- Tricipite brachiale",
+            detailImage1Res = sharedImage,
+            detailImage2Res = sharedImage,
+            descrizioneTotale = "3–4 serie da 8–12 ripetizioni"
         ),
         Exercise(
-            imageRes           = sharedImage,
-            descriptionImage   = R.drawable.petto,
-            title              = "SPINTE",
-            videoUrl           = "https://youtu.be/VIDEO_ID_SPINTE",
-            description        = "Spinte con manubri su panca inclinata.",
-            subtitle2          = "MUSCOLI COINVOLTI",
-            description2       = "- Grande pettorale\n- Deltoide anteriore\n- Tricipite brachiale",
-            detailImage1Res    = sharedImage,
-            detailImage2Res    = sharedImage,
-            descrizioneTotale  = "Per l’ipertrofia variare angoli e impugnature per sollecitare tutte le fibre."
-        ),
-        Exercise(
-            imageRes           = sharedImage,
-            descriptionImage   = sharedImage,
-            title              = "CROCI AI CAVI",
-            videoUrl           = "https://youtu.be/VIDEO_ID_CROCI",
-            description        = "Croci ai cavi per isolare il petto.",
-            subtitle2          = "MUSCOLI COINVOLTI",
-            description2       = "- Grande pettorale\n- Deltoide anteriore\n- Tricipite brachiale",
-            detailImage1Res    = sharedImage,
-            detailImage2Res    = sharedImage,
-            descrizioneTotale  = "Mantenere tensione costante durante tutto il movimento."
-        ),
-        Exercise(
-            imageRes           = sharedImage,
-            descriptionImage   = sharedImage,
-            title              = "CHEST PRESS",
-            videoUrl           = "https://youtu.be/VIDEO_ID_CHESTPRESS",
-            description        = "Macchina Chest Press per spinta controllata.",
-            subtitle2          = "MUSCOLI COINVOLTI",
-            description2       = "- Grande pettorale\n- Deltoide anteriore\n- Tricipite brachiale",
-            detailImage1Res    = sharedImage,
-            detailImage2Res    = sharedImage,
-            descrizioneTotale  = "Regolare il sedile per mantenere gomiti allineati al petto."
-        ),
-        Exercise(
-            imageRes           = sharedImage,
-            descriptionImage   = sharedImage,
-            title              = "PECTORAL MACHINE",
-            videoUrl           = "https://youtu.be/VIDEO_ID_PECTORAL",
-            description        = "Esercizio guidato su Pectoral Machine.",
-            subtitle2          = "MUSCOLI COINVOLTI",
-            description2       = "- Grande pettorale\n- Deltoide anteriore\n- Tricipite brachiale",
-            detailImage1Res    = sharedImage,
-            detailImage2Res    = sharedImage,
-            descrizioneTotale  = "Mantenere schiena dritta e torace in fuori."
+            muscoloPrincipale = "Petto",
+            imageRes = sharedImage,
+            descriptionImage = sharedImage,
+            title = "CHEST PRESS",
+            videoUrl = "https://youtu.be/...",
+            description = "Macchina convergente.",
+            subtitle2 = "MUSCOLI COINVOLTI",
+            description2 = "- Grande pettorale",
+            detailImage1Res = sharedImage,
+            detailImage2Res = sharedImage,
+            descrizioneTotale = "3–4 serie da 10–12 ripetizioni"
         )
     )
-    private val section2 = listOf(section1[0])
-    private val section3 = listOf(section1[0])
+
+    // 2️⃣ SPALLE
+    private val section2 = listOf(
+        Exercise(
+            muscoloPrincipale = "Spalle",
+            imageRes = sharedImage,
+            descriptionImage = sharedImage,
+            title = "LENTO MANUBRI",
+            videoUrl = "https://youtu.be/...",
+            description = "Spinta verticale per deltoidi.",
+            subtitle2 = "MUSCOLI COINVOLTI",
+            description2 = "- Deltoide anteriore",
+            detailImage1Res = sharedImage,
+            detailImage2Res = sharedImage,
+            descrizioneTotale = "4 serie da 6–10 ripetizioni"
+        ),
+        Exercise(
+            muscoloPrincipale = "Spalle",
+            imageRes = sharedImage,
+            descriptionImage = sharedImage,
+            title = "ALZATE LATERALI",
+            videoUrl = "https://youtu.be/...",
+            description = "Isolamento deltoide medio.",
+            subtitle2 = "MUSCOLI COINVOLTI",
+            description2 = "- Deltoide laterale",
+            detailImage1Res = sharedImage,
+            detailImage2Res = sharedImage,
+            descrizioneTotale = "4 serie da 12–15 ripetizioni"
+        )
+    )
+
+    // 3️⃣ GAMBE
+    private val section3 = listOf(
+        Exercise(
+            muscoloPrincipale = "Gambe",
+            imageRes = sharedImage,
+            descriptionImage = sharedImage,
+            title = "SQUAT",
+            videoUrl = "https://youtu.be/...",
+            description = "Re dei multiarticolari per le gambe.",
+            subtitle2 = "MUSCOLI COINVOLTI",
+            description2 = "- Quadricipite\n- Glutei",
+            detailImage1Res = sharedImage,
+            detailImage2Res = sharedImage,
+            descrizioneTotale = "5 serie da 5 ripetizioni"
+        ),
+        Exercise(
+            muscoloPrincipale = "Gambe",
+            imageRes = sharedImage,
+            descriptionImage = sharedImage,
+            title = "LEG CURL",
+            videoUrl = "https://youtu.be/...",
+            description = "Isolamento femorali.",
+            subtitle2 = "MUSCOLI COINVOLTI",
+            description2 = "- Ischiocrurali",
+            detailImage1Res = sharedImage,
+            detailImage2Res = sharedImage,
+            descrizioneTotale = "3 serie da 12 ripetizioni"
+        )
+    )
+
+    // Per mantenere compatibilità con i tuoi ID di layout (cardSection4,5)
     private val section4 = listOf(section1[0])
     private val section5 = listOf(section1[0])
 
+    /*──────────────── Lifecycle ─────────────────────────────────────────────*/
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // se utente loggato, prelevo isPersonalTrainer da Firestore
         auth.currentUser?.uid?.let { uid ->
-            db.collection("users").document(uid)
-                .get()
+            db.collection("users").document(uid).get()
                 .addOnSuccessListener { doc ->
-                    if (doc.exists()) {
-                        userIsPT = doc.getBoolean("isPersonalTrainer") == true
-                        initUI(view)
-                    } else {
-                        db.collection("personal_trainers").document(uid)
-                            .get()
-                            .addOnSuccessListener { ptDoc ->
-                                userIsPT = ptDoc.exists()
-                                initUI(view)
-                            }
-                            .addOnFailureListener {
-                                userIsPT = false
-                                initUI(view)
-                            }
-                    }
-                }
-                .addOnFailureListener {
-                    userIsPT = false
+                    userIsPT = doc.getBoolean("isPersonalTrainer") == true
                     initUI(view)
                 }
-        } ?: run {
-            // non loggato
-            userIsPT = false
-            initUI(view)
-        }
+                .addOnFailureListener { initUI(view) }
+        } ?: initUI(view)          // se non loggato comunque mostra esercizi
     }
 
+    /*──────────────── UI setup  ─────────────────────────────────────────────*/
     private fun initUI(root: View) {
         applyStrokeColor(root)
-        setupSection(R.id.cardSection1, R.id.rvSection1, section1)
-        setupSection(R.id.cardSection2, R.id.rvSection2, section2)
-        setupSection(R.id.cardSection3, R.id.rvSection3, section3)
-        setupSection(R.id.cardSection4, R.id.rvSection4, section4)
-        setupSection(R.id.cardSection5, R.id.rvSection5, section5)
+        setupSection(R.id.cardSection1, R.id.rvSection1, section1) // PETTO
+        setupSection(R.id.cardSection2, R.id.rvSection2, section2) // SPALLE
+        setupSection(R.id.cardSection3, R.id.rvSection3, section3) // GAMBE
+        setupSection(R.id.cardSection4, R.id.rvSection4, section4) // placeholder
+        setupSection(R.id.cardSection5, R.id.rvSection5, section5) // placeholder
     }
 
     private fun applyStrokeColor(root: View) {
         val night = resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK
-        val strokeColorRes = if (night == Configuration.UI_MODE_NIGHT_YES) R.color.white else R.color.black
+        val strokeColorRes =
+            if (night == Configuration.UI_MODE_NIGHT_YES) R.color.white else R.color.black
         val strokeColor = ContextCompat.getColor(requireContext(), strokeColorRes)
         listOf(
             R.id.cardSection1, R.id.cardSection2, R.id.cardSection3,
@@ -170,28 +179,24 @@ class BodybuildingFragment : Fragment(R.layout.fragment_bodybuilding) {
         }
     }
 
-    private fun setupSection(
-        headerId: Int,
-        recyclerId: Int,
-        data: List<Exercise>
-    ) {
-        val headerCard   = requireView().findViewById<MaterialCardView>(headerId)
-        val recyclerView = requireView().findViewById<RecyclerView>(recyclerId)
-
+    private fun setupSection(headerId: Int, recyclerId: Int, data: List<Exercise>) {
+        val headerCard = requireView().findViewById<MaterialCardView>(headerId)
+        val recyclerView = requireView().findViewById<RecyclerView>(recyclerId).apply {
+            layoutManager = GridLayoutManager(requireContext(), 2)
+            adapter = ExerciseAdapter(
+                items = data,
+                userIsPT = userIsPT,
+                onCardClick = { ex -> openDetail(ex) },
+                onConfirmClick = { ex -> saveExercise(ex) }
+            )
+        }
         headerCard.setOnClickListener {
             recyclerView.visibility =
                 if (recyclerView.visibility == View.VISIBLE) View.GONE else View.VISIBLE
         }
-
-        recyclerView.layoutManager = GridLayoutManager(requireContext(), 2)
-        recyclerView.adapter = ExerciseAdapter(
-            items           = data,
-            userIsPT        = userIsPT,
-            onCardClick     = { ex -> openDetail(ex) },
-            onConfirmClick  = { ex -> saveExercise(ex) }
-        )
     }
 
+    /*──────────────── RecyclerView Adapter ───────────────────────────*/
     private inner class ExerciseAdapter(
         private val items: List<Exercise>,
         private val userIsPT: Boolean,
@@ -200,123 +205,105 @@ class BodybuildingFragment : Fragment(R.layout.fragment_bodybuilding) {
     ) : RecyclerView.Adapter<ExerciseAdapter.VH>() {
 
         inner class VH(view: View) : RecyclerView.ViewHolder(view) {
-            private val card        : MaterialCardView     = view.findViewById(R.id.cardExercise)
-            private val titleTv     : TextView             = view.findViewById(R.id.textViewTitleTop)
-            private val btnSets     : MaterialButton       = view.findViewById(R.id.toggleSets)
-            private val btnReps     : MaterialButton       = view.findViewById(R.id.toggleReps)
-            private val counterSets : TextView             = view.findViewById(R.id.counterSets)
-            private val counterReps : TextView             = view.findViewById(R.id.counterReps)
-            private val btnMinus    : FloatingActionButton = view.findViewById(R.id.buttonMinus)
-            private val btnPlus     : FloatingActionButton = view.findViewById(R.id.buttonPlus)
-            private val btnConfirm  : MaterialButton       = view.findViewById(R.id.buttonConfirm)
-
-            private val colorGreen  = ContextCompat.getColor(view.context, R.color.green)
-            private val colorOrange = ContextCompat.getColor(view.context, R.color.orange)
-            private val colorBlack  = ContextCompat.getColor(view.context, R.color.black)
+            private val card: MaterialCardView = view.findViewById(R.id.cardExercise)
+            private val titleTv: TextView = view.findViewById(R.id.textViewTitleTop)
+            private val btnSets: MaterialButton = view.findViewById(R.id.toggleSets)
+            private val btnReps: MaterialButton = view.findViewById(R.id.toggleReps)
+            private val counterSets: TextView = view.findViewById(R.id.counterSets)
+            private val counterReps: TextView = view.findViewById(R.id.counterReps)
+            private val btnMinus: FloatingActionButton = view.findViewById(R.id.buttonMinus)
+            private val btnPlus: FloatingActionButton = view.findViewById(R.id.buttonPlus)
+            private val btnConfirm: MaterialButton = view.findViewById(R.id.buttonConfirm)
+            private val green = ContextCompat.getColor(view.context, R.color.green)
+            private val black = ContextCompat.getColor(view.context, R.color.black)
 
             init {
-                card.setOnClickListener    { items.getOrNull(adapterPosition)?.let(onCardClick) }
-                btnConfirm.setOnClickListener { items.getOrNull(adapterPosition)?.let(onConfirmClick) }
-
+                card.setOnClickListener { items.getOrNull(adapterPosition)?.let(onCardClick) }
+                btnConfirm.setOnClickListener {
+                    items.getOrNull(adapterPosition)?.let(onConfirmClick)
+                }
                 btnSets.setOnClickListener {
-                    val ex = items[adapterPosition]
-                    ex.isSetsMode = true
-                    bind(ex)
+                    items[adapterPosition].isSetsMode = true; notifyItemChanged(adapterPosition)
                 }
                 btnReps.setOnClickListener {
-                    val ex = items[adapterPosition]
-                    ex.isSetsMode = false
-                    bind(ex)
+                    items[adapterPosition].isSetsMode = false; notifyItemChanged(adapterPosition)
                 }
                 btnPlus.setOnClickListener {
-                    val ex = items[adapterPosition]
-                    if (ex.isSetsMode) ex.setsCount++ else ex.repsCount++
-                    bind(ex)
+                    val ex =
+                        items[adapterPosition]; if (ex.isSetsMode) ex.setsCount++ else ex.repsCount++; notifyItemChanged(
+                    adapterPosition
+                )
                 }
                 btnMinus.setOnClickListener {
-                    val ex = items[adapterPosition]
-                    if (ex.isSetsMode && ex.setsCount > 0) ex.setsCount--
-                    else if (!ex.isSetsMode && ex.repsCount > 0) ex.repsCount--
-                    bind(ex)
+                    val ex =
+                        items[adapterPosition]; if (ex.isSetsMode && ex.setsCount > 0) ex.setsCount-- else if (!ex.isSetsMode && ex.repsCount > 0) ex.repsCount--; notifyItemChanged(
+                    adapterPosition
+                )
                 }
             }
 
-            private fun highlightToggles(ex: Exercise) {
+            private fun highlight(ex: Exercise) {
                 counterSets.visibility = if (ex.isSetsMode) View.VISIBLE else View.GONE
                 counterReps.visibility = if (ex.isSetsMode) View.GONE else View.VISIBLE
                 btnSets.isChecked = ex.isSetsMode
                 btnReps.isChecked = !ex.isSetsMode
-
-                if (ex.isSetsMode) {
-                    btnSets.backgroundTintList = ColorStateList.valueOf(colorGreen)
-                    btnReps.backgroundTintList = ColorStateList.valueOf(colorBlack)
-                } else {
-                    btnReps.backgroundTintList = ColorStateList.valueOf(colorGreen)
-                    btnSets.backgroundTintList = ColorStateList.valueOf(colorBlack)
-                }
+                btnSets.backgroundTintList =
+                    ColorStateList.valueOf(if (ex.isSetsMode) green else black)
+                btnReps.backgroundTintList =
+                    ColorStateList.valueOf(if (ex.isSetsMode) black else green)
             }
 
-            fun bind(ex: Exercise) {                          //è colui che apporta le modifiche grafiche con i dati creati da kotlin
-                titleTv.text        = ex.title
-                counterSets.text    = ex.setsCount.toString()
-                counterReps.text    = ex.repsCount.toString()
-                highlightToggles(ex)                        //la chiamiamo ad ogni onclicklistener di più meno ecc
+            fun bind(ex: Exercise) {
+                titleTv.text = ex.title
+                counterSets.text = ex.setsCount.toString()
+                counterReps.text = ex.repsCount.toString()
+                highlight(ex)
             }
         }
 
-        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VH {
-            val v = LayoutInflater.from(parent.context)
-                .inflate(R.layout.cards_exercise, parent, false)
-            return VH(v)
-        }
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VH =
+            VH(LayoutInflater.from(parent.context).inflate(R.layout.cards_exercise, parent, false))
 
-        override fun onBindViewHolder(holder: VH, position: Int) =
-            holder.bind(items[position])
-
+        override fun onBindViewHolder(holder: VH, position: Int) = holder.bind(items[position])
         override fun getItemCount(): Int = items.size
     }
 
+    /*──────────────── Dialog dettaglio ───────────────────────────────*/
     private fun openDetail(ex: Exercise) {
         ExerciseDetailFragment.newInstance(
-            ex.title,
-            ex.videoUrl,
-            ex.description,
-            ex.subtitle2,
-            ex.description2,
-            ex.detailImage1Res,
-            ex.detailImage2Res,
-            ex.descriptionImage,
-            ex.descrizioneTotale
-        ).show((requireActivity() as FragmentActivity)
-            .supportFragmentManager, "exercise_detail")
+            ex.title, ex.videoUrl, ex.description, ex.subtitle2, ex.description2,
+            ex.detailImage1Res, ex.detailImage2Res, ex.descriptionImage, ex.descrizioneTotale
+        ).show((requireActivity() as FragmentActivity).supportFragmentManager, "exercise_detail")
     }
 
+    /*──────────────── Salvataggio Firestore ─────────────────────────*/
     private fun saveExercise(ex: Exercise) {
-        val user = auth.currentUser
-        if (user == null) {
-            Toast.makeText(requireContext(),
-                "Devi essere loggato per salvare.", Toast.LENGTH_SHORT).show()
+        if (ex.setsCount <= 0 || ex.repsCount <= 0) {
+            Toast.makeText(requireContext(), "Serie o ripetizioni non valide", Toast.LENGTH_SHORT)
+                .show()
             return
         }
         val data = hashMapOf(
-            "nomeEsercizio"     to ex.title,
-            "numeroSerie"       to ex.setsCount,
+            "nomeEsercizio" to ex.title,
+            "numeroSerie" to ex.setsCount,
             "numeroRipetizioni" to ex.repsCount
         )
-        if (ex.setsCount > 0 && ex.repsCount > 0) {
-            db.collection("scheda_creata_autonomamente")
-                .add(data)
-                .addOnSuccessListener {
-                    Toast.makeText(requireContext(),
-                        "Esercizio salvato", Toast.LENGTH_SHORT).show()
-                }
-                .addOnFailureListener {
-                    Toast.makeText(requireContext(),
-                        "Errore nel salvataggio", Toast.LENGTH_LONG).show()
-                }
-        } else {
-            Toast.makeText(requireContext(),
-                "Numero serie e/o ripetizioni non valido", Toast.LENGTH_SHORT).show()
-        }
+        db.collection("scheda_creata_autonomamente")
+            .document(ex.muscoloPrincipale.lowercase()) // petto
+            .collection("esercizi")                     // esercizi
+            .document(ex.title)                         // "PANCA PIANA"
+            .set(data)
+            .addOnSuccessListener {
+                Toast.makeText(
+                    requireContext(),
+                    "Salvato sotto ${ex.muscoloPrincipale}", Toast.LENGTH_SHORT
+                ).show()
+            }
+            .addOnFailureListener {
+                Toast.makeText(
+                    requireContext(),
+                    "Errore nel salvataggio", Toast.LENGTH_LONG
+                ).show()
+            }
     }
 }
