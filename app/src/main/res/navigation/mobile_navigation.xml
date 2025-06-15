@@ -10,11 +10,15 @@
         android:id="@+id/navigation_home"
         android:name="com.example.progetto_tosa.ui.home.HomeFragment"
         android:label="@string/title_home"
-        tools:layout="@layout/fragment_home" />
+        tools:layout="@layout/fragment_home" >
+        <action
+            android:id="@+id/action_navigation_home_to_navigation_auto_schedule"
+            app:destination="@id/fragment_my_auto_schedule" />
+    </fragment>
 
     <!-- Workout (tab 2) con le azioni verso i 4 sotto‑fragment -->
     <fragment
-        android:id="@+id/navigation_workout"
+        android:id="@+id/fragment_workout"
         android:name="com.example.progetto_tosa.ui.workout.WorkoutFragment"
         android:label="@string/title_workout"
         tools:layout="@layout/fragment_workout" >
@@ -30,6 +34,9 @@
         <action
             android:id="@+id/action_workout_to_stretching"
             app:destination="@id/navigation_stretching" />
+        <action
+            android:id="@+id/action_navigation_workout_to_fragment_my_auto_schedule"
+            app:destination="@id/fragment_my_auto_schedule" />
     </fragment>
 
     <!-- Stepwatch (tab 3) -->
@@ -102,5 +109,11 @@
         android:name="com.example.progetto_tosa.ui.workout.StretchingFragment"
         android:label="@string/title_stretching"
         tools:layout="@layout/fragment_stretching" />
+
+    <fragment
+        android:id="@+id/fragment_my_auto_schedule"
+        android:name="com.example.progetto_tosa.ui.home.MyAutoScheduleFragment"
+        android:label="Le mie schede"
+        tools:layout="@layout/fragment_my_auto_schedule" />
 
 </navigation>

@@ -24,6 +24,7 @@ class BodybuildingFragment : Fragment(R.layout.fragment_bodybuilding) {
 
     /*──────────────── DATA CLASS (aggiunto muscoloPrincipale) ───────────────*/
     data class Exercise(
+        val category: String,
         val muscoloPrincipale: String,          // «Petto», «Spalle», «Gambe», …
         val imageRes: Int,
         val descriptionImage: Int,
@@ -51,6 +52,7 @@ class BodybuildingFragment : Fragment(R.layout.fragment_bodybuilding) {
     // 1️⃣ PETTO
     private val section1 = listOf(
         Exercise(
+            category = "BodyBuilding",
             muscoloPrincipale = "Petto",
             imageRes = sharedImage,
             descriptionImage = sharedImage,
@@ -64,6 +66,7 @@ class BodybuildingFragment : Fragment(R.layout.fragment_bodybuilding) {
             descrizioneTotale = "3–4 serie da 8–12 ripetizioni"
         ),
         Exercise(
+            category = "BodyBuilding",
             muscoloPrincipale = "Petto",
             imageRes = sharedImage,
             descriptionImage = sharedImage,
@@ -81,6 +84,7 @@ class BodybuildingFragment : Fragment(R.layout.fragment_bodybuilding) {
     // 2️⃣ SPALLE
     private val section2 = listOf(
         Exercise(
+            category = "BodyBuilding",
             muscoloPrincipale = "Spalle",
             imageRes = sharedImage,
             descriptionImage = sharedImage,
@@ -94,6 +98,7 @@ class BodybuildingFragment : Fragment(R.layout.fragment_bodybuilding) {
             descrizioneTotale = "4 serie da 6–10 ripetizioni"
         ),
         Exercise(
+            category = "BodyBuilding",
             muscoloPrincipale = "Spalle",
             imageRes = sharedImage,
             descriptionImage = sharedImage,
@@ -111,6 +116,7 @@ class BodybuildingFragment : Fragment(R.layout.fragment_bodybuilding) {
     // 3️⃣ GAMBE
     private val section3 = listOf(
         Exercise(
+            category = "BodyBuilding",
             muscoloPrincipale = "Gambe",
             imageRes = sharedImage,
             descriptionImage = sharedImage,
@@ -124,6 +130,7 @@ class BodybuildingFragment : Fragment(R.layout.fragment_bodybuilding) {
             descrizioneTotale = "5 serie da 5 ripetizioni"
         ),
         Exercise(
+            category = "BodyBuilding",
             muscoloPrincipale = "Gambe",
             imageRes = sharedImage,
             descriptionImage = sharedImage,
@@ -279,31 +286,38 @@ class BodybuildingFragment : Fragment(R.layout.fragment_bodybuilding) {
     /*──────────────── Salvataggio Firestore ─────────────────────────*/
     private fun saveExercise(ex: Exercise) {
         if (ex.setsCount <= 0 || ex.repsCount <= 0) {
-            Toast.makeText(requireContext(), "Serie o ripetizioni non valide", Toast.LENGTH_SHORT)
-                .show()
+            Toast.makeText(requireContext(), "Serie o ripetizioni non valide", Toast.LENGTH_SHORT).show()
             return
         }
+
         val data = hashMapOf(
+            "category" to ex.category,
             "nomeEsercizio" to ex.title,
             "numeroSerie" to ex.setsCount,
             "numeroRipetizioni" to ex.repsCount
         )
+
         db.collection("scheda_creata_autonomamente")
-            .document(ex.muscoloPrincipale.lowercase()) // petto
-            .collection("esercizi")                     // esercizi
-            .document(ex.title)                         // "PANCA PIANA"
+            .document(ex.category.lowercase())                     // es: "bodybuilding"
+            .collection(ex.muscoloPrincipale.lowercase())          // es: "petto"
+            .document(ex.title)                                    // es: "panca piana"
             .set(data)
             .addOnSuccessListener {
                 Toast.makeText(
                     requireContext(),
-                    "Salvato sotto ${ex.muscoloPrincipale}", Toast.LENGTH_SHORT
+                    "Salvato in ${ex.category} → ${ex.muscoloPrincipale}",
+                    Toast.LENGTH_SHORT
                 ).show()
             }
             .addOnFailureListener {
                 Toast.makeText(
                     requireContext(),
-                    "Errore nel salvataggio", Toast.LENGTH_LONG
+                    "Errore nel salvataggio",
+                    Toast.LENGTH_LONG
                 ).show()
             }
     }
+
+
+
 }

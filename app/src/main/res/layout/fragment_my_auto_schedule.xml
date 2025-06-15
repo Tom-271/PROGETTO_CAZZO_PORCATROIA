@@ -1,0 +1,246 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--  ──────────────────────────────────────────────────────────────
+      Layout originale INALTERATO dentro uno ScrollView,
+      con overlay nero semi-trasparente + bottone centrato
+     ────────────────────────────────────────────────────────────── -->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <!-- ─────────── CONTENUTO ORIGINALE ─────────── -->
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#121212"
+        android:layout_marginTop="70dp"
+        android:padding="24dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <!-- Titolo -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Workouts"
+                android:textSize="34sp"
+                android:textStyle="bold"
+                android:textColor="@android:color/white" />
+
+            <!-- Sottotitolo -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="La mia scheda di allenamento"
+                android:textSize="16sp"
+                android:textAllCaps="true"
+                android:textColor="#80B6E3"
+                android:layout_marginTop="8dp" />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="24dp" />
+
+            <!-- Sezione: Bodybuilding -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/rounded_card"
+                android:orientation="vertical"
+                android:padding="16dp"
+                android:layout_marginBottom="12dp">
+
+                <Button
+                    android:id="@+id/btnBodybuilding"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="PESI"
+                    android:textStyle="bold"
+                    android:background="@android:color/transparent"
+                    android:textColor="@android:color/white"
+                    android:textSize="20sp"
+                    android:shadowColor="@color/yellow"
+                    android:shadowRadius="5"
+                    android:padding="0dp"
+                    android:gravity="start" />
+
+                <TextView
+                    android:id="@+id/subtitleBodyBuilding"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="0 exercises"
+                    android:textColor="#888888"
+                    android:textSize="14sp"
+                    android:layout_marginTop="4dp" />
+
+                <LinearLayout
+                    android:id="@+id/bodybuildingDetailsContainer"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:visibility="gone"
+                    android:layout_marginBottom="16dp" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/rounded_card"
+                android:orientation="vertical"
+                android:padding="16dp"
+                android:layout_marginBottom="12dp">
+
+                <Button
+                    android:id="@+id/btnStretching"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Cardio"
+                    android:shadowColor="@color/yellow"
+                    android:shadowRadius="5"
+                    android:textStyle="bold"
+                    android:background="@android:color/transparent"
+                    android:textColor="@android:color/white"
+                    android:textSize="20sp"
+                    android:padding="0dp"
+                    android:gravity="start" />
+
+                <TextView
+                    android:id="@+id/subtitleStretching"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="0 exercises"
+                    android:textColor="#888888"
+                    android:textSize="14sp"
+                    android:layout_marginTop="4dp" />
+
+                <!-- Dettagli espandibili -->
+                <LinearLayout
+                    android:id="@+id/stretchingDetailsContainer"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:visibility="gone"
+                    android:layout_marginBottom="16dp" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/rounded_card"
+                android:orientation="vertical"
+                android:padding="16dp"
+                android:layout_marginBottom="12dp">
+
+                <Button
+                    android:id="@+id/btnCardio"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="corpo libero"
+                    android:textStyle="bold"
+                    android:shadowColor="@color/yellow"
+                    android:shadowRadius="5"
+                    android:background="@android:color/transparent"
+                    android:textColor="@android:color/white"
+                    android:textSize="20sp"
+                    android:padding="0dp"
+                    android:gravity="start" />
+
+                <TextView
+                    android:id="@+id/subtitleCardio"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="0 exercises"
+                    android:textColor="#888888"
+                    android:textSize="14sp"
+                    android:layout_marginTop="4dp" />
+
+                <LinearLayout
+                    android:id="@+id/cardioDetailsContainer"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:visibility="gone"
+                    android:layout_marginBottom="16dp" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/rounded_card"
+                android:orientation="vertical"
+                android:padding="16dp"
+                android:layout_marginBottom="12dp">
+
+                <Button
+                    android:id="@+id/btnCorpoLibero"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="stretching"
+                    android:textStyle="bold"
+                    android:shadowColor="@color/yellow"
+                    android:shadowRadius="5"
+                    android:background="@android:color/transparent"
+                    android:textColor="@android:color/white"
+                    android:textSize="20sp"
+                    android:padding="0dp"
+                    android:gravity="start" />
+
+                <TextView
+                    android:id="@+id/subtitleCorpoLibero"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="0 exercises"
+                    android:textColor="#888888"
+                    android:textSize="14sp"
+                    android:layout_marginTop="4dp" />
+
+                <LinearLayout
+                    android:id="@+id/corpoliberoDetailsContainer"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:visibility="gone"
+                    android:layout_marginBottom="16dp" />
+            </LinearLayout>
+
+        </LinearLayout>
+    </ScrollView>
+
+    <!-- ─────────── OVERLAY NERO SEMI-TRASPARENTE ─────────── -->
+    <LinearLayout
+        android:id="@+id/overlayLayout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#CC000000"
+        android:translationZ="20dp"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:visibility="visible">
+
+        <TextView
+            android:id="@+id/textOverlay"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Per apprezzare a pieno questo servizio devi prima crearti una scheda!"
+            android:textAlignment="center"
+            android:gravity="center_horizontal"
+            android:textStyle="italic"
+            android:textColor="@android:color/white"
+            android:padding="20dp"
+            android:textSize="20sp"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="16dp"  />
+
+    <Button
+        android:id="@+id/overlayButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="CREIAMOLA SUBITO!"
+        android:textStyle="bold"
+        android:textColor="@color/dark_gray"
+        android:backgroundTint="@color/green"/>
+    </LinearLayout>
+
+</FrameLayout>

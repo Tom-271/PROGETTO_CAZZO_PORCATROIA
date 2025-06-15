@@ -10,6 +10,7 @@ import androidx.core.content.ContextCompat
 import android.content.res.ColorStateList
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.findNavController
 import com.example.progetto_tosa.databinding.FragmentHomeBinding
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
@@ -88,7 +89,11 @@ class HomeFragment : Fragment() {
         binding.buttonForPersonalTrainer.visibility = View.GONE
         binding.buttonForTheScheduleIDid.visibility = View.VISIBLE
         binding.buttonForTheSchedulePersonalTrainerDid.visibility = View.VISIBLE
-
+        binding.buttonForTheScheduleIDid.setOnClickListener {
+            findNavController().navigate(
+                com.example.progetto_tosa.R.id.action_navigation_home_to_navigation_auto_schedule
+            )
+        }
         binding.buttonForTheScheduleIDid.text = "Le mie schede"
         binding.buttonForTheSchedulePersonalTrainerDid.text = "Le schede del mio PT"
     }
