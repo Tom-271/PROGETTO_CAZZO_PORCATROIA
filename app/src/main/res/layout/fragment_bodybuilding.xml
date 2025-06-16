@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fillViewport="true"
-    android:layout_marginTop="30dp"
+    android:layout_marginTop="60dp"
     android:clipToPadding="false"
     android:paddingBottom="80dp">
 
@@ -107,7 +107,7 @@
                 <View
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:background="#80000000" />
+                    android:background="#80000000"/>
 
                 <TextView
                     android:id="@+id/tvSection2"

@@ -8,7 +8,7 @@
     android:layout_height="match_parent"
     android:fillViewport="true"
     android:scrollbars="none"
-    android:layout_marginTop="40dp"
+    android:layout_marginTop="80dp"
     tools:context="com.example.progetto_tosa.ui.account.AccountFragment">
 
     <!-- Dettagli utente (nascosti) -->
@@ -100,9 +100,9 @@
         <!-- Wrapper orizzontale: foto a sinistra, nome a destra -->
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="horizontal"
+            android:layout_height="347dp"
             android:gravity="center_vertical"
+            android:orientation="horizontal"
             android:padding="16dp">
 
             <!-- Icona utente -->
@@ -110,12 +110,12 @@
                 android:id="@+id/iconaUtente"
                 android:layout_width="130dp"
                 android:layout_height="130dp"
-                android:src="@drawable/account_principal"
-                android:scaleType="centerCrop"
                 android:clipToOutline="true"
-                app:strokeWidth="5dp"
+                android:scaleType="centerCrop"
+                android:src="@drawable/account_principal"
+                app:shapeAppearanceOverlay="@style/CircleImage"
                 app:strokeColor="@color/yellow"
-                app:shapeAppearanceOverlay="@style/CircleImage" />
+                app:strokeWidth="5dp" />
 
             <!-- Spazio fra immagine e testo -->
             <Space
@@ -126,8 +126,8 @@
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:gravity="center_vertical">
+                android:gravity="center_vertical"
+                android:orientation="vertical">
 
                 <TextView
                     android:id="@+id/NomeUtente"
@@ -135,18 +135,18 @@
                     android:layout_height="wrap_content"
                     android:text="NOME UTENTE"
                     android:textAllCaps="true"
+                    android:textColor="@color/white"
                     android:textSize="25sp"
-                    android:textStyle="bold"
-                    android:textColor="@color/white" />
+                    android:textStyle="bold" />
 
                 <TextView
                     android:id="@+id/ruolo"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textStyle="italic"
                     android:text="tipologia"
+                    android:textColor="@color/white"
                     android:textSize="15sp"
-                    android:textColor="@color/white" />
+                    android:textStyle="italic" />
             </LinearLayout>
 
         </LinearLayout>
