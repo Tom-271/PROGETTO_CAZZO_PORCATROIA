@@ -121,6 +121,18 @@
         <action
             android:id="@+id/action_fragment_my_auto_schedule_to_navigation_timer"
             app:destination="@id/navigation_timer" />
+        <action
+            android:id="@+id/action_fragment_my_auto_schedule_to_navigation_bodybuilding"
+            app:destination="@id/navigation_bodybuilding" />
+        <action
+            android:id="@+id/action_fragment_my_auto_schedule_to_navigation_cardio"
+            app:destination="@id/navigation_cardio" />
+        <action
+            android:id="@+id/action_fragment_my_auto_schedule_to_navigation_stretching"
+            app:destination="@id/navigation_corpolibero" />
+        <action
+            android:id="@+id/action_fragment_my_auto_schedule_to_navigation_corpolibero"
+            app:destination="@id/navigation_stretching" />
     </fragment>
 
     <fragment

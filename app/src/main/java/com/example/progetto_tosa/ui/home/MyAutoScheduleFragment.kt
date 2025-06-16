@@ -15,6 +15,7 @@ import androidx.fragment.app.Fragment
 import com.example.progetto_tosa.R
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
+import com.example.progetto_tosa.databinding.FragmentMyAutoScheduleBinding
 
 class MyAutoScheduleFragment : Fragment() {
 
@@ -47,6 +48,10 @@ class MyAutoScheduleFragment : Fragment() {
     private val cardioMuscoli       = listOf("cardio1", "cardio2")
     private val corpoLiberoMuscoli  = listOf("libero1", "libero2")
 
+
+    private var _binding: FragmentMyAutoScheduleBinding? = null
+    private val binding get() = _binding!!
+
     // ---------- lifecycle ----------
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -54,7 +59,10 @@ class MyAutoScheduleFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
 
-        val view = inflater.inflate(R.layout.fragment_my_auto_schedule, container, false)
+        //val view = inflater.inflate(R.layout.fragment_my_auto_schedule, container, false)
+
+        _binding = FragmentMyAutoScheduleBinding.inflate(inflater, container, false)
+        val view = binding.root
         //inizializzazioni
 
         /* ----- sottotitoli ----- */
@@ -82,6 +90,19 @@ class MyAutoScheduleFragment : Fragment() {
         btnStretching   = view.findViewById(R.id.btnStretching)
         btnCardio       = view.findViewById(R.id.btnCardio)
         btnCorpoLibero  = view.findViewById(R.id.btnCorpoLibero)
+
+        binding.buttonPlusBodybuilding.setOnClickListener {
+            findNavController().navigate(R.id.action_fragment_my_auto_schedule_to_navigation_bodybuilding)
+        }
+        binding.buttonPlusCardio.setOnClickListener {
+            findNavController().navigate(R.id.action_fragment_my_auto_schedule_to_navigation_cardio)
+        }
+        binding.buttonPlusCorpoLibero.setOnClickListener {
+            findNavController().navigate(R.id.action_fragment_my_auto_schedule_to_navigation_corpolibero)
+        }
+        binding.buttonPlusStretching.setOnClickListener {
+            findNavController().navigate(R.id.action_fragment_my_auto_schedule_to_navigation_stretching)
+        }
 
         return view
     }
@@ -119,6 +140,7 @@ class MyAutoScheduleFragment : Fragment() {
         listenToExerciseCount("stretching",     stretchingMuscoli,   subtitleStretching)
         listenToExerciseCount("cardio",         cardioMuscoli,       subtitleCardio)
         listenToExerciseCount("corpo_libero",   corpoLiberoMuscoli,  subtitleCorpoLibero)
+
     }
 
     override fun onDestroyView() {
