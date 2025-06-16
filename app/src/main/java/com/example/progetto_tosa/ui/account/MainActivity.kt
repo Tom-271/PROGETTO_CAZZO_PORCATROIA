@@ -71,7 +71,10 @@ class MainActivity : AppCompatActivity() {
                     true
                 }
                 else -> {
-                    navController.navigate(item.itemId)
+                    when (item.itemId) {
+                        R.id.navigation_workout -> navController.navigate(R.id.fragment_workout)
+                        else -> navController.navigate(item.itemId)
+                    }
                     true
                 }
             }

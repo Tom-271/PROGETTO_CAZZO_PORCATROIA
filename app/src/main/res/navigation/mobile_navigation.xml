@@ -14,6 +14,9 @@
         <action
             android:id="@+id/action_navigation_home_to_navigation_auto_schedule"
             app:destination="@id/fragment_my_auto_schedule" />
+        <action
+            android:id="@+id/action_navigation_home_to_fragment_workout"
+            app:destination="@id/fragment_workout" />
     </fragment>
 
     <!-- Workout (tab 2) con le azioni verso i 4 sotto‑fragment -->
@@ -35,7 +38,7 @@
             android:id="@+id/action_workout_to_stretching"
             app:destination="@id/navigation_stretching" />
         <action
-            android:id="@+id/action_navigation_workout_to_fragment_my_auto_schedule"
+            android:id="@+id/action_fragment_workout_to_fragment_my_auto_schedule"
             app:destination="@id/fragment_my_auto_schedule" />
     </fragment>
 
@@ -68,7 +71,6 @@
         <action
             android:id="@+id/action_account_to_Settings"
             app:destination="@id/navigation_Settings" />
-
     </fragment>
 
     <fragment
@@ -83,14 +85,12 @@
         android:label="IMPOSTAZIONI"
         tools:layout="@layout/fragment_settings" />
 
-
     <!-- Sotto‑fragment di Workout -->
     <fragment
         android:id="@+id/navigation_bodybuilding"
         android:name="com.example.progetto_tosa.ui.workout.BodybuildingFragment"
         android:label="@string/title_bodybuilding"
         tools:layout="@layout/fragment_bodybuilding" />
-
 
     <fragment
         android:id="@+id/navigation_cardio"
@@ -114,6 +114,10 @@
         android:id="@+id/fragment_my_auto_schedule"
         android:name="com.example.progetto_tosa.ui.home.MyAutoScheduleFragment"
         android:label="Le mie schede"
-        tools:layout="@layout/fragment_my_auto_schedule" />
+        tools:layout="@layout/fragment_my_auto_schedule" >
+        <action
+            android:id="@+id/action_fragment_my_auto_schedule_to_navigation_timer"
+            app:destination="@id/navigation_timer" />
+    </fragment>
 
 </navigation>

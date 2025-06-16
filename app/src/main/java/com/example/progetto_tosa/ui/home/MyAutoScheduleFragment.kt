@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import androidx.navigation.fragment.findNavController
 import android.widget.Button
 import android.widget.LinearLayout
+import android.util.Log
 import android.widget.TextView
 import android.graphics.Typeface
 import androidx.core.content.ContextCompat
@@ -239,7 +240,6 @@ class MyAutoScheduleFragment : Fragment() {
                     }
                     container.addView(header)                       //aggiungiamolo
 
-                    /* esercizi */
                     query.forEach { doc ->                          //accediamo al contenuto del doc su firebase
                         val nome = doc.getString("nome") ?: doc.id
                         val serie = doc.getLong("numeroSerie")?.toString() ?: "0"
@@ -252,15 +252,58 @@ class MyAutoScheduleFragment : Fragment() {
                             textSize = 16f
                             setBackgroundColor(greyBg)              //aggiunto sfondo grigio
                         }
+
+                        val horizontalLayout = LinearLayout(requireContext()).apply {
+                            orientation = LinearLayout.HORIZONTAL
+                            layoutParams = LinearLayout.LayoutParams(
+                                LinearLayout.LayoutParams.WRAP_CONTENT,
+                                LinearLayout.LayoutParams.WRAP_CONTENT
+                            ).apply {
+                                setMargins(120, 24, 8, 30)
+                            }
+                            setBackgroundColor(greyBg)              //aggiunto sfondo grigio
+                        }
+
                         val prova = TextView(requireContext()).apply {
                             text = "○ Ripetizioni: $rep, Serie: $serie "                            //prendiamo ogni esercizio e lo mettiamo nel contenitore con le seguenti specifiche estetiche
                             setTextColor(light_gray)
-                            setPadding(120, 24, 8, 30)
                             textSize = 16f
-                            setBackgroundColor(greyBg)              //aggiunto sfondo grigio
                         }
+
+                        val bottone = Button(requireContext()).apply {
+                            text = "REMOVE"
+                            textSize = 14f
+                            layoutParams = LinearLayout.LayoutParams(
+                                LinearLayout.LayoutParams.WRAP_CONTENT,
+                                LinearLayout.LayoutParams.WRAP_CONTENT
+                            ).apply {
+                                setMargins(24, 0, 0, 0)
+                            }
+                            setOnClickListener {
+                                doc.reference.delete().addOnSuccessListener {
+                                    // ⬇️ Rimuovi visualmente la riga delle ripetizioni/serie
+                                    container.removeView(horizontalLayout)
+
+                                    // ⬇️ Se la TextView del titolo è subito sopra, controlla se ci sono altre righe dopo
+                                    val index = container.indexOfChild(tv)
+                                    val nextView = container.getChildAt(index + 1)
+
+                                    // Se dopo il titolo non c'è più un layout (cioè nessun esercizio), rimuovi anche il titolo
+                                    if (nextView !is LinearLayout) {
+                                        container.removeView(tv)
+                                    }
+
+                                    Log.d("FirestoreDelete", "Esercizio rimosso con successo, UI aggiornata")
+                                }
+                            }
+
+                        }
+
+                        horizontalLayout.addView(prova)
+                        horizontalLayout.addView(bottone)
+
                         container.addView(tv)                       //ecco cosa metto dentro al contenitore
-                        container.addView(prova)
+                        container.addView(horizontalLayout)
                     }
                 }
         }
