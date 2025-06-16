@@ -16,7 +16,7 @@
         <item name="colorControlActivated">@color/purple_500</item>
 
         <!-- Status bar -->
-        <item name="android:statusBarColor">?attr/colorPrimaryVariant</item>
+        <item name="android:statusBarColor">@color/black</item> ✅
 
     </style>
 </resources>

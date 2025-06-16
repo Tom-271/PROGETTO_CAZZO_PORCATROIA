@@ -4,97 +4,101 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.home.HomeFragment"
-    android:padding="16dp">
+    android:layout_marginTop="80dp"
+    tools:context=".ui.home.HomeFragment">
 
     <TextView
         android:id="@+id/titolone"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="90dp"
-        android:text="GLI ALLENAMENTI PER TE:"
+        android:layout_marginTop="32dp"
         android:textStyle="bold"
+        android:text="GLI ALLENAMENTI PER TE:"
         android:textColor="@color/sky"
         android:textSize="20sp"
+        android:gravity="center"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
+        app:layout_constraintEnd_toEndOf="parent" />
 
+    <!-- Due bottoni affiancati -->
     <com.google.android.material.button.MaterialButton
         android:id="@+id/buttonForTheScheduleIDid"
         style="@style/MyLeftRoundedButton"
         android:layout_width="0dp"
-        android:layout_height="0dp"
+        android:layout_height="200dp"
         android:text="Scopri gli esercizi"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="8dp"
         app:layout_constraintTop_toBottomOf="@id/titolone"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/buttonForTheSchedulePersonalTrainerDid"
-        app:layout_constraintDimensionRatio="1:1.2"
-        app:layout_constraintHeight_default="percent"
-        app:layout_constraintHeight_percent="0.25"
-        android:layout_marginTop="16dp"
-        android:layout_marginEnd="8dp"/>
+        app:layout_constraintEnd_toStartOf="@id/buttonForTheSchedulePersonalTrainerDid"
+        app:layout_constraintHorizontal_weight="1" />
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/buttonForTheSchedulePersonalTrainerDid"
         style="@style/MyRightRoundedButton"
         android:layout_width="0dp"
-        android:layout_height="0dp"
+        android:layout_height="200dp"
         android:text="Scopri il tuo piano"
+        android:layout_marginTop="16dp"
+        android:layout_marginStart="8dp"
         app:layout_constraintTop_toBottomOf="@id/titolone"
         app:layout_constraintStart_toEndOf="@id/buttonForTheScheduleIDid"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintDimensionRatio="1:1.2"
-        app:layout_constraintHeight_default="percent"
-        app:layout_constraintHeight_percent="0.25"
-        android:layout_marginTop="16dp"
-        android:layout_marginStart="8dp"/>
+        app:layout_constraintHorizontal_weight="1" />
 
+    <!-- Bottone grande sotto i due affiancati -->
     <com.google.android.material.button.MaterialButton
         android:id="@+id/buttonForPersonalTrainer"
         android:layout_width="0dp"
-        android:layout_height="0dp"
+        android:layout_height="200dp"
         android:backgroundTint="@color/transparent"
         app:strokeWidth="1dp"
         app:strokeColor="@color/dark_gray"
-        android:textSize="18sp"
+        android:textSize="20sp"
         android:textColor="@color/white"
         app:cornerRadius="20dp"
         android:text="Questo è per il personal trainer"
+        android:layout_marginTop="16dp"
+        android:layout_marginStart="20dp"
+        android:layout_marginEnd="20dp"
         app:layout_constraintTop_toBottomOf="@id/buttonForTheScheduleIDid"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHeight_default="percent"
-        app:layout_constraintHeight_percent="0.18"
-        android:layout_marginTop="16dp"/>
+        app:layout_constraintEnd_toEndOf="parent" />
 
+    <!-- Bottone invisibile per evitare spazi vuoti -->
     <com.google.android.material.button.MaterialButton
         android:id="@+id/buttonInutile"
         android:layout_width="0dp"
-        android:layout_height="0dp"
+        android:layout_height="200dp"
         android:backgroundTint="@color/transparent"
         app:strokeWidth="1dp"
         app:strokeColor="@color/dark_gray"
-        android:textSize="18sp"
+        android:textSize="20sp"
         android:textColor="@color/white"
         android:textAllCaps="false"
         android:textStyle="italic"
         app:cornerRadius="20dp"
         android:visibility="gone"
         android:text="Questo è per non lasciare lo spazio vuoto"
+        android:layout_marginTop="2dp"
+        android:layout_marginStart="20dp"
+        android:layout_marginEnd="20dp"
         app:layout_constraintTop_toBottomOf="@id/buttonForPersonalTrainer"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHeight_default="percent"
-        app:layout_constraintHeight_percent="0.18"
-        android:layout_marginTop="16dp"/>
+        app:layout_constraintEnd_toEndOf="parent" />
 
+    <!-- Linea orizzontale separatrice -->
     <View
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
+        android:layout_width="0dp"
+        android:layout_height="2dp"
+        android:layout_marginTop="32dp"
+        android:layout_marginStart="50dp"
+        android:layout_marginEnd="50dp"
         android:background="@color/steel"
-        android:layout_marginTop="24dp"
-        app:layout_constraintTop_toBottomOf="@id/buttonInutile"
+        app:layout_constraintTop_toBottomOf="@id/buttonForPersonalTrainer"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
+        app:layout_constraintEnd_toEndOf="parent" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>
