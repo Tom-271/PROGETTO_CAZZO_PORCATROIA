@@ -105,6 +105,11 @@ class HomeFragment : Fragment() {
         binding.buttonForPersonalTrainer.visibility = View.VISIBLE
         binding.buttonForTheScheduleIDid.visibility = View.GONE
         binding.buttonForTheSchedulePersonalTrainerDid.visibility = View.GONE
+
+        binding.buttonForPersonalTrainer.setOnClickListener {
+            findNavController().navigate(com.example.progetto_tosa.R.id.action_navigation_home_to_navigation_auto_schedule)
+        }
+
     }
 
     override fun onDestroyView() {

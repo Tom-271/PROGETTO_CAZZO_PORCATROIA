@@ -6,12 +6,11 @@
     android:id="@+id/account_container"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:layout_marginTop="40dp"
     android:fillViewport="true"
     android:scrollbars="none"
-    android:layout_marginTop="40dp"
     tools:context="com.example.progetto_tosa.ui.account.AccountFragment">
 
-    <!-- Dettagli utente (nascosti) -->
     <TextView
         android:id="@+id/tvFirstLast"
         android:layout_width="wrap_content"
@@ -22,7 +21,7 @@
         android:visibility="invisible"
         app:layout_constraintTop_toBottomOf="@id/cardInfo"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
+        app:layout_constraintEnd_toEndOf="parent" />
 
     <TextView
         android:id="@+id/tvEmail"
@@ -34,7 +33,7 @@
         android:visibility="gone"
         app:layout_constraintTop_toBottomOf="@id/tvFirstLast"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
+        app:layout_constraintEnd_toEndOf="parent" />
 
     <TextView
         android:id="@+id/tvBirthday"
@@ -46,7 +45,7 @@
         android:visibility="gone"
         app:layout_constraintTop_toBottomOf="@id/tvEmail"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
+        app:layout_constraintEnd_toEndOf="parent" />
 
     <TextView
         android:id="@+id/tvAge"
@@ -58,7 +57,7 @@
         android:visibility="gone"
         app:layout_constraintTop_toBottomOf="@id/tvBirthday"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
+        app:layout_constraintEnd_toEndOf="parent" />
 
     <TextView
         android:id="@+id/tvWeight"
@@ -70,7 +69,7 @@
         android:visibility="gone"
         app:layout_constraintTop_toBottomOf="@id/tvAge"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
+        app:layout_constraintEnd_toEndOf="parent" />
 
     <TextView
         android:id="@+id/tvHeight"
@@ -82,22 +81,20 @@
         android:visibility="gone"
         app:layout_constraintTop_toBottomOf="@id/tvWeight"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
+        app:layout_constraintEnd_toEndOf="parent" />
 
-    <!-- Card con immagine e nome utente -->
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/cardInfo"
         android:layout_width="match_parent"
-        android:layout_marginLeft="8dp"
-        android:layout_marginRight="8dp"
         android:layout_height="350dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="8dp"
         android:backgroundTint="@color/navy_blue"
         app:cardCornerRadius="20dp"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
-        <!-- Wrapper orizzontale: foto a sinistra, nome a destra -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
@@ -105,7 +102,6 @@
             android:gravity="center_vertical"
             android:padding="16dp">
 
-            <!-- Icona utente -->
             <com.google.android.material.imageview.ShapeableImageView
                 android:id="@+id/iconaUtente"
                 android:layout_width="130dp"
@@ -117,12 +113,10 @@
                 app:strokeColor="@color/yellow"
                 app:shapeAppearanceOverlay="@style/CircleImage" />
 
-            <!-- Spazio fra immagine e testo -->
             <Space
                 android:layout_width="16dp"
                 android:layout_height="100dp" />
 
-            <!-- Nome utente + tipologia -->
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -143,29 +137,26 @@
                     android:id="@+id/ruolo"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textStyle="italic"
                     android:text="tipologia"
                     android:textSize="15sp"
+                    android:textStyle="italic"
                     android:textColor="@color/white" />
             </LinearLayout>
-
         </LinearLayout>
-
     </com.google.android.material.card.MaterialCardView>
 
-    <!-- Contenitore senza ombra -->
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/cardButtons"
         android:layout_width="300dp"
         android:layout_height="wrap_content"
+        android:layout_marginTop="300dp"
         android:layout_marginStart="16dp"
         android:layout_marginEnd="16dp"
-        android:layout_marginTop="300dp"
         android:translationZ="7dp"
         android:backgroundTint="@color/light_gray"
+        android:stateListAnimator="@null"
         app:cardCornerRadius="20dp"
         app:cardElevation="0dp"
-        android:stateListAnimator="@null"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
@@ -176,77 +167,74 @@
             android:orientation="vertical"
             android:padding="6dp">
 
-            <!-- Rimuovi anche l’ombra interna -->
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/buttonsForThings"
                 android:layout_width="match_parent"
                 android:layout_height="60dp"
                 android:backgroundTint="@color/light_gray"
+                android:stateListAnimator="@null"
                 app:cardCornerRadius="20dp"
-                app:cardElevation="0dp"
-                android:stateListAnimator="@null">
+                app:cardElevation="0dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:orientation="horizontal"
+                    android:gravity="center"
                     android:showDividers="middle"
                     android:divider="@drawable/vertical_divider"
-                    android:dividerPadding="8dp"
-                    android:gravity="center">
+                    android:dividerPadding="8dp">
 
-                    <!-- I tuoi 4 pulsanti… -->
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/userData"
-                        style="@style/Widget.MaterialComponents.Button.TextButton"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
+                        android:text=""
                         app:icon="@drawable/datos"
-                        app:iconTint="@android:color/black"
                         app:iconSize="30dp"
+                        app:iconTint="@android:color/black"
                         app:iconGravity="textStart"
-                        android:text="" />
+                        style="@style/Widget.MaterialComponents.Button.TextButton" />
 
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/btnLightMode"
-                        style="@style/Widget.MaterialComponents.Button.TextButton"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
+                        android:text=""
                         app:icon="@drawable/ic_sun"
-                        app:iconTint="@android:color/black"
                         app:iconSize="30dp"
+                        app:iconTint="@android:color/black"
                         app:iconGravity="textStart"
-                        android:text="" />
+                        style="@style/Widget.MaterialComponents.Button.TextButton" />
 
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/btnDarkMode"
-                        style="@style/Widget.MaterialComponents.Button.TextButton"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
+                        android:text=""
                         app:icon="@drawable/ic_moon"
-                        app:iconTint="@android:color/black"
                         app:iconSize="30dp"
+                        app:iconTint="@android:color/black"
                         app:iconGravity="textStart"
-                        android:text="" />
+                        style="@style/Widget.MaterialComponents.Button.TextButton" />
 
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/settings"
-                        style="@style/Widget.MaterialComponents.Button.TextButton"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
+                        android:text=""
                         app:icon="@drawable/ingranagges"
-                        app:iconTint="@android:color/black"
                         app:iconSize="30dp"
+                        app:iconTint="@android:color/black"
                         app:iconGravity="textStart"
-                        android:text="" />
-        </LinearLayout>
-    </com.google.android.material.card.MaterialCardView>
+                        style="@style/Widget.MaterialComponents.Button.TextButton" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
 
-    <!-- I miei programmi / Il mio percorso -->
             <LinearLayout
                 android:layout_width="300dp"
                 android:layout_height="wrap_content"
@@ -260,61 +248,55 @@
                     android:layout_height="110dp"
                     android:layout_marginEnd="4dp"
                     android:backgroundTint="@color/navy_blue"
+                    android:text="I miei programmi"
+                    android:textColor="@color/light_gray"
                     app:cornerRadius="0dp"
                     app:strokeWidth="0.5dp"
-                    app:strokeColor="@color/black"
-                    android:text="I miei programmi"
-                    android:textColor="@color/light_gray"/>
+                    app:strokeColor="@color/black" />
 
                 <Button
                     android:id="@+id/UserJourney"
                     android:layout_width="130dp"
                     android:layout_height="110dp"
                     android:layout_marginStart="4dp"
-                    app:cornerRadius="0dp"
                     android:backgroundTint="@color/navy_blue"
-                    app:strokeWidth="0.5dp"
-                    app:strokeColor="@color/black"
                     android:text="Il mio percorso"
-                    android:textColor="@color/light_gray"/>
+                    android:textColor="@color/light_gray"
+                    app:cornerRadius="0dp"
+                    app:strokeWidth="0.5dp"
+                    app:strokeColor="@color/black" />
             </LinearLayout>
 
-            <!-- TrainerProgram -->
             <com.google.android.material.button.MaterialButton
-                xmlns:android="http://schemas.android.com/apk/res/android"
-                xmlns:app="http://schemas.android.com/apk/res-auto"
                 android:id="@+id/TrainerProgram"
                 android:layout_width="match_parent"
                 android:layout_height="100dp"
                 android:layout_marginStart="10dp"
                 android:layout_marginEnd="10dp"
                 android:visibility="gone"
-                style="@style/Widget.MaterialComponents.Button"
-                app:shapeAppearanceOverlay="@style/ShapeAppearance.BottomRounded"
+                android:text="I TUOI ALLIEVI"
+                android:textColor="@color/white"
+                android:textStyle="bold"
+                android:textSize="20sp"
                 android:backgroundTint="@color/beige"
+                android:translationZ="7dp"
                 app:strokeWidth="0dp"
                 app:strokeColor="@color/dark_gray"
-                android:translationZ="7dp"
-                android:textColor="@color/white"
-                android:text="I TUOI ALLIEVI"
-                android:textStyle="bold"
-                android:textSize="20dp" />
-
-
+                style="@style/Widget.MaterialComponents.Button"
+                app:shapeAppearanceOverlay="@style/ShapeAppearance.BottomRounded" />
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
 
-    <!-- Logout + Login sempre sul fondo -->
     <LinearLayout
         android:id="@+id/bottomButtons"
         android:layout_width="300dp"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="100dp"
         android:orientation="horizontal"
         android:translationZ="7dp"
-        android:layout_marginBottom="90dp"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent">
+        app:layout_constraintEnd_toEndOf="parent">
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/sign_out"
@@ -330,8 +312,8 @@
             android:layout_width="300dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:backgroundTint="@color/sky"
             android:text="LOGIN"
+            android:backgroundTint="@color/sky"
             app:shapeAppearanceOverlay="@style/ShapeAppearance.Rounded" />
     </LinearLayout>
 

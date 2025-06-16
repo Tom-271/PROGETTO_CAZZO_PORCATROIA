@@ -7,7 +7,7 @@ import android.view.ViewGroup
 import androidx.navigation.fragment.findNavController
 import android.widget.Button
 import android.widget.LinearLayout
-import android.util.Log
+import android.widget.Toast
 import android.widget.TextView
 import android.graphics.Typeface
 import androidx.core.content.ContextCompat
@@ -59,53 +59,34 @@ class MyAutoScheduleFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
 
-        //val view = inflater.inflate(R.layout.fragment_my_auto_schedule, container, false)
-
         _binding = FragmentMyAutoScheduleBinding.inflate(inflater, container, false)
         val view = binding.root
-        //inizializzazioni
 
-        /* ----- sottotitoli ----- */
-        subtitleBodyBuilding = view.findViewById(R.id.subtitleBodyBuilding)
-        subtitleStretching   = view.findViewById(R.id.subtitleStretching)
-        subtitleCardio       = view.findViewById(R.id.subtitleCardio)
-        subtitleCorpoLibero  = view.findViewById(R.id.subtitleCorpoLibero)
+        // sottotitoli
+        subtitleBodyBuilding = binding.subtitleBodyBuilding
+        subtitleStretching   = binding.subtitleStretching
+        subtitleCardio       = binding.subtitleCardio
+        subtitleCorpoLibero  = binding.subtitleCorpoLibero
 
-        /* ----- container dettagli ----- */
-        bodybuildingDetailsContainer = view.findViewById(R.id.bodybuildingDetailsContainer)
-        stretchingDetailsContainer   = view.findViewById(R.id.stretchingDetailsContainer)
-        cardioDetailsContainer       = view.findViewById(R.id.cardioDetailsContainer)
-        corpoLiberoDetailsContainer  = view.findViewById(R.id.corpoliberoDetailsContainer)
+        // container dettagli
+        bodybuildingDetailsContainer = binding.bodybuildingDetailsContainer
+        stretchingDetailsContainer   = binding.stretchingDetailsContainer
+        cardioDetailsContainer       = binding.cardioDetailsContainer
+        corpoLiberoDetailsContainer  = binding.corpoliberoDetailsContainer
 
-        /* ----- bottone e view nera semi-trasparente ----- */
-        overlayLayout = view.findViewById(R.id.overlayLayout)
-        overlayButton = view.findViewById(R.id.overlayButton)
+        // overlay
+        overlayLayout = binding.overlayLayout
+        overlayButton = binding.overlayButton
 
-        subtitleStretching   = view.findViewById(R.id.subtitleStretching)
-        subtitleCardio       = view.findViewById(R.id.subtitleCardio)
-        subtitleCorpoLibero  = view.findViewById(R.id.subtitleCorpoLibero)
-
-        /* ----- bottoni ----- */
-        btnBodybuilding = view.findViewById(R.id.btnBodybuilding)
-        btnStretching   = view.findViewById(R.id.btnStretching)
-        btnCardio       = view.findViewById(R.id.btnCardio)
-        btnCorpoLibero  = view.findViewById(R.id.btnCorpoLibero)
-
-        binding.buttonPlusBodybuilding.setOnClickListener {
-            findNavController().navigate(R.id.action_fragment_my_auto_schedule_to_navigation_bodybuilding)
-        }
-        binding.buttonPlusCardio.setOnClickListener {
-            findNavController().navigate(R.id.action_fragment_my_auto_schedule_to_navigation_cardio)
-        }
-        binding.buttonPlusCorpoLibero.setOnClickListener {
-            findNavController().navigate(R.id.action_fragment_my_auto_schedule_to_navigation_corpolibero)
-        }
-        binding.buttonPlusStretching.setOnClickListener {
-            findNavController().navigate(R.id.action_fragment_my_auto_schedule_to_navigation_stretching)
-        }
+        // bottoni
+        btnBodybuilding = binding.btnBodybuilding
+        btnStretching   = binding.btnStretching
+        btnCardio       = binding.btnCardio
+        btnCorpoLibero  = binding.btnCorpoLibero
 
         return view
     }
+
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -257,7 +238,7 @@ class MyAutoScheduleFragment : Fragment() {
                         text = muscolo.uppercase()
                         setTypeface(null, Typeface.BOLD)
                         setTextColor(sky)
-                        setPadding(60, 30, 0, 0)
+                        setPadding(40, 30, 0, 0)
                         textSize = 20f                              //puro xlm ma applicato da codice
                     }
                     container.addView(header)                       //aggiungiamolo
@@ -270,7 +251,7 @@ class MyAutoScheduleFragment : Fragment() {
                         val tv = TextView(requireContext()).apply {
                             text = nome                             //prendiamo ogni esercizio e lo mettiamo nel contenitore con le seguenti specifiche estetiche
                             setTextColor(white)
-                            setPadding(120, 0, 8, 4)
+                            setPadding(18, 0, 8, 4)
                             textSize = 16f
                             setBackgroundColor(greyBg)              //aggiunto sfondo grigio
                         }
@@ -281,7 +262,7 @@ class MyAutoScheduleFragment : Fragment() {
                                 LinearLayout.LayoutParams.WRAP_CONTENT,
                                 LinearLayout.LayoutParams.WRAP_CONTENT
                             ).apply {
-                                setMargins(120, 24, 8, 30)
+                                setMargins(80, 24, 8, 30)
                             }
                             setBackgroundColor(greyBg)              //aggiunto sfondo grigio
                         }
@@ -293,38 +274,27 @@ class MyAutoScheduleFragment : Fragment() {
                         }
 
                         val bottone = Button(requireContext()).apply {
-                            text = "REMOVE"
-                            textSize = 14f
-                            layoutParams = LinearLayout.LayoutParams(
-                                LinearLayout.LayoutParams.WRAP_CONTENT,
-                                LinearLayout.LayoutParams.WRAP_CONTENT
-                            ).apply {
-                                setMargins(24, 0, 0, 0)
+                            background = ContextCompat.getDrawable(context, R.drawable.tick)
+                            layoutParams = LinearLayout.LayoutParams(50, 50).apply {                //dimensione fissa per farlo perfettamente tondo
+                                setMargins(90, 0, 0, 0)
                             }
                             setOnClickListener {
                                 doc.reference.delete().addOnSuccessListener {
-                                    // ⬇️ Rimuovi visualmente la riga delle ripetizioni/serie
                                     container.removeView(horizontalLayout)
-
-                                    // ⬇️ Se la TextView del titolo è subito sopra, controlla se ci sono altre righe dopo
                                     val index = container.indexOfChild(tv)
                                     val nextView = container.getChildAt(index + 1)
-
-                                    // Se dopo il titolo non c'è più un layout (cioè nessun esercizio), rimuovi anche il titolo
                                     if (nextView !is LinearLayout) {
+                                        Toast.makeText(requireContext(), "Esercizio $nome completato!", Toast.LENGTH_SHORT).show()
                                         container.removeView(tv)
                                     }
-
-                                    Log.d("FirestoreDelete", "Esercizio rimosso con successo, UI aggiornata")
                                 }
                             }
-
                         }
 
                         horizontalLayout.addView(prova)
                         horizontalLayout.addView(bottone)
 
-                        container.addView(tv)                       //ecco cosa metto dentro al contenitore
+                        container.addView(tv)                                                       //ecco cosa metto dentro al contenitore
                         container.addView(horizontalLayout)
                     }
                 }

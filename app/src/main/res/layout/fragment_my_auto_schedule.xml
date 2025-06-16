@@ -1,19 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--  ──────────────────────────────────────────────────────────────
-                                commenti
-     ────────────────────────────────────────────────────────────── -->
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    android:background="#121212">
 
-    <!-- ─────────── CONTENUTO ORIGINALE ─────────── -->
+    <!-- Scrollable content -->
     <ScrollView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="#121212"
-        android:layout_marginTop="70dp"
-        android:padding="24dp">
+        android:id="@+id/scrollView"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:scrollbars="none"
+        android:fadeScrollbars="true"
+        android:padding="16dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -39,6 +42,7 @@
                 android:textColor="#80B6E3"
                 android:layout_marginTop="8dp" />
 
+            <!-- Spaziatore -->
             <View
                 android:layout_width="match_parent"
                 android:layout_height="24dp" />
@@ -47,8 +51,8 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@drawable/rounded_card"
                 android:orientation="vertical"
+                android:background="@drawable/rounded_card"
                 android:padding="16dp"
                 android:layout_marginBottom="12dp">
 
@@ -58,24 +62,12 @@
                     android:layout_height="wrap_content"
                     android:text="PESI"
                     android:textStyle="bold"
-                    android:background="@android:color/transparent"
                     android:textColor="@android:color/white"
                     android:textSize="20sp"
                     android:shadowColor="@color/yellow"
                     android:shadowRadius="5"
-                    android:padding="0dp"
+                    android:background="@android:color/transparent"
                     android:gravity="start" />
-
-                <com.google.android.material.floatingactionbutton.FloatingActionButton
-                    android:id="@+id/buttonPlusBodybuilding"
-                    android:layout_width="116dp"
-                    android:layout_height="32dp"
-                    app:backgroundTint="#2979FF"
-                    app:fabCustomSize="32dp"
-                    app:layout_constraintTop_toBottomOf="@id/btnBodybuilding"
-                    app:srcCompat="@drawable/ic_plus"
-                    app:tint="#FFF"
-                    app:useCompatPadding="false" />
 
                 <TextView
                     android:id="@+id/subtitleBodyBuilding"
@@ -92,17 +84,15 @@
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
                     android:visibility="gone"
-                    android:layout_marginBottom="16dp" />
-
-
+                    android:layout_marginTop="8dp" />
             </LinearLayout>
 
             <!-- Sezione: Cardio -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@drawable/rounded_card"
                 android:orientation="vertical"
+                android:background="@drawable/rounded_card"
                 android:padding="16dp"
                 android:layout_marginBottom="12dp">
 
@@ -111,25 +101,13 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="Cardio"
-                    android:shadowColor="@color/yellow"
-                    android:shadowRadius="5"
                     android:textStyle="bold"
-                    android:background="@android:color/transparent"
                     android:textColor="@android:color/white"
                     android:textSize="20sp"
-                    android:padding="0dp"
+                    android:shadowColor="@color/yellow"
+                    android:shadowRadius="5"
+                    android:background="@android:color/transparent"
                     android:gravity="start" />
-
-                <com.google.android.material.floatingactionbutton.FloatingActionButton
-                    android:id="@+id/buttonPlusCardio"
-                    android:layout_width="116dp"
-                    android:layout_height="32dp"
-                    app:backgroundTint="#2979FF"
-                    app:fabCustomSize="32dp"
-                    app:layout_constraintTop_toBottomOf="@id/btnCardio"
-                    app:srcCompat="@drawable/ic_plus"
-                    app:tint="#FFF"
-                    app:useCompatPadding="false" />
 
                 <TextView
                     android:id="@+id/subtitleStretching"
@@ -140,22 +118,21 @@
                     android:textSize="14sp"
                     android:layout_marginTop="4dp" />
 
-                <!-- Dettagli espandibili -->
                 <LinearLayout
                     android:id="@+id/stretchingDetailsContainer"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
                     android:visibility="gone"
-                    android:layout_marginBottom="16dp" />
+                    android:layout_marginTop="8dp" />
             </LinearLayout>
 
             <!-- Sezione: Corpo Libero -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@drawable/rounded_card"
                 android:orientation="vertical"
+                android:background="@drawable/rounded_card"
                 android:padding="16dp"
                 android:layout_marginBottom="12dp">
 
@@ -165,24 +142,12 @@
                     android:layout_height="wrap_content"
                     android:text="corpo libero"
                     android:textStyle="bold"
+                    android:textColor="@android:color/white"
+                    android:textSize="20sp"
                     android:shadowColor="@color/yellow"
                     android:shadowRadius="5"
                     android:background="@android:color/transparent"
-                    android:textColor="@android:color/white"
-                    android:textSize="20sp"
-                    android:padding="0dp"
                     android:gravity="start" />
-
-                <com.google.android.material.floatingactionbutton.FloatingActionButton
-                    android:id="@+id/buttonPlusCorpoLibero"
-                    android:layout_width="116dp"
-                    android:layout_height="32dp"
-                    app:backgroundTint="#2979FF"
-                    app:fabCustomSize="32dp"
-                    app:layout_constraintTop_toBottomOf="@id/btnCorpoLibero"
-                    app:srcCompat="@drawable/ic_plus"
-                    app:tint="#FFF"
-                    app:useCompatPadding="false" />
 
                 <TextView
                     android:id="@+id/subtitleCardio"
@@ -199,16 +164,17 @@
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
                     android:visibility="gone"
-                    android:layout_marginBottom="16dp" />
+                    android:layout_marginTop="8dp" />
             </LinearLayout>
 
             <!-- Sezione: Stretching -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@drawable/rounded_card"
                 android:orientation="vertical"
+                android:background="@drawable/rounded_card"
                 android:padding="16dp"
+                android:paddingBottom="30dp"
                 android:layout_marginBottom="12dp">
 
                 <Button
@@ -217,24 +183,12 @@
                     android:layout_height="wrap_content"
                     android:text="stretching"
                     android:textStyle="bold"
+                    android:textColor="@android:color/white"
+                    android:textSize="20sp"
                     android:shadowColor="@color/yellow"
                     android:shadowRadius="5"
                     android:background="@android:color/transparent"
-                    android:textColor="@android:color/white"
-                    android:textSize="20sp"
-                    android:padding="0dp"
                     android:gravity="start" />
-
-                <com.google.android.material.floatingactionbutton.FloatingActionButton
-                    android:id="@+id/buttonPlusStretching"
-                    android:layout_width="116dp"
-                    android:layout_height="32dp"
-                    app:backgroundTint="#2979FF"
-                    app:fabCustomSize="32dp"
-                    app:layout_constraintTop_toBottomOf="@id/btnStretching"
-                    app:srcCompat="@drawable/ic_plus"
-                    app:tint="#FFF"
-                    app:useCompatPadding="false" />
 
                 <TextView
                     android:id="@+id/subtitleCorpoLibero"
@@ -251,22 +205,26 @@
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
                     android:visibility="gone"
-                    android:layout_marginBottom="16dp" />
+                    android:layout_marginTop="8dp" />
             </LinearLayout>
 
         </LinearLayout>
     </ScrollView>
 
-    <!-- ─────────── OVERLAY NERO SEMI-TRASPARENTE ─────────── -->
+    <!-- Overlay trasparente -->
     <LinearLayout
         android:id="@+id/overlayLayout"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="#CC000000"
-        android:translationZ="20dp"
-        android:gravity="center"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
         android:orientation="vertical"
-        android:visibility="visible">
+        android:gravity="center"
+        android:background="#CC000000"
+        android:visibility="gone"
+        android:padding="24dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
 
         <TextView
             android:id="@+id/textOverlay"
@@ -274,22 +232,20 @@
             android:layout_height="wrap_content"
             android:text="Per apprezzare a pieno questo servizio devi prima crearti una scheda!"
             android:textAlignment="center"
-            android:gravity="center_horizontal"
+            android:gravity="center"
             android:textStyle="italic"
             android:textColor="@android:color/white"
-            android:padding="20dp"
             android:textSize="20sp"
-            android:layout_marginTop="16dp"
-            android:layout_marginBottom="16dp"  />
+            android:layout_marginBottom="24dp" />
 
-    <Button
-        android:id="@+id/overlayButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="CREIAMOLA SUBITO!"
-        android:textStyle="bold"
-        android:textColor="@color/dark_gray"
-        android:backgroundTint="@color/green"/>
+        <Button
+            android:id="@+id/overlayButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="CREIAMOLA SUBITO!"
+            android:textStyle="bold"
+            android:textColor="@color/dark_gray"
+            android:backgroundTint="@color/green" />
     </LinearLayout>
 
-</FrameLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>
