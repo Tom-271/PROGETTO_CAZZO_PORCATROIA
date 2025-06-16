@@ -17,6 +17,9 @@
         <action
             android:id="@+id/action_navigation_home_to_fragment_workout"
             app:destination="@id/fragment_workout" />
+        <action
+            android:id="@+id/action_navigation_home_to_pt_schedule"
+            app:destination="@id/navigation_ptSchedule" />
     </fragment>
 
     <!-- Workout (tab 2) con le azioni verso i 4 sotto‑fragment -->
@@ -119,5 +122,11 @@
             android:id="@+id/action_fragment_my_auto_schedule_to_navigation_timer"
             app:destination="@id/navigation_timer" />
     </fragment>
+
+    <fragment
+        android:id="@+id/navigation_ptSchedule"
+        android:name="com.example.progetto_tosa.ui.home.PTscheduleFragment"
+        android:label="Le schede del mio PT"
+        tools:layout="@layout/fragment_pt_schedule" />
 
 </navigation>

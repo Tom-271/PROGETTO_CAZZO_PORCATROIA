@@ -94,6 +94,9 @@ class HomeFragment : Fragment() {
                 com.example.progetto_tosa.R.id.action_navigation_home_to_navigation_auto_schedule
             )
         }
+        binding.buttonForTheSchedulePersonalTrainerDid.setOnClickListener {
+            findNavController().navigate(com.example.progetto_tosa.R.id.action_navigation_home_to_pt_schedule)
+        }
         binding.buttonForTheScheduleIDid.text = "Le mie schede"
         binding.buttonForTheSchedulePersonalTrainerDid.text = "Le schede del mio PT"
     }
