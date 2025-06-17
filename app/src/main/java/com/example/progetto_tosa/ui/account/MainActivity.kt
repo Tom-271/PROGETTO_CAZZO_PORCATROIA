@@ -1,7 +1,7 @@
 package com.example.progetto_tosa.ui.account
 
 import android.os.Bundle
-import android.view.View
+import androidx.core.view.WindowCompat
 import android.widget.PopupMenu
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
@@ -19,6 +19,8 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         // ⬇️ Imposta il tema PRIMA di tutto
+        WindowCompat.setDecorFitsSystemWindows(window, false)
+
         val prefs = getSharedPreferences("settings", MODE_PRIVATE)
         val isDarkMode = prefs.getBoolean("darkMode", true)
         AppCompatDelegate.setDefaultNightMode(

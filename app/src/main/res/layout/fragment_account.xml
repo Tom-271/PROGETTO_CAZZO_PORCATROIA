@@ -8,7 +8,9 @@
     android:layout_height="match_parent"
     android:fillViewport="true"
     android:scrollbars="none"
-    android:layout_marginTop="80dp"
+    android:layout_marginTop="50dp"
+    android:fitsSystemWindows="true"
+
     tools:context="com.example.progetto_tosa.ui.account.AccountFragment">
 
     <!-- Dettagli utente (nascosti) -->
@@ -310,15 +312,17 @@
         android:layout_width="300dp"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
+        android:layout_marginBottom="0dp"
+        android:paddingBottom="80dp"
         android:translationZ="7dp"
-        android:layout_marginBottom="90dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toBottomOf="parent">
 
-        <com.google.android.material.button.MaterialButton
+
+    <com.google.android.material.button.MaterialButton
             android:id="@+id/sign_out"
-            android:layout_width="300dp"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:translationZ="7dp"
@@ -327,12 +331,13 @@
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/ButtonLogin"
-            android:layout_width="300dp"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:backgroundTint="@color/sky"
             android:text="LOGIN"
             app:shapeAppearanceOverlay="@style/ShapeAppearance.Rounded" />
+
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

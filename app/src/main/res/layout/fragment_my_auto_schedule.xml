@@ -29,6 +29,7 @@
                 android:layout_height="wrap_content"
                 android:text="Workouts"
                 android:textSize="34sp"
+                android:paddingTop="90dp"
                 android:textStyle="bold"
                 android:textColor="@android:color/white" />
 

@@ -3,12 +3,12 @@ package com.example.progetto_tosa.ui.account
 import android.content.Context
 import android.content.Intent
 import android.content.res.ColorStateList
-import android.graphics.Color
-import android.widget.Toast
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
@@ -21,6 +21,10 @@ import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
 
 class AccountFragment : Fragment() {
+
+    companion object {
+        private const val TAG = "AccountFragment"
+    }
 
     private var _binding: FragmentAccountBinding? = null
     private val binding get() = _binding!!
@@ -43,16 +47,11 @@ class AccountFragment : Fragment() {
         val prefs = requireActivity()
             .getSharedPreferences("settings", Context.MODE_PRIVATE)
         var isDarkMode = prefs.getBoolean("darkMode", true)
-
-        // applica tema salvato
         AppCompatDelegate.setDefaultNightMode(
             if (isDarkMode) AppCompatDelegate.MODE_NIGHT_YES
             else AppCompatDelegate.MODE_NIGHT_NO
         )
-        // mostra solo il pulsante corrispondente
         updateThemeButtons(isDarkMode)
-
-        // click sul pulsante SOLE (passa a dark mode)
         binding.btnLightMode.setOnClickListener {
             if (!isDarkMode) {
                 isDarkMode = true
@@ -61,8 +60,6 @@ class AccountFragment : Fragment() {
                 updateThemeButtons(isDarkMode)
             }
         }
-
-        // click sul pulsante LUNA (passa a light mode)
         binding.btnDarkMode.setOnClickListener {
             if (isDarkMode) {
                 isDarkMode = false
@@ -77,33 +74,24 @@ class AccountFragment : Fragment() {
             startActivity(Intent(requireContext(), LoginActivity::class.java))
         }
         binding.signOut.setOnClickListener {
-            Toast
-                .makeText(requireContext(),
-                    "Ci vediamo al prossimo allenamento!",
-                    Toast.LENGTH_SHORT)
-                .show()
+            Toast.makeText(
+                requireContext(),
+                "Ci vediamo al prossimo allenamento!",
+                Toast.LENGTH_SHORT
+            ).show()
             AuthUI.getInstance().signOut(requireContext())
                 .addOnCompleteListener { updateUI() }
-
         }
         binding.userData.setOnClickListener {
             findNavController().navigate(R.id.action_account_to_UserData)
         }
 
-        // ─── INITIAL UI LOAD ───────────────────────────────────────────────────
         updateUI()
     }
 
     private fun updateThemeButtons(isDark: Boolean) {
-        if (isDark) {
-            // se sono in dark mode, mostro il pulsante luna e nascondo quello sole
-            binding.btnDarkMode.visibility = View.VISIBLE
-            binding.btnLightMode.visibility = View.GONE
-        } else {
-            // se sono in light mode, mostro il pulsante sole e nascondo quello luna
-            binding.btnLightMode.visibility = View.VISIBLE
-            binding.btnDarkMode.visibility = View.GONE
-        }
+        binding.btnDarkMode.visibility  = if (isDark) View.VISIBLE else View.GONE
+        binding.btnLightMode.visibility = if (isDark) View.GONE    else View.VISIBLE
     }
 
     override fun onResume() {
@@ -114,7 +102,6 @@ class AccountFragment : Fragment() {
     private fun updateUI() {
         val user = auth.currentUser
         if (user != null) {
-            // Utente loggato (come già fai oggi)
             binding.ButtonLogin.visibility    = View.GONE
             binding.signOut.visibility        = View.VISIBLE
 
@@ -122,93 +109,117 @@ class AccountFragment : Fragment() {
             db.collection("users").document(uid)
                 .get()
                 .addOnSuccessListener { doc ->
-                    if (doc.exists()) bindUserData(doc)
-                    else db.collection("personal_trainers").document(uid)
-                        .get()
-                        .addOnSuccessListener { ptDoc ->
-                            if (ptDoc.exists()) bindUserData(ptDoc)
-                            else binding.NomeUtente.text = "Utente sconosciuto"
-                        }
+                    Log.d(TAG, "Firestore users/$uid → ${doc.data}")
+                    if (doc.exists()) {
+                        bindUserData(doc)
+                    } else {
+                        // fallback personal trainer
+                        db.collection("personal_trainers").document(uid)
+                            .get()
+                            .addOnSuccessListener { ptDoc ->
+                                Log.d(TAG, "Firestore personal_trainers/$uid → ${ptDoc.data}")
+                                if (ptDoc.exists()) bindUserData(ptDoc)
+                                else binding.NomeUtente.text = "Utente sconosciuto"
+                            }
+                            .addOnFailureListener {
+                                Log.e(TAG, "PT fetch error", it)
+                                binding.NomeUtente.text = "Errore caricamento dati"
+                            }
+                    }
                 }
                 .addOnFailureListener {
-                    binding.TrainerProgram.visibility = View.GONE
+                    Log.e(TAG, "users fetch error", it)
+                    Toast.makeText(
+                        requireContext(),
+                        "Errore di rete: riprova più tardi",
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
+
         } else {
-            // Utente NON loggato: resettiamo tutto
+            // reset UI per utente non loggato
             binding.ButtonLogin.visibility    = View.VISIBLE
             binding.signOut.visibility        = View.GONE
             binding.TrainerProgram.visibility = View.GONE
+            binding.ruolo.text = "Accedi per ulteriori dettagli"
 
-            binding.ruolo.text = "accedi per ulteriori specifiche"
-
-            // Nascondo i campi personali
             listOf(
                 binding.tvFirstLast,
                 binding.tvEmail,
-                binding.tvBirthday,
-                binding.tvAge,
                 binding.tvWeight,
                 binding.tvHeight
             ).forEach { it.visibility = View.GONE }
 
-            // Resetto NomeUtente: lo azzero o imposto un placeholder generico
             binding.NomeUtente.text = "NOME UTENTE"
             binding.NomeUtente.setTextColor(
                 ContextCompat.getColorStateList(requireContext(), R.color.sky)
-            )           //fare questo e non un classico setTextColor(Color.RED) comporta la possibilità di selezionare un colore creato manualmente e non
-                        //accedendo dalla lista preimpostata R.colors
-            // Bordo arancione default per icona utente
+            )
             binding.iconaUtente.strokeColor = ColorStateList.valueOf(
                 ContextCompat.getColor(requireContext(), R.color.sky)
             )
-
-            // (Opzionale) ripristino l’immagine di default
             binding.iconaUtente.setImageResource(R.drawable.account_principal)
         }
     }
 
-
     private fun bindUserData(doc: DocumentSnapshot) {
-        val name    = doc.getString("firstName").orEmpty()
-        val surname    = doc.getString("lastName").orEmpty()
-        val email = doc.getString("email") ?: auth.currentUser?.email.orEmpty()
+        // CAMPO ITALIANO
+        val nome    = doc.getString("nome").orEmpty()
+        val cognome = doc.getString("cognome").orEmpty()
+        val mail    = doc.getString("mail") ?: auth.currentUser?.email.orEmpty()
+        val peso    = doc.getDouble("peso") ?: 0.0
+        val altezza = doc.getDouble("altezza") ?: 0.0
+
+        // intestazione
         binding.NomeUtente.text =
-            if (name.isNotBlank()) "$name $surname" else email
+            if (nome.isNotBlank()) "$nome $cognome" else mail
 
-        listOf(
-            binding.tvFirstLast,
-            binding.tvEmail,
-            binding.tvBirthday,
-            binding.tvAge,
-            binding.tvWeight,
-            binding.tvHeight
-        ).forEach { it.visibility = View.GONE }
-
-        val isPT = doc.getBoolean("isPersonalTrainer") == true
-        if (isPT) {
-            binding.TrainerProgram.visibility = View.VISIBLE
-            val green = ContextCompat.getColor(requireContext(), R.color.green)
-            binding.signOut.backgroundTintList = ColorStateList.valueOf(green)
-            binding.signOut.setTextColor(Color.BLACK)
-            binding.iconaUtente.strokeColor    = ColorStateList.valueOf(green)
-            binding.ruolo.text = "Personal Trainer"
-            binding.iconaUtente.setImageResource(R.drawable.personal)
-            binding.NomeUtente.setTextColor(
-                ContextCompat.getColorStateList(requireContext(), R.color.perNomePersonal)
-            )
-        } else {
-            binding.TrainerProgram.visibility = View.GONE
-            val orange = ContextCompat.getColor(requireContext(), R.color.orange)
-            val sky = ContextCompat.getColor(requireContext(), R.color.sky)
-            binding.signOut.backgroundTintList = ColorStateList.valueOf(orange)
-            binding.signOut.setTextColor(Color.WHITE)
-            binding.iconaUtente.strokeColor    = ColorStateList.valueOf(orange)
-            binding.ruolo.text = "Atleta"
-            binding.iconaUtente.setImageResource(R.drawable.atleta)
-            binding.NomeUtente.setTextColor(
-                ContextCompat.getColorStateList(requireContext(), R.color.perNomeAtleta)
-            )
+        // popolo
+        binding.tvFirstLast.apply {
+            text = if (nome.isNotBlank()) "$nome $cognome" else "—"
+            visibility = View.VISIBLE
         }
+        binding.tvEmail.apply {
+            text = mail
+            visibility = View.VISIBLE
+        }
+        binding.tvWeight.apply {
+            text = if (peso > 0) "${"%.1f".format(peso)} kg" else "—"
+            visibility = View.VISIBLE
+        }
+        binding.tvHeight.apply {
+            text = if (altezza > 0) "${"%.1f".format(altezza)} cm" else "—"
+            visibility = View.VISIBLE
+        }
+
+        // styling
+        if (doc.getBoolean("isPersonalTrainer") == true) applyTrainerStyle()
+        else applyAthleteStyle()
+    }
+
+    private fun applyTrainerStyle() {
+        binding.TrainerProgram.visibility = View.VISIBLE
+        val green = ContextCompat.getColor(requireContext(), R.color.green)
+        binding.signOut.backgroundTintList = ColorStateList.valueOf(green)
+        binding.signOut.setTextColor(ContextCompat.getColor(requireContext(), R.color.black))
+        binding.iconaUtente.strokeColor    = ColorStateList.valueOf(green)
+        binding.ruolo.text                 = "Personal Trainer"
+        binding.iconaUtente.setImageResource(R.drawable.personal)
+        binding.NomeUtente.setTextColor(
+            ContextCompat.getColorStateList(requireContext(), R.color.perNomePersonal)
+        )
+    }
+
+    private fun applyAthleteStyle() {
+        binding.TrainerProgram.visibility = View.GONE
+        val orange = ContextCompat.getColor(requireContext(), R.color.orange)
+        binding.signOut.backgroundTintList = ColorStateList.valueOf(orange)
+        binding.signOut.setTextColor(ContextCompat.getColor(requireContext(), R.color.white))
+        binding.iconaUtente.strokeColor    = ColorStateList.valueOf(orange)
+        binding.ruolo.text                 = "Atleta"
+        binding.iconaUtente.setImageResource(R.drawable.atleta)
+        binding.NomeUtente.setTextColor(
+            ContextCompat.getColorStateList(requireContext(), R.color.perNomeAtleta)
+        )
     }
 
     override fun onDestroyView() {

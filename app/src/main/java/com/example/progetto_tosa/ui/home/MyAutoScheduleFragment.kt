@@ -267,16 +267,23 @@ class MyAutoScheduleFragment : Fragment() {
                             setBackgroundColor(greyBg)              //aggiunto sfondo grigio
                         }
 
-                        val prova = TextView(requireContext()).apply {
-                            text = "○ Ripetizioni: $rep, Serie: $serie "                            //prendiamo ogni esercizio e lo mettiamo nel contenitore con le seguenti specifiche estetiche
+                        val testoserierep = TextView(requireContext()).apply {
+                            text = "○ Ripetizioni: $rep, Serie: $serie "
                             setTextColor(light_gray)
                             textSize = 16f
+                            layoutParams = LinearLayout.LayoutParams(
+                                LinearLayout.LayoutParams.WRAP_CONTENT,
+                                LinearLayout.LayoutParams.WRAP_CONTENT
+                            ).apply {
+                                setMargins(0, 0, 0, 24) // 👈 aggiunge margin-bottom di 24dp
+                            }
                         }
+
 
                         val bottone = Button(requireContext()).apply {
                             background = ContextCompat.getDrawable(context, R.drawable.tick)
                             layoutParams = LinearLayout.LayoutParams(50, 50).apply {                //dimensione fissa per farlo perfettamente tondo
-                                setMargins(90, 0, 0, 0)
+                                setMargins(90, 0, 0, 24)
                             }
                             setOnClickListener {
                                 doc.reference.delete().addOnSuccessListener {
@@ -291,7 +298,7 @@ class MyAutoScheduleFragment : Fragment() {
                             }
                         }
 
-                        horizontalLayout.addView(prova)
+                        horizontalLayout.addView(testoserierep)
                         horizontalLayout.addView(bottone)
 
                         container.addView(tv)                                                       //ecco cosa metto dentro al contenitore
