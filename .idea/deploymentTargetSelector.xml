@@ -4,10 +4,10 @@
     <selectionStates>
       <SelectionState runConfigName="PROGETTO_TOSA.app">
         <option name="selectionMode" value="DROPDOWN" />
-        <DropdownSelection timestamp="2025-06-16T22:07:58.888765300Z">
+        <DropdownSelection timestamp="2025-06-19T12:19:03.484460900Z">
           <Target type="DEFAULT_BOOT">
             <handle>
-              <DeviceId pluginId="PhysicalDevice" identifier="serial=g6skhqcyobl7mjtg" />
+              <DeviceId pluginId="PhysicalDevice" identifier="serial=2C061FDH200NQ8" />
             </handle>
           </Target>
         </DropdownSelection>
@@ -20,9 +20,6 @@
             </Target>
           </targets>
         </DialogSelection>
-      </SelectionState>
-      <SelectionState runConfigName="prova">
-        <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
     </selectionStates>
   </component>

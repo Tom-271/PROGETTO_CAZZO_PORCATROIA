@@ -35,6 +35,9 @@ class HomeFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        // ⛔ nascondi subito il bottone per PT per evitare flickering
+        binding.buttonForPersonalTrainer.visibility = View.GONE
+
         val user = auth.currentUser
         if (user == null) {
             setAllGone()
@@ -43,13 +46,11 @@ class HomeFragment : Fragment() {
 
         val uid = user.uid
 
-        // 🔍 Verifica se è un utente normale
         db.collection("users").document(uid).get()
             .addOnSuccessListener { doc ->
                 if (doc.exists()) {
-                    showButtonsForUser()        //chiamiamo la funzione per mostrare i bottoni dell'utente normale
+                    showButtonsForUser()
                 } else {
-                    // 🔍 Se non è un utente, verifica se è un PT
                     db.collection("personal_trainers").document(uid).get()
                         .addOnSuccessListener { ptDoc ->
                             if (ptDoc.exists()) {
@@ -97,8 +98,6 @@ class HomeFragment : Fragment() {
         binding.buttonForTheSchedulePersonalTrainerDid.setOnClickListener {
             findNavController().navigate(com.example.progetto_tosa.R.id.action_navigation_home_to_pt_schedule)
         }
-        binding.buttonForTheScheduleIDid.text = "Le mie schede"
-        binding.buttonForTheSchedulePersonalTrainerDid.text = "Le schede del mio PT"
     }
 
     private fun showButtonsForPT() {
