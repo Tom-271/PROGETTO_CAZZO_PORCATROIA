@@ -7,12 +7,20 @@ import android.view.ViewGroup
 import android.view.animation.AnimationUtils
 import android.widget.TextView
 import android.widget.ViewFlipper
+import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import com.example.progetto_tosa.R
 import com.example.progetto_tosa.databinding.FragmentWorkoutBinding
 
 class WorkoutFragment : Fragment() {
+
+    // Ricevo la data selezionata dal calendario
+    private val selectedDate: String by lazy {
+        arguments
+            ?.getString("selectedDate")
+            ?: error("WorkoutFragment: selectedDate mancante")
+    }
 
     private var _binding: FragmentWorkoutBinding? = null
     private val binding get() = _binding!!
@@ -38,23 +46,35 @@ class WorkoutFragment : Fragment() {
         _binding = FragmentWorkoutBinding.inflate(inflater, container, false)
         val root = binding.root
 
-        // Navigazione ai fragment
+        // Navigazione ai fragment con passaggio della data
         binding.btnItem1.setOnClickListener {
-            findNavController().navigate(R.id.action_workout_to_bodybuilding)
+            findNavController().navigate(
+                R.id.action_workout_to_bodybuilding,
+                bundleOf("selectedDate" to selectedDate)
+            )
         }
         binding.btnItem2.setOnClickListener {
-            findNavController().navigate(R.id.action_workout_to_corpolibero)
+            findNavController().navigate(
+                R.id.action_workout_to_corpolibero,
+                bundleOf("selectedDate" to selectedDate)
+            )
         }
         binding.btnItem3.setOnClickListener {
-            findNavController().navigate(R.id.action_workout_to_cardio)
+            findNavController().navigate(
+                R.id.action_workout_to_cardio,
+                bundleOf("selectedDate" to selectedDate)
+            )
         }
         binding.btnItem4.setOnClickListener {
-            findNavController().navigate(R.id.action_workout_to_stretching)
+            findNavController().navigate(
+                R.id.action_workout_to_stretching,
+                bundleOf("selectedDate" to selectedDate)
+            )
         }
 
         // Configurazione del ViewFlipper per i "Tips"
         val vfTips: ViewFlipper = binding.vfTips
-        for (tip in tips) { //dipende dalla lunghezza totale della lista di tips
+        for (tip in tips) {
             val tv = TextView(requireContext()).apply {
                 text = tip
             }

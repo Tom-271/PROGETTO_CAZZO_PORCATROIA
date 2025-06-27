@@ -1,17 +1,17 @@
 package com.example.progetto_tosa.ui.home
 
-import android.R
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
-import android.content.Intent
-import com.example.progetto_tosa.ui.account.LoginActivity
 import android.view.View
+import android.view.ViewGroup
 import androidx.core.content.ContextCompat
 import android.content.res.ColorStateList
-import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
+import com.example.progetto_tosa.R
 import com.example.progetto_tosa.databinding.FragmentHomeBinding
+import com.example.progetto_tosa.ui.account.LoginActivity
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 
@@ -35,7 +35,7 @@ class HomeFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // ⛔ nascondi subito il bottone per PT per evitare flickering
+        // Nascondi subito il bottone per PT per evitare flickering
         binding.buttonForPersonalTrainer.visibility = View.GONE
 
         val user = auth.currentUser
@@ -75,11 +75,11 @@ class HomeFragment : Fragment() {
         binding.buttonForPersonalTrainer.visibility = View.GONE
         binding.buttonInutile.visibility = View.VISIBLE
         binding.buttonInutile.strokeColor = ColorStateList.valueOf(
-            ContextCompat.getColor(requireContext(), R.color.holo_orange_dark)
+            ContextCompat.getColor(requireContext(), R.color.orange)
         )
         binding.buttonInutile.text = "Per accedere al servizio, effettua il login"
 
-        // 🔁 click per tornare alla login
+        // Click per tornare alla login
         binding.buttonInutile.setOnClickListener {
             val intent = Intent(requireContext(), LoginActivity::class.java)
             startActivity(intent)
@@ -92,11 +92,14 @@ class HomeFragment : Fragment() {
         binding.buttonForTheSchedulePersonalTrainerDid.visibility = View.VISIBLE
         binding.buttonForTheScheduleIDid.setOnClickListener {
             findNavController().navigate(
-                com.example.progetto_tosa.R.id.action_navigation_home_to_navigation_auto_schedule
+                R.id.action_navigation_home_to_navigation_myautocalendar
             )
         }
+
         binding.buttonForTheSchedulePersonalTrainerDid.setOnClickListener {
-            findNavController().navigate(com.example.progetto_tosa.R.id.action_navigation_home_to_pt_schedule)
+            findNavController().navigate(
+                R.id.action_navigation_home_to_pt_schedule
+            )
         }
     }
 
@@ -106,9 +109,10 @@ class HomeFragment : Fragment() {
         binding.buttonForTheSchedulePersonalTrainerDid.visibility = View.GONE
 
         binding.buttonForPersonalTrainer.setOnClickListener {
-            findNavController().navigate(com.example.progetto_tosa.R.id.action_navigation_home_to_navigation_auto_schedule)
+            findNavController().navigate(
+                R.id.action_navigation_home_to_navigation_auto_schedule
+            )
         }
-
     }
 
     override fun onDestroyView() {

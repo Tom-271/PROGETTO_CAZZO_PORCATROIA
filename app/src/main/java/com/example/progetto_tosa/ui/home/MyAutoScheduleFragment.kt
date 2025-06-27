@@ -1,310 +1,287 @@
 package com.example.progetto_tosa.ui.home
 
+import android.graphics.Typeface
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
+import android.view.View.GONE
+import android.view.View.VISIBLE
 import android.view.ViewGroup
-import androidx.navigation.fragment.findNavController
 import android.widget.Button
 import android.widget.LinearLayout
-import android.widget.Toast
 import android.widget.TextView
-import android.graphics.Typeface
 import androidx.core.content.ContextCompat
+import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.findNavController
 import com.example.progetto_tosa.R
+import com.example.progetto_tosa.databinding.FragmentMyAutoScheduleBinding
+import com.google.firebase.Timestamp
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
-import com.example.progetto_tosa.databinding.FragmentMyAutoScheduleBinding
+import java.text.SimpleDateFormat
+import java.util.*
 
 class MyAutoScheduleFragment : Fragment() {
-
-    // ---------- view reference ----------
-    private lateinit var subtitleBodyBuilding: TextView
-    private lateinit var subtitleStretching: TextView
-    private lateinit var subtitleCardio: TextView
-    private lateinit var subtitleCorpoLibero: TextView
-    private lateinit var overlayLayout: LinearLayout
-    private lateinit var overlayButton: Button
-    private lateinit var btnBodybuilding: Button
-    private lateinit var btnStretching: Button
-    private lateinit var btnCardio: Button
-    private lateinit var btnCorpoLibero: Button
-
-    private lateinit var bodybuildingDetailsContainer: LinearLayout
-    private lateinit var stretchingDetailsContainer: LinearLayout
-    private lateinit var cardioDetailsContainer: LinearLayout
-    private lateinit var corpoLiberoDetailsContainer: LinearLayout
-
-    // ---------- firestore ----------
-    private val db = FirebaseFirestore.getInstance()
-    private val activeListeners = mutableListOf<ListenerRegistration>()
-    private var categoriesCompleted = 0
-    private var totalGlobalExercises = 0
-
-    // ---------- costanti ----------
-    private val bodybuildingMuscoli = listOf("petto", "gambe", "spalle", "dorso", "bicipiti", "tricipiti")
-    private val stretchingMuscoli   = listOf("stretch1", "stretch2")
-    private val cardioMuscoli       = listOf("cardio1", "cardio2")
-    private val corpoLiberoMuscoli  = listOf("libero1", "libero2")
-
 
     private var _binding: FragmentMyAutoScheduleBinding? = null
     private val binding get() = _binding!!
 
-    // ---------- lifecycle ----------
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
-
-        _binding = FragmentMyAutoScheduleBinding.inflate(inflater, container, false)
-        val view = binding.root
-
-        // sottotitoli
-        subtitleBodyBuilding = binding.subtitleBodyBuilding
-        subtitleStretching   = binding.subtitleStretching
-        subtitleCardio       = binding.subtitleCardio
-        subtitleCorpoLibero  = binding.subtitleCorpoLibero
-
-        // container dettagli
-        bodybuildingDetailsContainer = binding.bodybuildingDetailsContainer
-        stretchingDetailsContainer   = binding.stretchingDetailsContainer
-        cardioDetailsContainer       = binding.cardioDetailsContainer
-        corpoLiberoDetailsContainer  = binding.corpoliberoDetailsContainer
-
-        // overlay
-        overlayLayout = binding.overlayLayout
-        overlayButton = binding.overlayButton
-
-        // bottoni
-        btnBodybuilding = binding.btnBodybuilding
-        btnStretching   = binding.btnStretching
-        btnCardio       = binding.btnCardio
-        btnCorpoLibero  = binding.btnCorpoLibero
-
-        return view
+    // “yyyy-MM-dd” dalla selezione nel calendario
+    private val selectedDateId: String by lazy {
+        requireArguments().getString("selectedDate")
+            ?: error("MyAutoScheduleFragment: selectedDate mancante")
     }
 
+    // View refs
+    private lateinit var subtitlePPPPPPPPROOOOOVA: TextView
+    private lateinit var btnFillSchedule: Button
+    private lateinit var subtitleBodyBuilding: TextView
+    private lateinit var subtitleCardio: TextView
+    private lateinit var subtitleCorpoLibero: TextView
+    private lateinit var subtitleStretching: TextView
+    private lateinit var btnBodybuilding: Button
+    private lateinit var btnCardio: Button
+    private lateinit var btnCorpoLibero: Button
+    private lateinit var btnStretching: Button
+    private lateinit var bodybuildingDetailsContainer: LinearLayout
+    private lateinit var cardioDetailsContainer: LinearLayout
+    private lateinit var corpoLiberoDetailsContainer: LinearLayout
+    private lateinit var stretchingDetailsContainer: LinearLayout
+
+    // Firestore
+    private val db = FirebaseFirestore.getInstance()
+    private val activeListeners = mutableListOf<ListenerRegistration>()
+
+    // “Muscoli” per categoria
+    private val bodybuildingMuscoli = listOf("petto", "gambe", "spalle", "dorso", "bicipiti", "tricipiti")
+    private val cardioMuscoli = listOf("cardio1", "cardio2")
+    private val corpoLiberoMuscoli = listOf("libero1", "libero2")
+    private val stretchingMuscoli = listOf("stretch1", "stretch2")
+
+    // Conteggi dinamici
+    private val countsMap = mutableMapOf<TextView, MutableMap<String, Int>>()
+
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        _binding = FragmentMyAutoScheduleBinding.inflate(inflater, container, false)
+        return binding.root
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Espansione/chiusura + lazy-loading degli esercizi
-        btnBodybuilding.setOnClickListener {            //questi sono i listener che gestiscono la comparsa degli esercizi sotto le cards
-            toggleContainer(bodybuildingDetailsContainer) {
-                loadAllExercisesOnce("bodybuilding", bodybuildingMuscoli, bodybuildingDetailsContainer)
+        // Bind delle view
+        subtitlePPPPPPPPROOOOOVA = binding.subtitlePPPPPPPPROOOOOVA
+        btnFillSchedule = binding.btnFillSchedule
+        subtitleBodyBuilding = binding.subtitleBodyBuilding
+        subtitleCardio = binding.subtitleCardio
+        subtitleCorpoLibero = binding.subtitleCorpoLibero
+        subtitleStretching = binding.subtitleStretching
+        btnBodybuilding = binding.btnBodybuilding
+        btnCardio = binding.btnCardio
+        btnCorpoLibero = binding.btnCorpoLibero
+        btnStretching = binding.btnStretching
+        bodybuildingDetailsContainer = binding.bodybuildingDetailsContainer
+        cardioDetailsContainer = binding.cardioDetailsContainer
+        corpoLiberoDetailsContainer = binding.corpoliberoDetailsContainer
+        stretchingDetailsContainer = binding.stretchingDetailsContainer
+
+        // Formatta la data selezionata
+        val displayDate = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+            .format(
+                SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+                    .parse(selectedDateId)!!
+            )
+
+
+        // Imposta il tuo sottotitolo con la data dal calendario
+        subtitlePPPPPPPPROOOOOVA.visibility = VISIBLE
+        val today = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).format(Date())
+
+        if(displayDate == today)
+        {
+            subtitlePPPPPPPPROOOOOVA.text = "LA MIA SCHEDA di oggi"
+        }
+        else
+        {
+            subtitlePPPPPPPPROOOOOVA.text = "LA MIA SCHEDA DEL: $displayDate"
+        }
+        // Crea documento giorno se non esiste
+        db.collection("schede_giornaliere")
+            .document(selectedDateId)
+            .get()
+            .addOnSuccessListener { snap ->
+                if (!snap.exists()) {
+                    snap.reference.set(mapOf("date" to Timestamp.now()))
+                }
             }
+
+        // “Riempila ora!” — sempre visibile
+        btnFillSchedule.visibility = VISIBLE
+        btnFillSchedule.setOnClickListener {
+            findNavController().navigate(
+                R.id.action_fragment_my_auto_schedule_to_fragment_workout,
+                bundleOf("selectedDate" to selectedDateId)
+            )
         }
 
-        btnStretching.setOnClickListener {
-            toggleContainer(stretchingDetailsContainer) {
-                loadAllExercisesOnce("stretching", stretchingMuscoli, stretchingDetailsContainer)
-            }
+        // Espansioni + popolazioni
+        btnBodybuilding.setOnClickListener {
+            findNavController().navigate(
+                R.id.action_fragment_my_auto_schedule_to_navigation_bodybuilding,
+                bundleOf("selectedDate" to selectedDateId)
+            )
         }
-
         btnCardio.setOnClickListener {
             toggleContainer(cardioDetailsContainer) {
-                loadAllExercisesOnce("cardio", cardioMuscoli, cardioDetailsContainer)
+                listenAndPopulate("cardio", cardioMuscoli, cardioDetailsContainer)
             }
         }
-
         btnCorpoLibero.setOnClickListener {
             toggleContainer(corpoLiberoDetailsContainer) {
-                loadAllExercisesOnce("corpo_libero", corpoLiberoMuscoli, corpoLiberoDetailsContainer)
+                listenAndPopulate("corpo_libero", corpoLiberoMuscoli, corpoLiberoDetailsContainer)
+            }
+        }
+        btnStretching.setOnClickListener {
+            toggleContainer(stretchingDetailsContainer) {
+                listenAndPopulate("stretching", stretchingMuscoli, stretchingDetailsContainer)
             }
         }
 
-        // ----- listener conteggio esercizi ----- sono i rimandi alla funzione, la stessa funzione ma con input diversi
-        listenToExerciseCount("bodybuilding",   bodybuildingMuscoli, subtitleBodyBuilding)
-        listenToExerciseCount("stretching",     stretchingMuscoli,   subtitleStretching)
-        listenToExerciseCount("cardio",         cardioMuscoli,       subtitleCardio)
-        listenToExerciseCount("corpo_libero",   corpoLiberoMuscoli,  subtitleCorpoLibero)
-
+        // Conteggi dinamici
+        listenToExerciseCount("bodybuilding", bodybuildingMuscoli, subtitleBodyBuilding)
+        listenToExerciseCount("cardio", cardioMuscoli, subtitleCardio)
+        listenToExerciseCount("corpo_libero", corpoLiberoMuscoli, subtitleCorpoLibero)
+        listenToExerciseCount("stretching", stretchingMuscoli, subtitleStretching)
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
-        // Stoppa tutti i listener Firestore per evitare memory leak
         activeListeners.forEach { it.remove() }
         activeListeners.clear()
+        _binding = null
     }
 
-    // ---------- toggle ----------
     private inline fun toggleContainer(container: LinearLayout, onOpen: () -> Unit) {
-        if (container.visibility == View.GONE) {
-            container.visibility = View.VISIBLE
-            onOpen()          // carica la lista solo al primo expand
+        if (container.visibility == GONE) {
+            container.visibility = VISIBLE
+            onOpen()
         } else {
-            container.visibility = View.GONE
+            container.visibility = GONE
         }
     }
 
-    // ---------- conteggio ----------     //funzione dedita al conteggio degli esercizi su firebase
     private fun listenToExerciseCount(
         category: String,
         muscoli: List<String>,
         subtitleView: TextView
     ) {
-        var totalCount = 0      //counters esercizi
-        var completed  = 0
-        var totalExercises = 0
-
         muscoli.forEach { muscolo ->
-            db.collection("scheda_creata_autonomamente")
-                .document(category)
-                .collection(muscolo)
-                .addSnapshotListener { snapshot, error ->           //snapshot è funzione di firebase che consente di accedere ai suoi annidamenti
-                    completed++                                     //snapshot utilissima per accedere costantemente a firebase senza necessità di refresh manuale ogni volta
-                    if (error == null) {                            //se errore nulla allora conta, se la dimensione è nulla passi 0 al counter nella somma
-                        totalCount += snapshot?.size() ?: 0
+            val listener = db
+                .collection("schede_giornaliere")
+                .document(selectedDateId)
+                .collection(category)
+                .document(muscolo)
+                .collection("esercizi")
+                .addSnapshotListener { snap, err ->
+                    if (err != null) {
+                        subtitleView.text = "0 exercises"
+                        return@addSnapshotListener
                     }
-                    totalExercises += totalCount
-
-                    if (completed == muscoli.size) {                //dopo aver controllato tutti gli elementi, quindi tutti gli esercizi per tipologia, controllo che siano tutti a 0, basta 1 eserczio dentro una sezione per farmi scomparire il button per la creazione di un ashceda
-                        totalGlobalExercises += totalCount
-                        categoriesCompleted++
-                        checkCounterButton(totalGlobalExercises)
-
-                        subtitleView.text = "$totalCount exercises"     //se ho finito di iterare su tutto l'array che ho creato prima, trascrivo il risultato nel sottotitolo
-                    }
+                    val map = countsMap.getOrPut(subtitleView) { mutableMapOf() }
+                    map[muscolo] = snap?.size() ?: 0
+                    subtitleView.text = "${map.values.sum()} exercises"
                 }
+            activeListeners.add(listener)
         }
     }
 
-    private fun checkCounterButton(total: Int){
-
-        if (total == 0){                                //se tutti i counter sono a 0 allora compaiono la scritta, la view trasparente, e il button per invitarmi ad assemblare una scheda
-            overlayLayout.visibility = View.VISIBLE     //compaiono
-            overlayButton.visibility = View.VISIBLE
-            btnBodybuilding.isClickable = false
-            btnStretching.isClickable = false
-            btnCardio.isClickable = false
-            btnCorpoLibero.isClickable = false          //attivo o disattivo i pulsanti per una questione grafica, seppur la scheda sia vuota, senza questi i bottoni farebbero apparirre una piccola spaziatura, ossia un tentativo di far comparire un container vuoto, piu preciso cosi
-
-            overlayButton.setOnClickListener {
-                findNavController().navigate(R.id.fragment_workout)
-            }
-
-        }
-        else
-        {
-            overlayLayout.visibility = View.GONE        //scompaiono
-            overlayButton.visibility = View.GONE
-            btnBodybuilding.isClickable = true
-            btnStretching.isClickable = true
-            btnCardio.isClickable = true
-            btnCorpoLibero.isClickable = true
-        }
-    }
-
-    // ---------- caricamento lista ----------
-    private fun loadAllExercisesOnce(       //anche questa funzione viene chiamata 4 volte, tante quanto ogni singolo elemento pesi, cardio ecc
+    private fun listenAndPopulate(
         category: String,
         listaElementi: List<String>,
-        container: LinearLayout             //qui ne definiamo i parametri che gli vengono passati in chiamata
+        container: LinearLayout
     ) {
-        // se hai già figli hai già caricato
-        if (container.childCount > 0) return        //esce se il contenitore è gia stato riempito
-        val white   = ContextCompat.getColor(requireContext(), android.R.color.white)
-        val greyBg  = ContextCompat.getColor(requireContext(), R.color.transparent)
-        val dark_gray   = ContextCompat.getColor(requireContext(), R.color.dark_gray)
-        val light_gray  = ContextCompat.getColor(requireContext(), R.color.light_gray)
-        val sky  = ContextCompat.getColor(requireContext(), R.color.sky)
-
+        container.removeAllViews()
         listaElementi.forEach { muscolo ->
+            // Header
+            val header = TextView(requireContext()).apply {
+                text = muscolo.uppercase(Locale.getDefault())
+                typeface = Typeface.DEFAULT_BOLD
+                setTextColor(ContextCompat.getColor(requireContext(), R.color.sky))
+                setPadding(40, 30, 0, 0)
+                textSize = 20f
+            }
+            container.addView(header)
 
-            db.collection("scheda_creata_autonomamente")
-                .document(category)     //accede al documento
-                .collection(muscolo)    //alla collezione con lòo stesso nome del muscolo nella lista
-                .get()                  //ne prende il contenuto (tutti gli esercizi
-                .addOnSuccessListener { query ->
-                    if (query.isEmpty) return@addOnSuccessListener      //se vuoto esco, non ho esercizi (penso sia un if che non verrà mai eseguito visto che la categoria es petto viene creata letteralmente solo qundo ne agigungo l'esercizio corrispondetne, ma mettiamola non si sa mai
+            // Divider
+            val divider = View(requireContext()).apply {
+                layoutParams = LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT, 3
+                ).apply { setMargins(40, 16, 40, 16) }
+                setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.dark_gray))
+            }
+            container.addView(divider)
 
-                    /* divisore */
-                    val divider = View(requireContext()).apply {
-                        layoutParams = LinearLayout.LayoutParams(
-                            LinearLayout.LayoutParams.MATCH_PARENT, 3  // ← aumentato lo spessore
-                        ).apply {
-                            setMargins(40, 50, 40, 0)
-                        }
-                        setBackgroundColor(dark_gray)
+            // Listener su esercizi
+            val esListener = db
+                .collection("schede_giornaliere")
+                .document(selectedDateId)
+                .collection(category)
+                .document(muscolo)
+                .collection("esercizi")
+                .addSnapshotListener { snap, _ ->
+                    val startIdx = container.indexOfChild(divider) + 1
+                    while (container.childCount > startIdx) {
+                        container.removeViewAt(startIdx)
                     }
-                    container.addView(divider)
-
-                    /* header esercizio */
-                    val header = TextView(requireContext()).apply { //creiamo letteralmetne il contenitore dei nostri dati
-                        text = muscolo.uppercase()
-                        setTypeface(null, Typeface.BOLD)
-                        setTextColor(sky)
-                        setPadding(40, 30, 0, 0)
-                        textSize = 20f                              //puro xlm ma applicato da codice
-                    }
-                    container.addView(header)                       //aggiungiamolo
-
-                    query.forEach { doc ->                          //accediamo al contenuto del doc su firebase
-                        val nome = doc.getString("nome") ?: doc.id
+                    snap?.documents?.forEach { doc ->
+                        val nome = doc.getString("nomeEsercizio") ?: doc.id
                         val serie = doc.getLong("numeroSerie")?.toString() ?: "0"
                         val rep = doc.getLong("numeroRipetizioni")?.toString() ?: "0"
 
                         val tv = TextView(requireContext()).apply {
-                            text = nome                             //prendiamo ogni esercizio e lo mettiamo nel contenitore con le seguenti specifiche estetiche
-                            setTextColor(white)
+                            text = nome
+                            setTextColor(
+                                ContextCompat.getColor(
+                                    requireContext(),
+                                    android.R.color.white
+                                )
+                            )
                             setPadding(18, 0, 8, 4)
                             textSize = 16f
-                            setBackgroundColor(greyBg)              //aggiunto sfondo grigio
                         }
-
-                        val horizontalLayout = LinearLayout(requireContext()).apply {
+                        val row = LinearLayout(requireContext()).apply {
                             orientation = LinearLayout.HORIZONTAL
                             layoutParams = LinearLayout.LayoutParams(
                                 LinearLayout.LayoutParams.WRAP_CONTENT,
                                 LinearLayout.LayoutParams.WRAP_CONTENT
-                            ).apply {
-                                setMargins(80, 24, 8, 30)
-                            }
-                            setBackgroundColor(greyBg)              //aggiunto sfondo grigio
+                            ).apply { setMargins(80, 24, 8, 30) }
                         }
-
-                        val testoserierep = TextView(requireContext()).apply {
-                            text = "○ Ripetizioni: $rep, Serie: $serie "
-                            setTextColor(light_gray)
+                        val detail = TextView(requireContext()).apply {
+                            text = "○ Ripetizioni: $rep, Serie: $serie"
+                            setTextColor(
+                                ContextCompat.getColor(
+                                    requireContext(),
+                                    R.color.light_gray
+                                )
+                            )
                             textSize = 16f
-                            layoutParams = LinearLayout.LayoutParams(
-                                LinearLayout.LayoutParams.WRAP_CONTENT,
-                                LinearLayout.LayoutParams.WRAP_CONTENT
-                            ).apply {
-                                setMargins(0, 0, 0, 24) // 👈 aggiunge margin-bottom di 24dp
-                            }
                         }
-
-
-                        val bottone = Button(requireContext()).apply {
+                        val tick = Button(requireContext()).apply {
                             background = ContextCompat.getDrawable(context, R.drawable.tick)
-                            layoutParams = LinearLayout.LayoutParams(50, 50).apply {                //dimensione fissa per farlo perfettamente tondo
-                                setMargins(90, 0, 0, 24)
-                            }
-                            setOnClickListener {
-                                doc.reference.delete().addOnSuccessListener {
-                                    container.removeView(horizontalLayout)
-                                    val index = container.indexOfChild(tv)
-                                    val nextView = container.getChildAt(index + 1)
-                                    if (nextView !is LinearLayout) {
-                                        Toast.makeText(requireContext(), "Esercizio $nome completato!", Toast.LENGTH_SHORT).show()
-                                        container.removeView(tv)
-                                    }
-                                }
-                            }
+                            layoutParams = LinearLayout.LayoutParams(50, 50).apply { setMargins(90, 0, 0, 24) }
+                            setOnClickListener { doc.reference.delete() }
                         }
-
-                        horizontalLayout.addView(testoserierep)
-                        horizontalLayout.addView(bottone)
-
-                        container.addView(tv)                                                       //ecco cosa metto dentro al contenitore
-                        container.addView(horizontalLayout)
+                        row.addView(detail)
+                        row.addView(tick)
+                        container.addView(tv)
+                        container.addView(row)
                     }
                 }
+            activeListeners.add(esListener)
         }
     }
 }

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+<navigation
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/mobile_navigation"
@@ -10,39 +11,71 @@
         android:id="@+id/navigation_home"
         android:name="com.example.progetto_tosa.ui.home.HomeFragment"
         android:label="@string/title_home"
-        tools:layout="@layout/fragment_home" >
+        tools:layout="@layout/fragment_home">
         <action
             android:id="@+id/action_navigation_home_to_navigation_auto_schedule"
             app:destination="@id/fragment_my_auto_schedule" />
         <action
             android:id="@+id/action_navigation_home_to_fragment_workout"
-            app:destination="@id/fragment_workout" />
+            app:destination="@id/fragment_workout">
+            <argument
+                android:name="selectedDate"
+                app:argType="string" />
+        </action>
         <action
             android:id="@+id/action_navigation_home_to_pt_schedule"
             app:destination="@id/navigation_ptSchedule" />
+        <action
+            android:id="@+id/action_navigation_home_to_navigation_myautocalendar"
+            app:destination="@id/navigation_myautocalendar" />
     </fragment>
 
-    <!-- Workout (tab 2) con le azioni verso i 4 sotto‑fragment -->
+    <!-- Workout (tab 2) -->
     <fragment
         android:id="@+id/fragment_workout"
         android:name="com.example.progetto_tosa.ui.workout.WorkoutFragment"
         android:label="@string/title_workout"
-        tools:layout="@layout/fragment_workout" >
+        tools:layout="@layout/fragment_workout">
+        <argument
+            android:name="selectedDate"
+            app:argType="string" />
+
         <action
             android:id="@+id/action_workout_to_bodybuilding"
-            app:destination="@id/navigation_bodybuilding" />
+            app:destination="@id/navigation_bodybuilding">
+            <argument
+                android:name="selectedDate"
+                app:argType="string" />
+        </action>
         <action
             android:id="@+id/action_workout_to_cardio"
-            app:destination="@id/navigation_cardio" />
+            app:destination="@id/navigation_cardio">
+            <argument
+                android:name="selectedDate"
+                app:argType="string" />
+        </action>
         <action
             android:id="@+id/action_workout_to_corpolibero"
-            app:destination="@id/navigation_corpolibero" />
+            app:destination="@id/navigation_corpolibero">
+            <argument
+                android:name="selectedDate"
+                app:argType="string" />
+        </action>
         <action
             android:id="@+id/action_workout_to_stretching"
-            app:destination="@id/navigation_stretching" />
+            app:destination="@id/navigation_stretching">
+            <argument
+                android:name="selectedDate"
+                app:argType="string" />
+        </action>
+
         <action
             android:id="@+id/action_fragment_workout_to_fragment_my_auto_schedule"
-            app:destination="@id/fragment_my_auto_schedule" />
+            app:destination="@id/fragment_my_auto_schedule">
+            <argument
+                android:name="selectedDate"
+                app:argType="string" />
+        </action>
     </fragment>
 
     <!-- Stepwatch (tab 3) -->
@@ -50,12 +83,11 @@
         android:id="@+id/navigation_timer"
         android:name="com.example.progetto_tosa.ui.stepwatch.TimerFragment"
         android:label="Timer"
-        tools:layout="@layout/fragment_timer" >
+        tools:layout="@layout/fragment_timer">
         <action
             android:id="@+id/action_timer_to_stepwatch"
             app:destination="@id/navigation_stepwatch" />
     </fragment>
-
     <fragment
         android:id="@+id/navigation_stepwatch"
         android:name="com.example.progetto_tosa.ui.stepwatch.StepwatchFragment"
@@ -67,7 +99,7 @@
         android:id="@+id/navigation_account"
         android:name="com.example.progetto_tosa.ui.account.AccountFragment"
         android:label="@string/title_account"
-        tools:layout="@layout/fragment_account" >
+        tools:layout="@layout/fragment_account">
         <action
             android:id="@+id/action_account_to_UserData"
             app:destination="@id/navigation_UserData" />
@@ -75,70 +107,126 @@
             android:id="@+id/action_account_to_Settings"
             app:destination="@id/navigation_Settings" />
     </fragment>
-
     <fragment
         android:id="@+id/navigation_UserData"
         android:name="com.example.progetto_tosa.ui.account.InsertData"
         android:label="I miei dati"
         tools:layout="@layout/fragment_insert_data" />
-
     <fragment
         android:id="@+id/navigation_Settings"
         android:name="com.example.progetto_tosa.ui.account.SettingsFragment"
         android:label="IMPOSTAZIONI"
         tools:layout="@layout/fragment_settings" />
 
-    <!-- Sotto‑fragment di Workout -->
+    <!-- Sotto‐fragment di Workout -->
     <fragment
         android:id="@+id/navigation_bodybuilding"
         android:name="com.example.progetto_tosa.ui.workout.BodybuildingFragment"
         android:label="@string/title_bodybuilding"
-        tools:layout="@layout/fragment_bodybuilding" />
-
+        tools:layout="@layout/fragment_bodybuilding">
+        <argument
+            android:name="selectedDate"
+            app:argType="string" />
+    </fragment>
     <fragment
         android:id="@+id/navigation_cardio"
         android:name="com.example.progetto_tosa.ui.workout.CardioFragment"
         android:label="@string/title_cardio"
-        tools:layout="@layout/fragment_cardio" />
-
+        tools:layout="@layout/fragment_cardio">
+        <argument
+            android:name="selectedDate"
+            app:argType="string" />
+    </fragment>
     <fragment
         android:id="@+id/navigation_corpolibero"
         android:name="com.example.progetto_tosa.ui.workout.CorpoliberoFragment"
         android:label="@string/title_corpolibero"
-        tools:layout="@layout/fragment_corpolibero" />
-
+        tools:layout="@layout/fragment_corpolibero">
+        <argument
+            android:name="selectedDate"
+            app:argType="string" />
+    </fragment>
     <fragment
         android:id="@+id/navigation_stretching"
         android:name="com.example.progetto_tosa.ui.workout.StretchingFragment"
         android:label="@string/title_stretching"
-        tools:layout="@layout/fragment_stretching" />
+        tools:layout="@layout/fragment_stretching">
+        <argument
+            android:name="selectedDate"
+            app:argType="string" />
+    </fragment>
 
+    <!-- Le mie schede -->
     <fragment
         android:id="@+id/fragment_my_auto_schedule"
         android:name="com.example.progetto_tosa.ui.home.MyAutoScheduleFragment"
         android:label="Le mie schede"
-        tools:layout="@layout/fragment_my_auto_schedule" >
+        tools:layout="@layout/fragment_my_auto_schedule">
+        <argument
+            android:name="selectedDate"
+            app:argType="string" />
+
         <action
             android:id="@+id/action_fragment_my_auto_schedule_to_navigation_timer"
             app:destination="@id/navigation_timer" />
         <action
             android:id="@+id/action_fragment_my_auto_schedule_to_navigation_bodybuilding"
-            app:destination="@id/navigation_bodybuilding" />
+            app:destination="@id/navigation_bodybuilding">
+            <argument
+                android:name="selectedDate"
+                app:argType="string" />
+        </action>
         <action
             android:id="@+id/action_fragment_my_auto_schedule_to_navigation_cardio"
-            app:destination="@id/navigation_cardio" />
-        <action
-            android:id="@+id/action_fragment_my_auto_schedule_to_navigation_stretching"
-            app:destination="@id/navigation_corpolibero" />
+            app:destination="@id/navigation_cardio">
+            <argument
+                android:name="selectedDate"
+                app:argType="string" />
+        </action>
         <action
             android:id="@+id/action_fragment_my_auto_schedule_to_navigation_corpolibero"
-            app:destination="@id/navigation_stretching" />
+            app:destination="@id/navigation_corpolibero">
+            <argument
+                android:name="selectedDate"
+                app:argType="string" />
+        </action>
+        <action
+            android:id="@+id/action_fragment_my_auto_schedule_to_navigation_stretching"
+            app:destination="@id/navigation_stretching">
+            <argument
+                android:name="selectedDate"
+                app:argType="string" />
+        </action>
+
+        <action
+            android:id="@+id/action_fragment_my_auto_schedule_to_fragment_workout"
+            app:destination="@id/fragment_workout">
+            <argument
+                android:name="selectedDate"
+                app:argType="string" />
+        </action>
     </fragment>
 
+    <!-- Schede PT -->
     <fragment
         android:id="@+id/navigation_ptSchedule"
         android:name="com.example.progetto_tosa.ui.home.PTscheduleFragment"
         android:label="Le schede del mio PT"
         tools:layout="@layout/fragment_pt_schedule" />
+
+    <!-- Il calendario -->
+    <fragment
+        android:id="@+id/navigation_myautocalendar"
+        android:name="com.example.progetto_tosa.ui.home.MyAutoCalendar"
+        android:label="E' tempo di allenarsi!"
+        tools:layout="@layout/fragment_myautocalendar">
+        <action
+            android:id="@+id/action_navigation_myautocalendar_to_fragment_my_auto_schedule"
+            app:destination="@id/fragment_my_auto_schedule">
+            <argument
+                android:name="selectedDate"
+                app:argType="string" />
+        </action>
+    </fragment>
 
 </navigation>
