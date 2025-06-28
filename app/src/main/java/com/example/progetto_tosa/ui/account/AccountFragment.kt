@@ -89,6 +89,9 @@ class AccountFragment : Fragment() {
         binding.userData.setOnClickListener {
             findNavController().navigate(R.id.action_account_to_UserData)
         }
+        binding.UserProgram.setOnClickListener {
+            findNavController().navigate(R.id.action_navigation_account_to_navigation_home)
+        }
 
         // ─── INITIAL UI LOAD ───────────────────────────────────────────────────
         updateUI()

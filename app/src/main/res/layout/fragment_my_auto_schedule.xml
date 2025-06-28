@@ -5,7 +5,6 @@
     android:layout_height="match_parent"
     android:background="#121212">
 
-    <!-- Scrollable content -->
     <ScrollView
         android:id="@+id/scrollView"
         android:layout_width="0dp"
@@ -23,7 +22,6 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <!-- Titolo -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -33,7 +31,6 @@
                 android:textStyle="bold"
                 android:textColor="@android:color/white" />
 
-            <!-- Sottotitolo -->
             <TextView
                 android:id="@+id/subtitlePPPPPPPPROOOOOVA"
                 android:layout_width="wrap_content"
@@ -44,12 +41,10 @@
                 android:textColor="#80B6E3"
                 android:layout_marginTop="8dp" />
 
-            <!-- Spaziatore -->
             <View
                 android:layout_width="match_parent"
                 android:layout_height="24dp" />
 
-            <!-- Sezione: Bodybuilding -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -89,7 +84,6 @@
                     android:layout_marginTop="8dp" />
             </LinearLayout>
 
-            <!-- Sezione: Cardio -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -129,7 +123,6 @@
                     android:layout_marginTop="8dp" />
             </LinearLayout>
 
-            <!-- Sezione: Corpo Libero -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -169,7 +162,6 @@
                     android:layout_marginTop="8dp" />
             </LinearLayout>
 
-            <!-- Sezione: Stretching -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -210,16 +202,27 @@
                     android:layout_marginTop="8dp" />
             </LinearLayout>
 
-            <!-- Pulsante “Riempila ora!” -->
             <Button
                 android:id="@+id/btnFillSchedule"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Creala adesso!"
+                android:text="Aggiungi degli esercizi!"
                 android:visibility="gone"
                 android:layout_marginBottom="24dp" />
-
         </LinearLayout>
     </ScrollView>
 
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fabAdd"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="16dp"
+        android:layout_marginTop="660dp"
+        android:src="@drawable/ic_tools"
+        android:tint="@android:color/white"
+        app:backgroundTint="@color/navy_blue"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:translationZ="8dp"
+        android:contentDescription="dd_exercise"/>
 </androidx.constraintlayout.widget.ConstraintLayout>

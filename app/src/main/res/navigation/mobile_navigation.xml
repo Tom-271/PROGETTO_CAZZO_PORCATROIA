@@ -28,6 +28,9 @@
         <action
             android:id="@+id/action_navigation_home_to_navigation_myautocalendar"
             app:destination="@id/navigation_myautocalendar" />
+        <action
+            android:id="@+id/action_navigation_home_to_navigation_cronotimer"
+            app:destination="@id/navigation_cronotimer" />
     </fragment>
 
     <!-- Workout (tab 2) -->
@@ -106,6 +109,9 @@
         <action
             android:id="@+id/action_account_to_Settings"
             app:destination="@id/navigation_Settings" />
+        <action
+            android:id="@+id/action_navigation_account_to_navigation_home"
+            app:destination="@id/navigation_home" />
     </fragment>
     <fragment
         android:id="@+id/navigation_UserData"
@@ -205,6 +211,12 @@
                 android:name="selectedDate"
                 app:argType="string" />
         </action>
+        <action
+            android:id="@+id/action_fragment_my_auto_schedule_to_navigation_stepwatch"
+            app:destination="@id/navigation_stepwatch" />
+        <action
+            android:id="@+id/action_fragment_my_auto_schedule_to_navigation_cronotimer"
+            app:destination="@id/navigation_cronotimer" />
     </fragment>
 
     <!-- Schede PT -->
@@ -227,6 +239,20 @@
                 android:name="selectedDate"
                 app:argType="string" />
         </action>
+    </fragment>
+
+    <fragment
+        android:id="@+id/navigation_cronotimer"
+        android:name="com.example.progetto_tosa.ui.home.CronoTimer"
+        android:label="Strumenti"
+        tools:layout="@layout/fragment_cronotimer" >
+
+    <action
+            android:id="@+id/action_navigation_cronotimer_to_navigation_stepwatch"
+            app:destination="@id/navigation_stepwatch" />
+        <action
+            android:id="@+id/action_navigation_cronotimer_to_navigation_timer"
+            app:destination="@id/navigation_timer" />
     </fragment>
 
 </navigation>

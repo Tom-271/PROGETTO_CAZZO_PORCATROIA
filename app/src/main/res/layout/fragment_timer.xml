@@ -7,10 +7,9 @@
     android:layout_height="match_parent"
     android:padding="150dp"
     android:clipChildren="false"
-    android:clipToPadding="false"
-    >
+    android:clipToPadding="false">
 
-    <!-- 0) Spinner come titolo -->
+    <!-- Spinner come titolo -->
     <Spinner
         android:id="@+id/spinner_title"
         android:layout_width="wrap_content"
@@ -18,9 +17,9 @@
         android:layout_marginBottom="24dp"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
+        app:layout_constraintEnd_toEndOf="parent" />
 
-    <!-- 1) Card “bottone” -->
+    <!-- Card “bottone” con sfondo colore e testo centrale -->
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/card_clock"
         android:layout_width="260dp"
@@ -31,37 +30,27 @@
         app:cardElevation="30dp"
         app:cardUseCompatPadding="false"
         app:cardPreventCornerOverlap="true"
+        app:cardBackgroundColor="@color/navy_blue"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
-        <FrameLayout
+        <TextView
+            android:id="@+id/textStepwatch"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:clipChildren="false"
-            android:clipToPadding="false">
+            android:gravity="center"
+            android:textColor="@color/white"
+            android:text="00:30"
+            android:textSize="36sp"
+            android:textStyle="bold"
+            android:letterSpacing="0.1"
+            android:clickable="true"
+            android:focusable="true" />
 
-            <!-- a) Quadrante 3D-like -->
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:background="@drawable/clock_face_gradient"/>
-
-            <!-- b) Testo centrale -->
-            <TextView
-                android:id="@+id/textStepwatch"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:gravity="center"
-                android:textColor="@color/black"
-                android:text="30s"
-                android:textSize="36sp"
-                android:textStyle="bold"
-                android:letterSpacing="0.1"/>
-        </FrameLayout>
     </com.google.android.material.card.MaterialCardView>
 
-    <!-- 2) Ring arancione (non intercetta click) -->
+    <!-- Ring arancione, non intercetta click -->
     <com.google.android.material.progressindicator.CircularProgressIndicator
         android:id="@+id/progressTimer"
         style="@style/Widget.MaterialComponents.CircularProgressIndicator"
@@ -80,20 +69,24 @@
         app:layout_constraintTop_toTopOf="@id/card_clock"
         app:layout_constraintBottom_toBottomOf="@id/card_clock"
         app:layout_constraintStart_toStartOf="@id/card_clock"
-        app:layout_constraintEnd_toEndOf="@id/card_clock"/>
+        app:layout_constraintEnd_toEndOf="@id/card_clock" />
 
-    <!-- 3) Input secondi -->
-    <EditText
-        android:id="@+id/editSeconds"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:hint="Inserisci secondi"
-        android:inputType="number"
-        android:minHeight="48dp"
-        android:paddingVertical="12dp"
-        android:paddingHorizontal="16dp"
-        app:layout_constraintTop_toBottomOf="@id/card_clock"
+    <!-- Pulsante Play/Pause arrotondato sotto il quadrante -->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnPlayPause"
+        android:layout_width="64dp"
+        android:layout_height="64dp"
+        app:layout_constraintTop_toBottomOf="@id/progressTimer"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="24dp"/>
+        android:layout_marginTop="24dp"
+        app:strokeWidth="1dp"
+        app:strokeColor="@color/dark_gray"
+        android:backgroundTint="@color/orange"
+        app:cornerRadius="10dp"
+        app:icon="@drawable/ic_play"
+        app:iconTint="@android:color/white"
+        app:iconGravity="textStart"
+        app:iconPadding="0dp" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

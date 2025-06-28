@@ -2,25 +2,23 @@ package com.example.progetto_tosa.ui.account
 
 import android.os.Bundle
 import androidx.core.view.WindowCompat
-import android.widget.PopupMenu
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
+import com.example.progetto_tosa.R
 import com.example.progetto_tosa.databinding.ActivityMainBinding
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
-import com.example.progetto_tosa.R
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        // ⬇️ Imposta il tema PRIMA di tutto
+        // 1) Imposto il tema PRIMA di chiamare super.onCreate
         WindowCompat.setDecorFitsSystemWindows(window, false)
-
         val prefs = getSharedPreferences("settings", MODE_PRIVATE)
         val isDarkMode = prefs.getBoolean("darkMode", true)
         AppCompatDelegate.setDefaultNightMode(
@@ -29,56 +27,48 @@ class MainActivity : AppCompatActivity() {
         )
 
         super.onCreate(savedInstanceState)
-
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        // 2) Setup BottomNavigationView + NavController
         val navView: BottomNavigationView = binding.navView
         val navController = findNavController(R.id.nav_host_fragment_activity_main)
 
+        // 3) Configuro l’AppBar per questi quattro “top-level destinations”
         val appBarConfiguration = AppBarConfiguration(
             setOf(
                 R.id.navigation_home,
                 R.id.navigation_workout,
-                R.id.navigation_stepwatch,
-                R.id.navigation_account,
-                R.id.navigation_tools // Assicurati che esista anche questo
+                R.id.navigation_cronotimer,  // terzo tab → CronoTimerFragment
+                R.id.navigation_account
             )
         )
-
         setupActionBarWithNavController(navController, appBarConfiguration)
         navView.setupWithNavController(navController)
 
-        // ⬇️ Disattiva il cambio automatico di colore delle icone
+        // 4) Mantengo le icone nei loro colori originali
         navView.itemIconTintList = null
 
-        // ⬇️ Menu a tendina per "Strumenti"
-        navView.setOnItemSelectedListener {  item ->
+        // 5) (Opzionale) Se vuoi gestire manualmente la navigazione:
+        navView.setOnItemSelectedListener { item ->
             when (item.itemId) {
-                R.id.navigation_tools -> {
-                    // Usa navView come ancora del popup
-                    val popup = PopupMenu(this, navView)
-                    popup.menu.add("Cronometro")
-                    popup.menu.add("Timer")
-
-                    popup.setOnMenuItemClickListener { menuItem ->
-                        when (menuItem.title) {
-                            "Cronometro" -> navController.navigate(R.id.navigation_stepwatch)
-                            "Timer" -> navController.navigate(R.id.navigation_timer)
-                        }
-                        true
-                    }
-
-                    popup.show()
+                R.id.navigation_home -> {
+                    navController.navigate(R.id.navigation_home)
                     true
                 }
-                else -> {
-                    when (item.itemId) {
-                        R.id.navigation_workout -> navController.navigate(R.id.fragment_workout)
-                        else -> navController.navigate(item.itemId)
-                    }
+                R.id.navigation_workout -> {
+                    navController.navigate(R.id.fragment_workout)
                     true
                 }
+                R.id.navigation_cronotimer -> {
+                    navController.navigate(R.id.navigation_cronotimer)
+                    true
+                }
+                R.id.navigation_account -> {
+                    navController.navigate(R.id.navigation_account)
+                    true
+                }
+                else -> false
             }
         }
     }

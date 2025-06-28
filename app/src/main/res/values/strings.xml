@@ -26,5 +26,8 @@
     <string name="hello_blank_fragment">Hello blank fragment</string><!--queste parti sono il nome che mi compare sotto l'icona nel menu-->
 
     <string name="title_data">Your Data</string>
-
+    <string name="fine">Fine!</string>
+    <string name="imposta_tempo">Imposta tempo</string>
+    <string name="ok">OK</string>
+    <string name="annulla">Annulla</string>
 </resources>

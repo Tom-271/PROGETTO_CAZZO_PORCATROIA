@@ -1,6 +1,6 @@
 package com.example.progetto_tosa.ui.stepwatch
 
-import android.animation.ValueAnimator
+import android.app.AlertDialog
 import android.os.Bundle
 import android.os.CountDownTimer
 import android.os.Handler
@@ -8,8 +8,12 @@ import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.LinearLayout
+import android.widget.NumberPicker
 import androidx.fragment.app.Fragment
+import com.example.progetto_tosa.R
 import com.example.progetto_tosa.databinding.FragmentTimerBinding
+import com.google.android.material.button.MaterialButton
 
 class TimerFragment : Fragment() {
 
@@ -17,8 +21,11 @@ class TimerFragment : Fragment() {
     private val binding get() = _binding!!
 
     private var countDownTimer: CountDownTimer? = null
-    private lateinit var heartbeat: ValueAnimator
     private val handler = Handler(Looper.getMainLooper())
+
+    private var totalSecs = 30L
+    private var timeLeft = totalSecs
+    private var isRunning = false
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -31,74 +38,111 @@ class TimerFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Heartbeat: two quick bumps then a pause, total 960ms
-        heartbeat = ValueAnimator.ofFloat(0f, 1f).apply {
-            duration = 960L
-            repeatCount = ValueAnimator.INFINITE
-            repeatMode = ValueAnimator.RESTART
-            addUpdateListener { anim ->
-                val t = anim.animatedFraction * duration
-                val scale = when {
-                    t < 100 -> 1f + (t / 100f) * 0.05f        // up1
-                    t < 200 -> 1.05f - ((t - 100) / 100f) * 0.05f // down1
-                    t < 280 -> 1f + ((t - 200) / 80f) * 0.05f   // up2
-                    t < 360 -> 1.05f - ((t - 280) / 80f) * 0.05f  // down2
-                    else     -> 1f                             // pause
-                }
-                binding.cardClock.scaleX = scale
-                binding.cardClock.scaleY = scale
-                binding.progressTimer.scaleX = scale
-                binding.progressTimer.scaleY = scale
-            }
+        // Ignora click sul quadrante
+        binding.cardClock.setOnClickListener { }
+
+        // Toggle start/pause
+        (binding.btnPlayPause as MaterialButton).setOnClickListener { toggleTimer() }
+
+        // Modifica tempo quando fermo
+        binding.textStepwatch.setOnClickListener {
+            if (!isRunning) showTimePicker()
         }
-        heartbeat.start() // pulsazione in idle
 
-        binding.cardClock.setOnClickListener {
-            // ferma battito
-            heartbeat.cancel()
-            resetScale()
-
-            val totalSecs = binding.editSeconds.text.toString().toLongOrNull() ?: 30L
-            binding.progressTimer.max = totalSecs.toInt()
-            binding.progressTimer.progress = totalSecs.toInt()
-            binding.textStepwatch.text = "${totalSecs}s"
-
-            startCountdown(totalSecs)
-        }
+        // Inizializza display e progress
+        updateDisplay(totalSecs)
+        binding.progressTimer.max = totalSecs.toInt()
+        binding.progressTimer.progress = totalSecs.toInt()
     }
 
-    private fun resetScale() {
-        binding.cardClock.scaleX = 1f
-        binding.cardClock.scaleY = 1f
-        binding.progressTimer.scaleX = 1f
-        binding.progressTimer.scaleY = 1f
+    private fun toggleTimer() {
+        if (isRunning) pauseTimer() else startCountdown(timeLeft)
     }
 
-    private fun startCountdown(totalSecs: Long) {
+    private fun startCountdown(startSecs: Long) {
         countDownTimer?.cancel()
-        countDownTimer = object : CountDownTimer(totalSecs * 1000, 1000) {
-            override fun onTick(millis: Long) {
-                val left = (millis / 1000).toInt()
-                binding.textStepwatch.text = "${left}s"
-                binding.progressTimer.progress = left
+        isRunning = true
+        (binding.btnPlayPause as MaterialButton).icon =
+            resources.getDrawable(R.drawable.ic_pause, null)
+        animatePulse(true)
+
+        countDownTimer = object : CountDownTimer(startSecs * 1000, 1000) {
+            override fun onTick(millisUntilFinished: Long) {
+                timeLeft = millisUntilFinished / 1000
+                updateDisplay(timeLeft)
+                binding.progressTimer.progress = timeLeft.toInt()
             }
 
             override fun onFinish() {
-                binding.textStepwatch.text = "Fine!"
+                isRunning = false
+                (binding.btnPlayPause as MaterialButton).icon =
+                    resources.getDrawable(R.drawable.ic_play, null)
+                animatePulse(false)
+                binding.textStepwatch.text = getString(R.string.fine)
                 binding.progressTimer.progress = 0
                 handler.postDelayed({
-                    binding.textStepwatch.text = "30s"
-                    binding.progressTimer.progress = binding.progressTimer.max
-                    heartbeat.start() // riprende battito
+                    timeLeft = totalSecs
+                    updateDisplay(timeLeft)
+                    binding.progressTimer.max = totalSecs.toInt()
+                    binding.progressTimer.progress = totalSecs.toInt()
                 }, 2000)
             }
         }.start()
     }
 
+    private fun pauseTimer() {
+        countDownTimer?.cancel()
+        isRunning = false
+        (binding.btnPlayPause as MaterialButton).icon =
+            resources.getDrawable(R.drawable.ic_play, null)
+        animatePulse(false)
+    }
+
+    private fun updateDisplay(seconds: Long) {
+        val mm = seconds / 60
+        val ss = seconds % 60
+        binding.textStepwatch.text = String.format("%02d:%02d", mm, ss)
+    }
+
+    private fun animatePulse(start: Boolean) {
+        binding.cardClock.animate()
+            .scaleX(if (start) 1.05f else 1f)
+            .scaleY(if (start) 1.05f else 1f)
+            .setDuration(500)
+            .withEndAction { if (isRunning && start) animatePulse(true) }
+            .start()
+    }
+
+    private fun showTimePicker() {
+        val pickerMin = NumberPicker(requireContext()).apply {
+            minValue = 0; maxValue = 59; value = (totalSecs / 60).toInt()
+        }
+        val pickerSec = NumberPicker(requireContext()).apply {
+            minValue = 0; maxValue = 59; value = (totalSecs % 60).toInt()
+        }
+        val layout = LinearLayout(requireContext()).apply {
+            orientation = LinearLayout.HORIZONTAL
+            val pad = (16 * resources.displayMetrics.density).toInt()
+            setPadding(pad, pad, pad, pad)
+            addView(pickerMin)
+            addView(pickerSec)
+        }
+        AlertDialog.Builder(requireContext())
+            .setTitle(R.string.imposta_tempo)
+            .setView(layout)
+            .setPositiveButton(R.string.ok) { _, _ ->
+                totalSecs = pickerMin.value * 60L + pickerSec.value
+                timeLeft = totalSecs
+                binding.progressTimer.max = totalSecs.toInt()
+                updateDisplay(timeLeft)
+            }
+            .setNegativeButton(R.string.annulla, null)
+            .show()
+    }
+
     override fun onDestroyView() {
         super.onDestroyView()
         countDownTimer?.cancel()
-        heartbeat.cancel()
         handler.removeCallbacksAndMessages(null)
         _binding = null
     }

@@ -17,6 +17,7 @@ import androidx.navigation.fragment.findNavController
 import com.example.progetto_tosa.R
 import com.example.progetto_tosa.databinding.FragmentMyAutoScheduleBinding
 import com.google.firebase.Timestamp
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
 import java.text.SimpleDateFormat
@@ -27,14 +28,16 @@ class MyAutoScheduleFragment : Fragment() {
     private var _binding: FragmentMyAutoScheduleBinding? = null
     private val binding get() = _binding!!
 
-    // “yyyy-MM-dd” dalla selezione nel calendario
+    private val db = FirebaseFirestore.getInstance()
+    private val auth = FirebaseAuth.getInstance()
+    private val activeListeners = mutableListOf<ListenerRegistration>()
+
     private val selectedDateId: String by lazy {
         requireArguments().getString("selectedDate")
-            ?: error("MyAutoScheduleFragment: selectedDate mancante")
+            ?: error("selectedDate mancante")
     }
 
-    // View refs
-    private lateinit var subtitlePPPPPPPPROOOOOVA: TextView
+    private lateinit var subtitleDate: TextView
     private lateinit var btnFillSchedule: Button
     private lateinit var subtitleBodyBuilding: TextView
     private lateinit var subtitleCardio: TextView
@@ -49,21 +52,9 @@ class MyAutoScheduleFragment : Fragment() {
     private lateinit var corpoLiberoDetailsContainer: LinearLayout
     private lateinit var stretchingDetailsContainer: LinearLayout
 
-    // Firestore
-    private val db = FirebaseFirestore.getInstance()
-    private val activeListeners = mutableListOf<ListenerRegistration>()
-
-    // “Muscoli” per categoria
-    private val bodybuildingMuscoli = listOf("petto", "gambe", "spalle", "dorso", "bicipiti", "tricipiti")
-    private val cardioMuscoli = listOf("cardio1", "cardio2")
-    private val corpoLiberoMuscoli = listOf("libero1", "libero2")
-    private val stretchingMuscoli = listOf("stretch1", "stretch2")
-
-    // Conteggi dinamici
-    private val countsMap = mutableMapOf<TextView, MutableMap<String, Int>>()
-
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
+        inflater: LayoutInflater,
+        container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentMyAutoScheduleBinding.inflate(inflater, container, false)
@@ -73,8 +64,7 @@ class MyAutoScheduleFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Bind delle view
-        subtitlePPPPPPPPROOOOOVA = binding.subtitlePPPPPPPPROOOOOVA
+        subtitleDate = binding.subtitlePPPPPPPPROOOOOVA
         btnFillSchedule = binding.btnFillSchedule
         subtitleBodyBuilding = binding.subtitleBodyBuilding
         subtitleCardio = binding.subtitleCardio
@@ -89,27 +79,16 @@ class MyAutoScheduleFragment : Fragment() {
         corpoLiberoDetailsContainer = binding.corpoliberoDetailsContainer
         stretchingDetailsContainer = binding.stretchingDetailsContainer
 
-        // Formatta la data selezionata
         val displayDate = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
-            .format(
-                SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-                    .parse(selectedDateId)!!
-            )
-
-
-        // Imposta il tuo sottotitolo con la data dal calendario
-        subtitlePPPPPPPPROOOOOVA.visibility = VISIBLE
+            .format(SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).parse(selectedDateId)!!)
         val today = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).format(Date())
-
-        if(displayDate == today)
-        {
-            subtitlePPPPPPPPROOOOOVA.text = "LA MIA SCHEDA di oggi"
-        }
+        subtitleDate.visibility = VISIBLE
+        subtitleDate.text = if (displayDate == today)
+            "LA MIA SCHEDA di oggi"
         else
-        {
-            subtitlePPPPPPPPROOOOOVA.text = "LA MIA SCHEDA DEL: $displayDate"
-        }
-        // Crea documento giorno se non esiste
+            "LA MIA SCHEDA DEL: $displayDate"
+
+
         db.collection("schede_giornaliere")
             .document(selectedDateId)
             .get()
@@ -119,7 +98,6 @@ class MyAutoScheduleFragment : Fragment() {
                 }
             }
 
-        // “Riempila ora!” — sempre visibile
         btnFillSchedule.visibility = VISIBLE
         btnFillSchedule.setOnClickListener {
             findNavController().navigate(
@@ -128,7 +106,6 @@ class MyAutoScheduleFragment : Fragment() {
             )
         }
 
-        // Espansioni + popolazioni
         btnBodybuilding.setOnClickListener {
             findNavController().navigate(
                 R.id.action_fragment_my_auto_schedule_to_navigation_bodybuilding,
@@ -137,32 +114,35 @@ class MyAutoScheduleFragment : Fragment() {
         }
         btnCardio.setOnClickListener {
             toggleContainer(cardioDetailsContainer) {
-                listenAndPopulate("cardio", cardioMuscoli, cardioDetailsContainer)
+                listenAndPopulate("cardio", listOf("cardio1", "cardio2"), cardioDetailsContainer)
             }
         }
         btnCorpoLibero.setOnClickListener {
             toggleContainer(corpoLiberoDetailsContainer) {
-                listenAndPopulate("corpo_libero", corpoLiberoMuscoli, corpoLiberoDetailsContainer)
+                listenAndPopulate("corpo_libero", listOf("libero1", "libero2"), corpoLiberoDetailsContainer)
             }
         }
         btnStretching.setOnClickListener {
             toggleContainer(stretchingDetailsContainer) {
-                listenAndPopulate("stretching", stretchingMuscoli, stretchingDetailsContainer)
+                listenAndPopulate("stretching", listOf("stretch1", "stretch2"), stretchingDetailsContainer)
             }
         }
 
-        // Conteggi dinamici
-        listenToExerciseCount("bodybuilding", bodybuildingMuscoli, subtitleBodyBuilding)
-        listenToExerciseCount("cardio", cardioMuscoli, subtitleCardio)
-        listenToExerciseCount("corpo_libero", corpoLiberoMuscoli, subtitleCorpoLibero)
-        listenToExerciseCount("stretching", stretchingMuscoli, subtitleStretching)
+        binding.fabAdd.setOnClickListener {
+            findNavController().navigate(R.id.action_fragment_my_auto_schedule_to_navigation_cronotimer)
+
+        }
+        listenToExerciseCount("bodybuilding", listOf("petto","gambe","spalle","dorso","bicipiti","tricipiti"), subtitleBodyBuilding)
+        listenToExerciseCount("cardio", listOf("cardio1","cardio2"), subtitleCardio)
+        listenToExerciseCount("corpo_libero", listOf("libero1","libero2"), subtitleCorpoLibero)
+        listenToExerciseCount("stretching", listOf("stretch1","stretch2"), subtitleStretching)
     }
 
     override fun onDestroyView() {
-        super.onDestroyView()
         activeListeners.forEach { it.remove() }
         activeListeners.clear()
         _binding = null
+        super.onDestroyView()
     }
 
     private inline fun toggleContainer(container: LinearLayout, onOpen: () -> Unit) {
@@ -179,20 +159,19 @@ class MyAutoScheduleFragment : Fragment() {
         muscoli: List<String>,
         subtitleView: TextView
     ) {
-        muscoli.forEach { muscolo ->
-            val listener = db
-                .collection("schede_giornaliere")
+        muscoli.forEach { m ->
+            val listener = db.collection("schede_giornaliere")
                 .document(selectedDateId)
                 .collection(category)
-                .document(muscolo)
+                .document(m)
                 .collection("esercizi")
                 .addSnapshotListener { snap, err ->
                     if (err != null) {
                         subtitleView.text = "0 exercises"
                         return@addSnapshotListener
                     }
-                    val map = countsMap.getOrPut(subtitleView) { mutableMapOf() }
-                    map[muscolo] = snap?.size() ?: 0
+                    val map = mutableMapOf<String, Int>()
+                    map[m] = snap?.size() ?: 0
                     subtitleView.text = "${map.values.sum()} exercises"
                 }
             activeListeners.add(listener)
@@ -201,22 +180,19 @@ class MyAutoScheduleFragment : Fragment() {
 
     private fun listenAndPopulate(
         category: String,
-        listaElementi: List<String>,
+        lista: List<String>,
         container: LinearLayout
     ) {
         container.removeAllViews()
-        listaElementi.forEach { muscolo ->
-            // Header
+        lista.forEach { m ->
             val header = TextView(requireContext()).apply {
-                text = muscolo.uppercase(Locale.getDefault())
+                text = m.uppercase(Locale.getDefault())
                 typeface = Typeface.DEFAULT_BOLD
                 setTextColor(ContextCompat.getColor(requireContext(), R.color.sky))
                 setPadding(40, 30, 0, 0)
                 textSize = 20f
             }
             container.addView(header)
-
-            // Divider
             val divider = View(requireContext()).apply {
                 layoutParams = LinearLayout.LayoutParams(
                     LinearLayout.LayoutParams.MATCH_PARENT, 3
@@ -224,13 +200,10 @@ class MyAutoScheduleFragment : Fragment() {
                 setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.dark_gray))
             }
             container.addView(divider)
-
-            // Listener su esercizi
-            val esListener = db
-                .collection("schede_giornaliere")
+            val listener = db.collection("schede_giornaliere")
                 .document(selectedDateId)
                 .collection(category)
-                .document(muscolo)
+                .document(m)
                 .collection("esercizi")
                 .addSnapshotListener { snap, _ ->
                     val startIdx = container.indexOfChild(divider) + 1
@@ -241,15 +214,9 @@ class MyAutoScheduleFragment : Fragment() {
                         val nome = doc.getString("nomeEsercizio") ?: doc.id
                         val serie = doc.getLong("numeroSerie")?.toString() ?: "0"
                         val rep = doc.getLong("numeroRipetizioni")?.toString() ?: "0"
-
                         val tv = TextView(requireContext()).apply {
                             text = nome
-                            setTextColor(
-                                ContextCompat.getColor(
-                                    requireContext(),
-                                    android.R.color.white
-                                )
-                            )
+                            setTextColor(ContextCompat.getColor(requireContext(), android.R.color.white))
                             setPadding(18, 0, 8, 4)
                             textSize = 16f
                         }
@@ -262,12 +229,7 @@ class MyAutoScheduleFragment : Fragment() {
                         }
                         val detail = TextView(requireContext()).apply {
                             text = "○ Ripetizioni: $rep, Serie: $serie"
-                            setTextColor(
-                                ContextCompat.getColor(
-                                    requireContext(),
-                                    R.color.light_gray
-                                )
-                            )
+                            setTextColor(ContextCompat.getColor(requireContext(), R.color.light_gray))
                             textSize = 16f
                         }
                         val tick = Button(requireContext()).apply {
@@ -281,7 +243,7 @@ class MyAutoScheduleFragment : Fragment() {
                         container.addView(row)
                     }
                 }
-            activeListeners.add(esListener)
+            activeListeners.add(listener)
         }
     }
 }
