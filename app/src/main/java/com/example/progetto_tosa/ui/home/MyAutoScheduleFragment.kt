@@ -2,16 +2,20 @@ package com.example.progetto_tosa.ui.home
 
 import android.graphics.Typeface
 import android.os.Bundle
+import android.util.TypedValue
+import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.View.GONE
 import android.view.View.VISIBLE
 import android.view.ViewGroup
+import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.TextView
+import android.widget.Toast
 import androidx.core.content.ContextCompat
-import androidx.navigation.fragment.findNavController
 import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.findNavController
 import com.example.progetto_tosa.R
 import com.example.progetto_tosa.databinding.FragmentMyAutoScheduleBinding
 import com.google.firebase.Timestamp
@@ -62,7 +66,11 @@ class MyAutoScheduleFragment : Fragment() {
         // assicurati documento
         db.collection("schede_giornaliere").document(selectedDateId)
             .get()
-            .addOnSuccessListener { snap -> if (!snap.exists()) snap.reference.set(mapOf("date" to Timestamp.now())) }
+            .addOnSuccessListener { snap ->
+                if (!snap.exists()) {
+                    snap.reference.set(mapOf("date" to Timestamp.now()))
+                }
+            }
 
         // bottone aggiungi generico
         b.btnFillSchedule.apply {
@@ -173,6 +181,7 @@ class MyAutoScheduleFragment : Fragment() {
                     .collection("esercizi")
                 colRef.get().addOnSuccessListener { snap ->
                     if (snap.isEmpty) return@addOnSuccessListener
+
                     // Header muscolo
                     val header = TextView(requireContext()).apply {
                         text = m.uppercase(Locale.getDefault())
@@ -182,6 +191,7 @@ class MyAutoScheduleFragment : Fragment() {
                         textSize = 20f
                     }
                     container.addView(header)
+
                     // Divider
                     val divider = View(requireContext()).apply {
                         layoutParams = LinearLayout.LayoutParams(
@@ -195,37 +205,86 @@ class MyAutoScheduleFragment : Fragment() {
                         )
                     }
                     container.addView(divider)
-                    // Esercizi
+
+                    // Esercizi con pulsante elimina
                     snap.documents.forEach { doc ->
                         val nome = doc.getString("nomeEsercizio") ?: doc.id
                         val serie = doc.getLong("numeroSerie")?.toString() ?: "0"
                         val rep = doc.getLong("numeroRipetizioni")?.toString() ?: "0"
-                        // Nome esercizio
-                        val nomeView = TextView(requireContext()).apply {
-                            text = nome
+                        val eserciziPath = colRef
+
+                        // Layout orizzontale per ogni esercizio
+                        val itemLayout = LinearLayout(requireContext()).apply {
+                            orientation = LinearLayout.HORIZONTAL
+                            layoutParams = LinearLayout.LayoutParams(
+                                LinearLayout.LayoutParams.MATCH_PARENT,
+                                LinearLayout.LayoutParams.WRAP_CONTENT
+                            ).apply { setMargins(36, 8, 8, 8) }
+                            gravity = Gravity.CENTER_VERTICAL
+                        }
+
+                        // Info esercizio
+                        val infoView = TextView(requireContext()).apply {
+                            text = "$nome  ○ Rep: $rep  •  Serie: $serie"
                             setTextColor(
                                 ContextCompat.getColor(
                                     requireContext(),
                                     android.R.color.white
                                 )
                             )
-                            setPadding(18, 0, 8, 4)
                             textSize = 16f
-                        }
-                        container.addView(nomeView)
-                        // Dettagli
-                        val detail = TextView(requireContext()).apply {
-                            text = "○ Ripetizioni: $rep, Serie: $serie"
-                            setTextColor(
-                                ContextCompat.getColor(
-                                    requireContext(),
-                                    R.color.light_gray
-                                )
+                            layoutParams = LinearLayout.LayoutParams(
+                                0,
+                                LinearLayout.LayoutParams.WRAP_CONTENT,
+                                1f
                             )
-                            textSize = 14f
-                            setPadding(36, 0, 8, 16)
                         }
-                        container.addView(detail)
+                        itemLayout.addView(infoView)
+
+                        // Bottone Elimina
+                        val sizeDp = 32
+                        val sizePx = TypedValue.applyDimension(
+                            TypedValue.COMPLEX_UNIT_DIP,
+                            sizeDp.toFloat(),
+                            resources.displayMetrics
+                        ).toInt()
+
+                        val btnDelete = Button(requireContext()).apply {
+                            text = "✕"
+                            textSize = 12f
+                            setPadding(0, 0, 0, 0)
+                            minimumWidth = 0
+                            minimumHeight = 0
+                            layoutParams = LinearLayout.LayoutParams(sizePx, sizePx).apply {
+                                marginStart = TypedValue.applyDimension(
+                                    TypedValue.COMPLEX_UNIT_DIP,
+                                    8f,
+                                    resources.displayMetrics
+                                ).toInt()
+                            }
+                            background = ContextCompat.getDrawable(
+                                requireContext(),
+                                R.drawable.rounded_delete_button
+                            )
+                            setOnClickListener {
+                                eserciziPath.document(doc.id)
+                                    .delete()
+                                    .addOnSuccessListener {
+                                        container.removeView(itemLayout)
+                                    }
+                                    .addOnFailureListener { e ->
+                                        Toast.makeText(
+                                            requireContext(),
+                                            "Errore: ${e.message}",
+                                            Toast.LENGTH_SHORT
+                                        ).show()
+                                    }
+                            }
+                        }
+                        itemLayout.addView(btnDelete)
+
+                        // aggiungi tutto al container
+                        container.addView(itemLayout)
                     }
                 }
             }
