@@ -82,4 +82,5 @@ dependencies {
     androidTestImplementation(libs.androidx.espresso.core)
 
     implementation ("com.prolificinteractive:material-calendarview:1.4.3")
+    implementation("androidx.work:work-runtime-ktx:2.10.1")
 }

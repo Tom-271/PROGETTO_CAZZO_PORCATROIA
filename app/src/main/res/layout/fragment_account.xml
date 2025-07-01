@@ -231,21 +231,10 @@
                         app:iconGravity="textStart"
                         android:text="" />
 
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/settings"
-                        style="@style/Widget.MaterialComponents.Button.TextButton"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        app:icon="@drawable/ingranagges"
-                        app:iconTint="@android:color/black"
-                        app:iconSize="30dp"
-                        app:iconGravity="textStart"
-                        android:text="" />
-        </LinearLayout>
-    </com.google.android.material.card.MaterialCardView>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
 
-    <!-- I miei programmi / Il mio percorso -->
+            <!-- I miei programmi / Il mio percorso -->
             <LinearLayout
                 android:layout_width="300dp"
                 android:layout_height="wrap_content"
@@ -299,8 +288,54 @@
                 android:textStyle="bold"
                 android:textSize="20dp" />
 
+            <Switch
+                android:id="@+id/switchReminder"
+                android:layout_width="224dp"
+                android:layout_height="42dp"
+                android:text="Promemoria Allenamento"
+                android:textColor="@color/black"
+                tools:layout_editor_absoluteX="96dp"
+                tools:layout_editor_absoluteY="487dp" />
 
         </LinearLayout>
+
+
     </com.google.android.material.card.MaterialCardView>
+
+    <!-- Logout + Login sempre sul fondo -->
+    <LinearLayout
+        android:id="@+id/bottomButtons"
+        android:layout_width="300dp"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginBottom="0dp"
+        android:paddingBottom="80dp"
+        android:translationZ="7dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent">
+
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/sign_out"
+            android:visibility="gone"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:translationZ="7dp"
+            android:text="Logout"
+            app:shapeAppearanceOverlay="@style/ShapeAppearance.Rounded" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/ButtonLogin"
+            android:visibility="gone"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:backgroundTint="@color/sky"
+            android:text="LOGIN"
+            app:shapeAppearanceOverlay="@style/ShapeAppearance.Rounded" />
+
+    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

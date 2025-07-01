@@ -128,17 +128,11 @@
             android:id="@+id/action_account_to_UserData"
             app:destination="@id/navigation_UserData" />
         <action
-            android:id="@+id/action_account_to_Settings"
-            app:destination="@id/navigation_Settings" />
-        <action
             android:id="@+id/action_navigation_account_to_navigation_home"
             app:destination="@id/navigation_home" />
         <action
             android:id="@+id/action_navigation_account_to_navigation_allievi"
             app:destination="@id/navigation_allievi" />
-        <action
-            android:id="@+id/action_navigation_account_to_navigation_settings"
-            app:destination="@id/navigation_Settings" />
         <!-- anche qui passiamo selectedUser/selectedDate se vogliamo riaprire la scheda PT direttamente -->
         <action
             android:id="@+id/action_navigation_account_to_fragment_my_trainer_schedule"
@@ -153,11 +147,6 @@
         android:name="com.example.progetto_tosa.ui.account.InsertData"
         android:label="I miei dati"
         tools:layout="@layout/fragment_insert_data" />
-    <fragment
-        android:id="@+id/navigation_Settings"
-        android:name="com.example.progetto_tosa.ui.account.SettingsFragment"
-        android:label="IMPOSTAZIONI"
-        tools:layout="@layout/fragment_settings" />
 
     <!-- Sotto‐fragment di Workout -->
     <fragment

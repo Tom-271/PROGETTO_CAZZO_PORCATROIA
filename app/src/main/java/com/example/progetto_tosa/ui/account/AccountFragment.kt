@@ -2,8 +2,9 @@ package com.example.progetto_tosa.ui.account
 
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.content.res.ColorStateList
-import android.graphics.Color
+import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -20,14 +21,26 @@ import com.firebase.ui.auth.AuthUI
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
+import androidx.work.*
+import com.example.progetto_tosa.workers.MyWorker
+import java.util.*
+import java.util.concurrent.TimeUnit
 
 class AccountFragment : Fragment() {
+
+
+    // === VARIABILI E INIZIALIZZAZIONI ===
+
 
     private var _binding: FragmentAccountBinding? = null
     private val binding get() = _binding!!
 
     private val auth by lazy { FirebaseAuth.getInstance() }
     private val db by lazy { FirebaseFirestore.getInstance() }
+
+
+    // === CICLO DI VITA DEL FRAGMENT ===
+
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -39,6 +52,10 @@ class AccountFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+
+        // === TEMA CHIARO/SCURO ===
+
 
         val prefs = requireActivity().getSharedPreferences("settings", Context.MODE_PRIVATE)
         var isDarkMode = prefs.getBoolean("darkMode", true)
@@ -68,9 +85,9 @@ class AccountFragment : Fragment() {
             }
         }
 
-        binding.settings.setOnClickListener {
-            findNavController().navigate(R.id.action_navigation_account_to_navigation_settings)
-        }
+
+        // === NAVIGAZIONE ===
+
 
         binding.UserJourney.setOnClickListener {
             findNavController().navigate(R.id.action_navigation_account_to_navigation_allievi)
@@ -84,14 +101,70 @@ class AccountFragment : Fragment() {
             findNavController().navigate(R.id.action_navigation_account_to_navigation_home)
         }
 
-        preloadUserDataFromPreferences() // 👈 mostro subito i dati salvati
+
+        // === LOGIN / LOGOUT ===
+
+
+        binding.ButtonLogin.setOnClickListener {
+            startActivity(Intent(requireContext(), LoginActivity::class.java))
+        }
+
+        binding.signOut.setOnClickListener {
+            Toast.makeText(requireContext(), "Ci vediamo al prossimo allenamento!", Toast.LENGTH_SHORT).show()
+            AuthUI.getInstance().signOut(requireContext()).addOnCompleteListener {
+                clearSavedUserData()
+                updateLoginLogoutButtons()
+                preloadUserDataFromPreferences()
+                updateUI()
+            }
+        }
+
+        updateLoginLogoutButtons()
+
+
+        // === PROMEMORIA NOTIFICA ===
+
+
+        binding.switchReminder.isChecked = isReminderEnabled()
+
+        binding.switchReminder.setOnCheckedChangeListener { _, isChecked ->
+            setReminderEnabled(isChecked)
+
+            if (isChecked) {
+                checkAndRequestNotificationPermission()
+            } else {
+                WorkManager.getInstance(requireContext()).cancelUniqueWork("dailyWorkoutNotification")
+                Toast.makeText(requireContext(), "Promemoria disattivato", Toast.LENGTH_SHORT).show()
+            }
+        }
+
+        scheduleNotifications(requireContext())
+        WorkManager.getInstance(requireContext()).cancelUniqueWork("dailyWorkoutNotification")
+
+        preloadUserDataFromPreferences()
         updateUI()
     }
 
     override fun onResume() {
         super.onResume()
+        updateLoginLogoutButtons()
         preloadUserDataFromPreferences()
         updateUI()
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
+
+
+    // === TEMA E BOTTONI ===
+
+
+    private fun updateLoginLogoutButtons() {
+        val isLoggedIn = auth.currentUser != null
+        binding.ButtonLogin.visibility = if (isLoggedIn) View.GONE else View.VISIBLE
+        binding.signOut.visibility = if (isLoggedIn) View.VISIBLE else View.GONE
     }
 
     private fun updateThemeButtons(isDark: Boolean) {
@@ -99,11 +172,23 @@ class AccountFragment : Fragment() {
         binding.btnLightMode.visibility = if (!isDark) View.VISIBLE else View.GONE
     }
 
+
+    // === GESTIONE DATI UTENTE ===
+
+
+    private fun clearSavedUserData() {
+        requireActivity()
+            .getSharedPreferences("user_data", Context.MODE_PRIVATE)
+            .edit() {
+                remove("saved_display_name")
+                remove("is_trainer")
+            }
+    }
+
     private fun preloadUserDataFromPreferences() {
         val prefs = requireActivity().getSharedPreferences("user_data", Context.MODE_PRIVATE)
         val savedName = prefs.getString("saved_display_name", null)
         val isTrainer = prefs.getBoolean("is_trainer", false)
-        val user = FirebaseAuth.getInstance().currentUser
 
         if (!savedName.isNullOrBlank()) {
             binding.NomeUtente.text = savedName
@@ -134,12 +219,10 @@ class AccountFragment : Fragment() {
         }
     }
 
-
     private fun updateUI() {
         val user = auth.currentUser
 
         if (user == null) {
-            // utente non loggato → mostro dati salvati
             applySavedUserDataOrFallback()
             return
         }
@@ -167,8 +250,6 @@ class AccountFragment : Fragment() {
                 applySavedUserDataOrFallback()
             }
     }
-
-
 
     private fun applySavedUserDataOrFallback() {
         val prefs = requireActivity().getSharedPreferences("user_data", Context.MODE_PRIVATE)
@@ -240,8 +321,120 @@ class AccountFragment : Fragment() {
         }
     }
 
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
+
+    // === NOTIFICHE E WORKMANAGER ===
+
+
+    private fun isReminderEnabled(): Boolean {
+        val prefs = requireContext().getSharedPreferences("settings", Context.MODE_PRIVATE)
+        return prefs.getBoolean("reminder_enabled", false)
     }
+
+    private fun setReminderEnabled(enabled: Boolean) {
+        val prefs = requireContext().getSharedPreferences("settings", Context.MODE_PRIVATE)
+        prefs.edit().putBoolean("reminder_enabled", enabled).apply()
+    }
+
+    private fun checkAndRequestNotificationPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ContextCompat.checkSelfPermission(
+                    requireContext(),
+                    android.Manifest.permission.POST_NOTIFICATIONS
+                ) != PackageManager.PERMISSION_GRANTED
+            ) {
+                requestPermissions(
+                    arrayOf(android.Manifest.permission.POST_NOTIFICATIONS),
+                    1001
+                )
+            } else {
+                scheduleNotifications(requireContext())
+            }
+        } else {
+            scheduleNotifications(requireContext())
+        }
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == 1001) {
+            if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                scheduleNotifications(requireContext())
+            } else {
+                Toast.makeText(requireContext(), "Permesso notifiche negato", Toast.LENGTH_SHORT).show()
+                binding.switchReminder.isChecked = false
+                setReminderEnabled(false)
+            }
+        }
+    }
+
+    private fun scheduleSingleNotification(
+        context: Context,
+        hour: Int,
+        minute: Int,
+        id: Int,
+        title: String,
+        message: String,
+        workName: String
+    ) {
+        val now = Calendar.getInstance()
+        val target = Calendar.getInstance().apply {
+            set(Calendar.HOUR_OF_DAY, hour)
+            set(Calendar.MINUTE, minute)
+            set(Calendar.SECOND, 0)
+            if (before(now)) add(Calendar.DAY_OF_YEAR, 1)
+        }
+
+        val delay = target.timeInMillis - now.timeInMillis
+
+        val input = Data.Builder()
+            .putInt("id", id)
+            .putString("title", title)
+            .putString("message", message)
+            .build()
+
+        val request = PeriodicWorkRequestBuilder<MyWorker>(24, TimeUnit.HOURS)
+            .setInitialDelay(delay, TimeUnit.MILLISECONDS)
+            .setInputData(input)
+            .build()
+
+        WorkManager.getInstance(context).enqueueUniquePeriodicWork(
+            workName,
+            ExistingPeriodicWorkPolicy.REPLACE,
+            request
+        )
+    }
+
+
+    fun scheduleNotifications(context: Context) {
+
+        // notifica 1 alle 10:00
+
+        scheduleSingleNotification(
+            context = context,
+            hour = 10,
+            minute = 0,
+            id = 1,
+            title = "Buongiorno!",
+            message = "Ricordati di bere abbastanza acqua durante la giornata.",
+            workName = "morningNotification"
+        )
+
+        // notifica 2 alle 18:00
+
+        scheduleSingleNotification(
+            context = context,
+            hour = 18,
+            minute = 0,
+            id = 2,
+            title = "È ora di allenarsi!",
+            message = "Non saltare la tua scheda di oggi 💪",
+            workName = "eveningNotification"
+        )
+    }
+
 }
+
