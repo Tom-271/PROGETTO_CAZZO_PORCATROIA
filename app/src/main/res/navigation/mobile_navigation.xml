@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <navigation
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:app   ="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/mobile_navigation"
     app:startDestination="@id/navigation_home">
@@ -12,9 +12,11 @@
         android:name="com.example.progetto_tosa.ui.home.HomeFragment"
         android:label="@string/title_home"
         tools:layout="@layout/fragment_home">
+
         <action
             android:id="@+id/action_navigation_home_to_navigation_auto_schedule"
             app:destination="@id/fragment_my_auto_schedule" />
+
         <action
             android:id="@+id/action_navigation_home_to_fragment_workout"
             app:destination="@id/fragment_workout">
@@ -22,62 +24,80 @@
                 android:name="selectedDate"
                 app:argType="string" />
         </action>
+
         <action
             android:id="@+id/action_navigation_home_to_pt_schedule"
             app:destination="@id/navigation_ptSchedule" />
+
         <action
             android:id="@+id/action_navigation_home_to_navigation_myautocalendar"
             app:destination="@id/navigation_myautocalendar" />
+
         <action
             android:id="@+id/action_navigation_home_to_navigation_cronotimer"
             app:destination="@id/navigation_cronotimer" />
     </fragment>
 
-    <!-- Workout (tab 2) -->
+    <!-- Workout container -->
     <fragment
         android:id="@+id/fragment_workout"
         android:name="com.example.progetto_tosa.ui.workout.WorkoutFragment"
         android:label="@string/title_workout"
         tools:layout="@layout/fragment_workout">
+
+        <!-- qui riceve sempre la data e, quando esiste, l’utente selezionato -->
         <argument
             android:name="selectedDate"
             app:argType="string" />
+        <argument
+            android:name="selectedUser"
+            app:argType="string" />
 
+        <!-- da Workout a Bodybuilding -->
         <action
-            android:id="@+id/action_workout_to_bodybuilding"
+            android:id="@+id/action_fragment_workout_to_navigation_bodybuilding"
             app:destination="@id/navigation_bodybuilding">
-            <argument
-                android:name="selectedDate"
-                app:argType="string" />
-        </action>
-        <action
-            android:id="@+id/action_workout_to_cardio"
-            app:destination="@id/navigation_cardio">
-            <argument
-                android:name="selectedDate"
-                app:argType="string" />
-        </action>
-        <action
-            android:id="@+id/action_workout_to_corpolibero"
-            app:destination="@id/navigation_corpolibero">
-            <argument
-                android:name="selectedDate"
-                app:argType="string" />
-        </action>
-        <action
-            android:id="@+id/action_workout_to_stretching"
-            app:destination="@id/navigation_stretching">
-            <argument
-                android:name="selectedDate"
-                app:argType="string" />
+            <argument android:name="selectedDate"   app:argType="string" />
+            <argument android:name="selectedUser"   app:argType="string" />
         </action>
 
+        <!-- da Workout a Cardio -->
+        <action
+            android:id="@+id/action_fragment_workout_to_navigation_cardio"
+            app:destination="@id/navigation_cardio">
+            <argument android:name="selectedDate"   app:argType="string" />
+            <argument android:name="selectedUser"   app:argType="string" />
+        </action>
+
+        <!-- da Workout a Corpo Libero -->
+        <action
+            android:id="@+id/action_fragment_workout_to_navigation_corpolibero"
+            app:destination="@id/navigation_corpolibero">
+            <argument android:name="selectedDate"   app:argType="string" />
+            <argument android:name="selectedUser"   app:argType="string" />
+        </action>
+
+        <!-- da Workout a Stretching -->
+        <action
+            android:id="@+id/action_fragment_workout_to_navigation_stretching"
+            app:destination="@id/navigation_stretching">
+            <argument android:name="selectedDate"   app:argType="string" />
+            <argument android:name="selectedUser"   app:argType="string" />
+        </action>
+
+        <!-- da Workout alla mia scheda auto -->
         <action
             android:id="@+id/action_fragment_workout_to_fragment_my_auto_schedule"
             app:destination="@id/fragment_my_auto_schedule">
-            <argument
-                android:name="selectedDate"
-                app:argType="string" />
+            <argument android:name="selectedDate" app:argType="string" />
+        </action>
+
+        <!-- da Workout alla scheda PT → MyTrainerSchedule -->
+        <action
+            android:id="@+id/action_fragment_workout_to_fragment_my_trainer_schedule"
+            app:destination="@id/fragment_my_trainer_schedule">
+            <argument android:name="selectedUser" app:argType="string" />
+            <argument android:name="selectedDate" app:argType="string" />
         </action>
     </fragment>
 
@@ -103,6 +123,7 @@
         android:name="com.example.progetto_tosa.ui.account.AccountFragment"
         android:label="@string/title_account"
         tools:layout="@layout/fragment_account">
+
         <action
             android:id="@+id/action_account_to_UserData"
             app:destination="@id/navigation_UserData" />
@@ -118,6 +139,13 @@
         <action
             android:id="@+id/action_navigation_account_to_navigation_settings"
             app:destination="@id/navigation_Settings" />
+        <!-- anche qui passiamo selectedUser/selectedDate se vogliamo riaprire la scheda PT direttamente -->
+        <action
+            android:id="@+id/action_navigation_account_to_fragment_my_trainer_schedule"
+            app:destination="@id/fragment_my_trainer_schedule">
+            <argument android:name="selectedUser" app:argType="string" />
+            <argument android:name="selectedDate" app:argType="string" />
+        </action>
     </fragment>
 
     <fragment
@@ -137,47 +165,41 @@
         android:name="com.example.progetto_tosa.ui.workout.BodybuildingFragment"
         android:label="@string/title_bodybuilding"
         tools:layout="@layout/fragment_bodybuilding">
-        <argument
-            android:name="selectedDate"
-            app:argType="string" />
+        <argument android:name="selectedDate"   app:argType="string" />
+        <argument android:name="selectedUser"   app:argType="string" />
     </fragment>
     <fragment
         android:id="@+id/navigation_cardio"
         android:name="com.example.progetto_tosa.ui.workout.CardioFragment"
         android:label="@string/title_cardio"
         tools:layout="@layout/fragment_cardio">
-        <argument
-            android:name="selectedDate"
-            app:argType="string" />
+        <argument android:name="selectedDate"   app:argType="string" />
+        <argument android:name="selectedUser"   app:argType="string" />
     </fragment>
     <fragment
         android:id="@+id/navigation_corpolibero"
         android:name="com.example.progetto_tosa.ui.workout.CorpoliberoFragment"
         android:label="@string/title_corpolibero"
         tools:layout="@layout/fragment_corpolibero">
-        <argument
-            android:name="selectedDate"
-            app:argType="string" />
+        <argument android:name="selectedDate"   app:argType="string" />
+        <argument android:name="selectedUser"   app:argType="string" />
     </fragment>
     <fragment
         android:id="@+id/navigation_stretching"
         android:name="com.example.progetto_tosa.ui.workout.StretchingFragment"
         android:label="@string/title_stretching"
         tools:layout="@layout/fragment_stretching">
-        <argument
-            android:name="selectedDate"
-            app:argType="string" />
+        <argument android:name="selectedDate"   app:argType="string" />
+        <argument android:name="selectedUser"   app:argType="string" />
     </fragment>
 
-    <!-- Le mie schede -->
+    <!-- Le mie schede (auto‐flow) -->
     <fragment
         android:id="@+id/fragment_my_auto_schedule"
         android:name="com.example.progetto_tosa.ui.home.MyAutoScheduleFragment"
         android:label="Le mie schede"
         tools:layout="@layout/fragment_my_auto_schedule">
-        <argument
-            android:name="selectedDate"
-            app:argType="string" />
+        <argument android:name="selectedDate" app:argType="string" />
 
         <action
             android:id="@+id/action_fragment_my_auto_schedule_to_navigation_timer"
@@ -185,38 +207,28 @@
         <action
             android:id="@+id/action_fragment_my_auto_schedule_to_navigation_bodybuilding"
             app:destination="@id/navigation_bodybuilding">
-            <argument
-                android:name="selectedDate"
-                app:argType="string" />
+            <argument android:name="selectedDate" app:argType="string" />
         </action>
         <action
             android:id="@+id/action_fragment_my_auto_schedule_to_navigation_cardio"
             app:destination="@id/navigation_cardio">
-            <argument
-                android:name="selectedDate"
-                app:argType="string" />
+            <argument android:name="selectedDate" app:argType="string" />
         </action>
         <action
             android:id="@+id/action_fragment_my_auto_schedule_to_navigation_corpolibero"
             app:destination="@id/navigation_corpolibero">
-            <argument
-                android:name="selectedDate"
-                app:argType="string" />
+            <argument android:name="selectedDate" app:argType="string" />
         </action>
         <action
             android:id="@+id/action_fragment_my_auto_schedule_to_navigation_stretching"
             app:destination="@id/navigation_stretching">
-            <argument
-                android:name="selectedDate"
-                app:argType="string" />
+            <argument android:name="selectedDate" app:argType="string" />
         </action>
-
         <action
             android:id="@+id/action_fragment_my_auto_schedule_to_fragment_workout"
             app:destination="@id/fragment_workout">
-            <argument
-                android:name="selectedDate"
-                app:argType="string" />
+            <argument android:name="selectedDate" app:argType="string" />
+            <!-- non passiamo selectedUser qui: resta null per auto‐flow -->
         </action>
         <action
             android:id="@+id/action_fragment_my_auto_schedule_to_navigation_stepwatch"
@@ -226,35 +238,43 @@
             app:destination="@id/navigation_cronotimer" />
     </fragment>
 
-    <!-- Schede PT -->
+    <!-- Schede PT (flow del personal trainer) -->
     <fragment
         android:id="@+id/navigation_ptSchedule"
         android:name="com.example.progetto_tosa.ui.home.PTcalendar"
         android:label="Le schede del mio PT"
-        tools:layout="@layout/fragment_pt_calendar" />
+        tools:layout="@layout/fragment_pt_calendar">
+        <argument android:name="selectedUser" app:argType="string" />
 
-    <!-- Il calendario -->
+        <action
+            android:id="@+id/action_navigation_ptSchedule_to_fragment_my_trainer_schedule"
+            app:destination="@id/fragment_my_trainer_schedule">
+            <argument android:name="selectedUser" app:argType="string" />
+            <argument android:name="selectedDate"   app:argType="string" />
+        </action>
+    </fragment>
+
+    <!-- Il calendario auto -->
     <fragment
         android:id="@+id/navigation_myautocalendar"
         android:name="com.example.progetto_tosa.ui.home.MyAutoCalendar"
         android:label="E' tempo di allenarsi!"
         tools:layout="@layout/fragment_myautocalendar">
+
         <action
             android:id="@+id/action_navigation_myautocalendar_to_fragment_my_auto_schedule"
             app:destination="@id/fragment_my_auto_schedule">
-            <argument
-                android:name="selectedDate"
-                app:argType="string" />
+            <argument android:name="selectedDate" app:argType="string" />
         </action>
     </fragment>
 
+    <!-- Cronotimer -->
     <fragment
         android:id="@+id/navigation_cronotimer"
         android:name="com.example.progetto_tosa.ui.home.CronoTimer"
         android:label="Strumenti"
-        tools:layout="@layout/fragment_cronotimer" >
-
-    <action
+        tools:layout="@layout/fragment_cronotimer">
+        <action
             android:id="@+id/action_navigation_cronotimer_to_navigation_stepwatch"
             app:destination="@id/navigation_stepwatch" />
         <action
@@ -262,14 +282,34 @@
             app:destination="@id/navigation_timer" />
     </fragment>
 
+    <!-- Allievi (lista clienti PT) -->
     <fragment
         android:id="@+id/navigation_allievi"
         android:name="com.example.progetto_tosa.ui.account.Allievi"
         android:label="Allievi"
-        tools:layout="@layout/fragment_allievi" >
+        tools:layout="@layout/fragment_allievi">
         <action
             android:id="@+id/action_navigation_allievi_to_navigation_ptSchedule"
-            app:destination="@id/navigation_ptSchedule" />
+            app:destination="@id/navigation_ptSchedule">
+            <argument android:name="selectedUser" app:argType="string" />
+        </action>
+    </fragment>
+
+    <!-- MyTrainerSchedule (scheda del cliente) -->
+    <fragment
+        android:id="@+id/fragment_my_trainer_schedule"
+        android:name="com.example.progetto_tosa.ui.home.MyTrainerSchedule"
+        android:label="Le mie schede"
+        tools:layout="@layout/fragment_my_auto_schedule">
+        <argument android:name="selectedUser" app:argType="string" />
+        <argument android:name="selectedDate"   app:argType="string" />
+
+        <action
+            android:id="@+id/action_fragment_my_trainer_schedule_to_fragment_workout"
+            app:destination="@id/fragment_workout">
+            <argument android:name="selectedUser" app:argType="string" />
+            <argument android:name="selectedDate"   app:argType="string" />
+        </action>
     </fragment>
 
 </navigation>

@@ -17,7 +17,6 @@ import com.example.progetto_tosa.R
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.card.MaterialCardView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
-import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import java.text.SimpleDateFormat
 import java.util.*
@@ -42,46 +41,47 @@ class BodybuildingFragment : Fragment(R.layout.fragment_bodybuilding) {
         var isSetsMode: Boolean = true
     )
 
-    private val auth = FirebaseAuth.getInstance()
-    private val db   = FirebaseFirestore.getInstance()
-    private var userIsPT = false
+    private val db = FirebaseFirestore.getInstance()
 
-    // La data selezionata viene passata come argomento; qui non facciamo più fallback a "oggi"
+    // Se non null, stiamo nel flow PT e salviamo su schede_del_pt/{selectedUser}/esercizi
+    private val selectedUser: String? by lazy {
+        arguments?.getString("selectedUser")
+    }
+    // Data passata sempre (flow utente normale la usa)
     private val selectedDate: String by lazy {
-        arguments?.getString("selectedDate")
+        arguments
+            ?.getString("selectedDate")
             ?: SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
     }
-    // Immagine di placeholder
-    private val sharedImage = R.drawable.pancadescrizione
 
-    // Dati di esempio
+    // Dati di esempio per "bodybuilding" → petto
     private val section1 = listOf(
         Exercise(
             category = "bodybuilding",
             muscoloPrincipale = "petto",
-            imageRes = sharedImage,
-            descriptionImage = sharedImage,
+            imageRes = R.drawable.pancadescrizione,
+            descriptionImage = R.drawable.pancadescrizione,
             title = "PANCA PIANA",
             videoUrl = "https://youtu.be/...",
             description = "Esercizio fondamentale per il petto.",
             subtitle2 = "MUSCOLI COINVOLTI",
             description2 = "- Grande pettorale\n- Tricipite brachiale",
-            detailImage1Res = sharedImage,
-            detailImage2Res = sharedImage,
+            detailImage1Res = R.drawable.pancadescrizione,
+            detailImage2Res = R.drawable.pancadescrizione,
             descrizioneTotale = "3–4 serie da 8–12 ripetizioni"
         ),
         Exercise(
             category = "bodybuilding",
             muscoloPrincipale = "petto",
-            imageRes = sharedImage,
-            descriptionImage = sharedImage,
+            imageRes = R.drawable.pancadescrizione,
+            descriptionImage = R.drawable.pancadescrizione,
             title = "CHEST PRESS",
             videoUrl = "https://youtu.be/...",
             description = "Macchina convergente.",
             subtitle2 = "MUSCOLI COINVOLTI",
             description2 = "- Grande pettorale",
-            detailImage1Res = sharedImage,
-            detailImage2Res = sharedImage,
+            detailImage1Res = R.drawable.pancadescrizione,
+            detailImage2Res = R.drawable.pancadescrizione,
             descrizioneTotale = "3–4 serie da 10–12 ripetizioni"
         )
     )
@@ -92,18 +92,7 @@ class BodybuildingFragment : Fragment(R.layout.fragment_bodybuilding) {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        // Verifica PT
-        auth.currentUser?.uid?.let { uid ->
-            db.collection("users").document(uid).get()
-                .addOnSuccessListener { doc ->
-                    userIsPT = doc.getBoolean("isPersonalTrainer") == true
-                    initUI(view)
-                }
-                .addOnFailureListener {
-                    initUI(view)
-                }
-        } ?: initUI(view)
+        initUI(view)
     }
 
     private fun initUI(root: View) {
@@ -117,8 +106,8 @@ class BodybuildingFragment : Fragment(R.layout.fragment_bodybuilding) {
 
     private fun applyStrokeColor(root: View) {
         val night = resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK
-        val strokeColorRes = if (night == Configuration.UI_MODE_NIGHT_YES) R.color.white else R.color.black
-        val strokeColor = ContextCompat.getColor(requireContext(), strokeColorRes)
+        val colorRes = if (night == Configuration.UI_MODE_NIGHT_YES) R.color.white else R.color.black
+        val strokeColor = ContextCompat.getColor(requireContext(), colorRes)
         arrayOf(
             R.id.cardSection1,
             R.id.cardSection2,
@@ -131,35 +120,35 @@ class BodybuildingFragment : Fragment(R.layout.fragment_bodybuilding) {
     }
 
     private fun setupSection(headerId: Int, recyclerId: Int, data: List<Exercise>) {
-        val headerCard   = requireView().findViewById<MaterialCardView>(headerId)
+        val headerCard = requireView().findViewById<MaterialCardView>(headerId)
         val recyclerView = requireView().findViewById<RecyclerView>(recyclerId).apply {
             layoutManager = GridLayoutManager(requireContext(), 2)
-            adapter = ExerciseAdapter(data, userIsPT, ::openDetail, ::saveExercise)
+            adapter = ExerciseAdapter(data, ::openDetail, ::saveExercise)
         }
         headerCard.setOnClickListener {
-            recyclerView.visibility = if (recyclerView.visibility == View.VISIBLE) View.GONE else View.VISIBLE
+            recyclerView.visibility =
+                if (recyclerView.visibility == View.VISIBLE) View.GONE else View.VISIBLE
         }
     }
 
     private inner class ExerciseAdapter(
         private val items: List<Exercise>,
-        private val userIsPT: Boolean,
         private val onCardClick: (Exercise) -> Unit,
         private val onConfirmClick: (Exercise) -> Unit
     ) : RecyclerView.Adapter<ExerciseAdapter.VH>() {
 
         inner class VH(view: View) : RecyclerView.ViewHolder(view) {
-            private val card        = view.findViewById<MaterialCardView>(R.id.cardExercise)
-            private val titleTv     = view.findViewById<TextView>(R.id.textViewTitleTop)
-            private val btnSets     = view.findViewById<MaterialButton>(R.id.toggleSets)
-            private val btnReps     = view.findViewById<MaterialButton>(R.id.toggleReps)
+            private val card = view.findViewById<MaterialCardView>(R.id.cardExercise)
+            private val titleTv = view.findViewById<TextView>(R.id.textViewTitleTop)
+            private val btnSets = view.findViewById<MaterialButton>(R.id.toggleSets)
+            private val btnReps = view.findViewById<MaterialButton>(R.id.toggleReps)
             private val counterSets = view.findViewById<TextView>(R.id.counterSets)
             private val counterReps = view.findViewById<TextView>(R.id.counterReps)
-            private val btnMinus    = view.findViewById<FloatingActionButton>(R.id.buttonMinus)
-            private val btnPlus     = view.findViewById<FloatingActionButton>(R.id.buttonPlus)
-            private val btnConfirm  = view.findViewById<MaterialButton>(R.id.buttonConfirm)
-            private val green       = ContextCompat.getColor(view.context, R.color.green)
-            private val black       = ContextCompat.getColor(view.context, R.color.black)
+            private val btnMinus = view.findViewById<FloatingActionButton>(R.id.buttonMinus)
+            private val btnPlus = view.findViewById<FloatingActionButton>(R.id.buttonPlus)
+            private val btnConfirm = view.findViewById<MaterialButton>(R.id.buttonConfirm)
+            private val green = ContextCompat.getColor(view.context, R.color.green)
+            private val black = ContextCompat.getColor(view.context, R.color.black)
 
             init {
                 card.setOnClickListener { onCardClick(items[adapterPosition]) }
@@ -226,29 +215,45 @@ class BodybuildingFragment : Fragment(R.layout.fragment_bodybuilding) {
             return
         }
 
-        val data = hashMapOf(
-            "category"          to ex.category,
-            "nomeEsercizio"     to ex.title,
-            "numeroSerie"       to ex.setsCount,
+        val data = mapOf(
+            "category" to ex.category,
+            "nomeEsercizio" to ex.title,
+            "numeroSerie" to ex.setsCount,
             "numeroRipetizioni" to ex.repsCount
         )
 
-        db.collection("schede_giornaliere")
-            .document(selectedDate)
-            .collection(ex.category)
-            .document(ex.muscoloPrincipale)
-            .collection("esercizi")
-            .document(ex.title)
-            .set(data)
-            .addOnSuccessListener {
-                Toast.makeText(
-                    requireContext(),
-                    "Salvato per $selectedDate → ${ex.category} → ${ex.muscoloPrincipale}",
-                    Toast.LENGTH_SHORT
-                ).show()
-            }
-            .addOnFailureListener {
-                Toast.makeText(requireContext(), "Errore nel salvataggio", Toast.LENGTH_LONG).show()
-            }
+        if (selectedUser != null) {
+            // PT flow: schede_del_pt/{cliente}/esercizi/{nomeEsercizio}
+            db.collection("schede_del_pt")
+                .document(selectedUser!!)
+                .collection("esercizi")
+                .document(ex.title)
+                .set(data)
+                .addOnSuccessListener {
+                    Toast.makeText(requireContext(),
+                        "Esercizio salvato per $selectedUser", Toast.LENGTH_SHORT).show()
+                }
+                .addOnFailureListener {
+                    Toast.makeText(requireContext(),
+                        "Errore nel salvataggio PT", Toast.LENGTH_LONG).show()
+                }
+        } else {
+            // Auto flow: schede_giornaliere/{date}/{category}/{muscolo}/esercizi/{nomeEsercizio}
+            db.collection("schede_giornaliere")
+                .document(selectedDate)
+                .collection(ex.category)
+                .document(ex.muscoloPrincipale)
+                .collection("esercizi")
+                .document(ex.title)
+                .set(data)
+                .addOnSuccessListener {
+                    Toast.makeText(requireContext(),
+                        "Esercizio salvato in schede_giornaliere", Toast.LENGTH_SHORT).show()
+                }
+                .addOnFailureListener {
+                    Toast.makeText(requireContext(),
+                        "Errore nel salvataggio normale", Toast.LENGTH_LONG).show()
+                }
+        }
     }
 }

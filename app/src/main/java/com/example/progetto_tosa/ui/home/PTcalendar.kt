@@ -49,10 +49,10 @@ class PTcalendar : Fragment(R.layout.fragment_pt_calendar) {
                 "selectedUser" to selectedUser,
                 "selectedDate" to dateId
             )
-          //  findNavController().navigate(
-            //    R.id.action_navigation_ptSchedule_to_fragment_my_auto_schedule,
-              //  args
-            //)
+            findNavController().navigate(
+                R.id.action_navigation_ptSchedule_to_fragment_my_trainer_schedule,
+                args
+            )
         }
     }
 }
