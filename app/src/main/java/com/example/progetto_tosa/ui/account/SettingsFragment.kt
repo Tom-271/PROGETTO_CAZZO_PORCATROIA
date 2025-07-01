@@ -1,24 +1,28 @@
 package com.example.progetto_tosa.ui.account
 
+import android.content.Context
+import android.content.Intent
+import android.content.res.ColorStateList
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.appcompat.app.AppCompatDelegate
+import android.widget.Toast
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.activityViewModels
+import com.example.progetto_tosa.R
 import com.example.progetto_tosa.databinding.FragmentSettingsBinding
+import com.firebase.ui.auth.AuthUI
+import com.google.firebase.auth.FirebaseAuth
 
 class SettingsFragment : Fragment() {
 
     private var _binding: FragmentSettingsBinding? = null
     private val binding get() = _binding!!
-    private val settingsViewModel: SettingsViewModel by activityViewModels()
 
+    private val auth by lazy { FirebaseAuth.getInstance() }
 
     override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
+        inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentSettingsBinding.inflate(inflater, container, false)
@@ -27,37 +31,47 @@ class SettingsFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        val prefs = requireActivity().getSharedPreferences("settings", 0)
-        val isDarkMode = prefs.getBoolean("darkMode", true)
-        AppCompatDelegate.setDefaultNightMode(
-            if (isDarkMode) AppCompatDelegate.MODE_NIGHT_YES
-            else AppCompatDelegate.MODE_NIGHT_NO
-        )
-        binding.switch1.isChecked = isDarkMode
-        binding.switch1.text = if (isDarkMode) "Disable dark mode" else "Enable dark mode"
-        val textColor = if (isDarkMode)
-            resources.getColor(android.R.color.white, null)
-        else
-            resources.getColor(android.R.color.black, null)
-        /*binding.NomeUtente.setTextColor(textColor)
-        binding.switch1.setOnCheckedChangeListener { _, isChecked ->
-            prefs.edit().putBoolean("darkMode", isChecked).apply()
-            AppCompatDelegate.setDefaultNightMode(
-                if (isChecked) AppCompatDelegate.MODE_NIGHT_YES
-                else AppCompatDelegate.MODE_NIGHT_NO
-            )
-            binding.switch1.text = if (isChecked) "Disable dark mode" else "Enable dark mode"
-        }*/
-        binding.switch1.setOnCheckedChangeListener { _, isChecked ->
-            prefs.edit().putBoolean("darkMode", isChecked).apply()
-            AppCompatDelegate.setDefaultNightMode(
-                if (isChecked) AppCompatDelegate.MODE_NIGHT_YES
-                else AppCompatDelegate.MODE_NIGHT_NO
-            )
-            binding.switch1.text = if (isChecked) "Disable dark mode" else "Enable dark mode"
 
-            // Comunica la modifica all'altro fragment
-            settingsViewModel.isDarkMode.value = isChecked
+        // mostra/nascondi pulsanti
+        updateLoginLogoutButtons()
+
+        // login
+        binding.ButtonLogin.setOnClickListener {
+            startActivity(Intent(requireContext(), LoginActivity::class.java))
         }
+
+        // logout
+        binding.signOut.setOnClickListener {
+            Toast.makeText(requireContext(), "Ci vediamo al prossimo allenamento!", Toast.LENGTH_SHORT).show()
+            AuthUI.getInstance().signOut(requireContext()).addOnCompleteListener {
+                clearSavedUserData()
+                updateLoginLogoutButtons()
+            }
+        }
+    }
+
+    private fun updateLoginLogoutButtons() {
+        val isLoggedIn = auth.currentUser != null
+        binding.ButtonLogin.visibility = if (isLoggedIn) View.GONE else View.VISIBLE
+        binding.signOut.visibility = if (isLoggedIn) View.VISIBLE else View.GONE
+    }
+
+    private fun clearSavedUserData() {
+        requireActivity()
+            .getSharedPreferences("user_data", Context.MODE_PRIVATE)
+            .edit()
+            .remove("saved_display_name")
+            .remove("is_trainer")
+            .apply()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        updateLoginLogoutButtons()
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 }

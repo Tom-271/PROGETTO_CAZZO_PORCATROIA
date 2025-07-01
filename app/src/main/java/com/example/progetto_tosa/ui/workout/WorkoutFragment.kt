@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.animation.AnimationUtils
 import android.widget.TextView
+import android.widget.Toast
 import android.widget.ViewFlipper
 import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
@@ -15,17 +16,13 @@ import com.example.progetto_tosa.databinding.FragmentWorkoutBinding
 
 class WorkoutFragment : Fragment() {
 
-    // Ricevo la data selezionata dal calendario
-    private val selectedDate: String by lazy {
-        arguments
-            ?.getString("selectedDate")
-            ?: error("WorkoutFragment: selectedDate mancante")
+    private val selectedDate: String? by lazy {
+        arguments?.getString("selectedDate")
     }
 
     private var _binding: FragmentWorkoutBinding? = null
     private val binding get() = _binding!!
 
-    // Lista di "tip" da mostrare nel ViewFlipper
     private val tips = listOf(
         "    Ricorda di idratarti spesso durante la giornata",
         "Il preworkout aiuta a sostenerti durante l'allenamento",
@@ -41,38 +38,27 @@ class WorkoutFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-
-        // Inflate e binding
         _binding = FragmentWorkoutBinding.inflate(inflater, container, false)
         val root = binding.root
 
-        // Navigazione ai fragment con passaggio della data
+        // Navigazione protetta con controllo su selectedDate
         binding.btnItem1.setOnClickListener {
-            findNavController().navigate(
-                R.id.action_workout_to_bodybuilding,
-                bundleOf("selectedDate" to selectedDate)
-            )
-        }
-        binding.btnItem2.setOnClickListener {
-            findNavController().navigate(
-                R.id.action_workout_to_corpolibero,
-                bundleOf("selectedDate" to selectedDate)
-            )
-        }
-        binding.btnItem3.setOnClickListener {
-            findNavController().navigate(
-                R.id.action_workout_to_cardio,
-                bundleOf("selectedDate" to selectedDate)
-            )
-        }
-        binding.btnItem4.setOnClickListener {
-            findNavController().navigate(
-                R.id.action_workout_to_stretching,
-                bundleOf("selectedDate" to selectedDate)
-            )
+            navigateSafely(R.id.action_workout_to_bodybuilding)
         }
 
-        // Configurazione del ViewFlipper per i "Tips"
+        binding.btnItem2.setOnClickListener {
+            navigateSafely(R.id.action_workout_to_corpolibero)
+        }
+
+        binding.btnItem3.setOnClickListener {
+            navigateSafely(R.id.action_workout_to_cardio)
+        }
+
+        binding.btnItem4.setOnClickListener {
+            navigateSafely(R.id.action_workout_to_stretching)
+        }
+
+        // Tips con ViewFlipper
         val vfTips: ViewFlipper = binding.vfTips
         for (tip in tips) {
             val tv = TextView(requireContext()).apply {
@@ -80,6 +66,7 @@ class WorkoutFragment : Fragment() {
             }
             vfTips.addView(tv)
         }
+
         vfTips.flipInterval = 4000
         vfTips.inAnimation = AnimationUtils.loadAnimation(requireContext(), android.R.anim.slide_in_left)
         vfTips.outAnimation = AnimationUtils.loadAnimation(requireContext(), android.R.anim.slide_out_right)
@@ -87,6 +74,17 @@ class WorkoutFragment : Fragment() {
         vfTips.startFlipping()
 
         return root
+    }
+
+    private fun navigateSafely(destinationId: Int) {
+        if (selectedDate != null) {
+            findNavController().navigate(
+                destinationId,
+                bundleOf("selectedDate" to selectedDate)
+            )
+        } else {
+            findNavController().navigate(destinationId)
+        }
     }
 
     override fun onDestroyView() {

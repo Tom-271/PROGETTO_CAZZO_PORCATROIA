@@ -8,13 +8,40 @@
     android:layout_height="match_parent"
     tools:context="com.example.progetto_tosa.ui.account.SettingsFragment">
 
-    <Switch
-        android:id="@+id/switch1"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:checked="true"
-        android:text="Disable Dark mode"
+    <!-- Logout + Login sempre sul fondo -->
+    <LinearLayout
+        android:id="@+id/bottomButtons"
+        android:layout_width="300dp"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginBottom="0dp"
+        android:paddingBottom="80dp"
+        android:translationZ="7dp"
         app:layout_constraintStart_toStartOf="parent"
-        tools:ignore="UseSwitchCompatOrMaterialXml" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent">
+
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/sign_out"
+            android:visibility="gone"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:translationZ="7dp"
+            android:text="Logout"
+            app:shapeAppearanceOverlay="@style/ShapeAppearance.Rounded" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/ButtonLogin"
+            android:visibility="gone"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:backgroundTint="@color/sky"
+            android:text="LOGIN"
+            app:shapeAppearanceOverlay="@style/ShapeAppearance.Rounded" />
+
+    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
