@@ -1,0 +1,15 @@
+<!-- app/src/main/res/drawable/rounded_delete_button.xml -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+
+    <!-- Forza dimensioni fisse più contenute -->
+    <size
+        android:width="32dp"
+        android:height="32dp"/>
+
+    <!-- raggio metà della dimensione per un cerchio perfetto -->
+    <corners android:radius="16dp"/>
+
+    <!-- colore di sfondo -->
+    <solid android:color="#BB4444"/>
+</shape>
