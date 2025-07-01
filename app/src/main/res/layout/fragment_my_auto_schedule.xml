@@ -45,6 +45,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="24dp" />
 
+            <!-- PESI -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -84,6 +85,7 @@
                     android:layout_marginTop="8dp" />
             </LinearLayout>
 
+            <!-- CARDIO -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -97,45 +99,6 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="Cardio"
-                    android:textStyle="bold"
-                    android:textColor="@android:color/white"
-                    android:textSize="20sp"
-                    android:shadowColor="@color/yellow"
-                    android:shadowRadius="5"
-                    android:background="@android:color/transparent"
-                    android:gravity="start" />
-
-                <TextView
-                    android:id="@+id/subtitleStretching"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="0 exercises"
-                    android:textColor="#888888"
-                    android:textSize="14sp"
-                    android:layout_marginTop="4dp" />
-
-                <LinearLayout
-                    android:id="@+id/stretchingDetailsContainer"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:visibility="gone"
-                    android:layout_marginTop="8dp" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:background="@drawable/rounded_card"
-                android:padding="16dp"
-                android:layout_marginBottom="12dp">
-
-                <Button
-                    android:id="@+id/btnCorpoLibero"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="corpo libero"
                     android:textStyle="bold"
                     android:textColor="@android:color/white"
                     android:textSize="20sp"
@@ -162,20 +125,20 @@
                     android:layout_marginTop="8dp" />
             </LinearLayout>
 
+            <!-- CORPO LIBERO -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:background="@drawable/rounded_card"
                 android:padding="16dp"
-                android:paddingBottom="30dp"
                 android:layout_marginBottom="12dp">
 
                 <Button
-                    android:id="@+id/btnStretching"
+                    android:id="@+id/btnCorpoLibero"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="stretching"
+                    android:text="corpo libero"
                     android:textStyle="bold"
                     android:textColor="@android:color/white"
                     android:textSize="20sp"
@@ -202,6 +165,48 @@
                     android:layout_marginTop="8dp" />
             </LinearLayout>
 
+            <!-- STRETCHING -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="@drawable/rounded_card"
+                android:padding="16dp"
+                android:paddingBottom="30dp"
+                android:layout_marginBottom="12dp">
+
+                <Button
+                    android:id="@+id/btnStretching"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="stretching"
+                    android:textStyle="bold"
+                    android:textColor="@android:color/white"
+                    android:textSize="20sp"
+                    android:shadowColor="@color/yellow"
+                    android:shadowRadius="5"
+                    android:background="@android:color/transparent"
+                    android:gravity="start" />
+
+                <TextView
+                    android:id="@+id/subtitleStretching"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="0 exercises"
+                    android:textColor="#888888"
+                    android:textSize="14sp"
+                    android:layout_marginTop="4dp" />
+
+                <LinearLayout
+                    android:id="@+id/stretchingDetailsContainer"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:visibility="gone"
+                    android:layout_marginTop="8dp" />
+            </LinearLayout>
+
+            <!-- Pulsante Aggiungi Generale -->
             <Button
                 android:id="@+id/btnFillSchedule"
                 android:layout_width="wrap_content"
@@ -225,4 +230,5 @@
         app:layout_constraintEnd_toEndOf="parent"
         android:translationZ="8dp"
         android:contentDescription="dd_exercise"/>
+
 </androidx.constraintlayout.widget.ConstraintLayout>
