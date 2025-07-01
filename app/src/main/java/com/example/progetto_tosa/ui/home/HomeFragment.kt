@@ -95,7 +95,6 @@ class HomeFragment : Fragment() {
                 R.id.action_navigation_home_to_navigation_myautocalendar
             )
         }
-
         binding.buttonForTheSchedulePersonalTrainerDid.setOnClickListener {
             findNavController().navigate(
                 R.id.action_navigation_home_to_pt_schedule

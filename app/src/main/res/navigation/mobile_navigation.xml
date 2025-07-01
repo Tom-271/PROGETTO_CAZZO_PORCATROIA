@@ -112,6 +112,9 @@
         <action
             android:id="@+id/action_navigation_account_to_navigation_home"
             app:destination="@id/navigation_home" />
+        <action
+            android:id="@+id/action_navigation_account_to_navigation_allievi"
+            app:destination="@id/navigation_allievi" />
     </fragment>
     <fragment
         android:id="@+id/navigation_UserData"
@@ -222,9 +225,9 @@
     <!-- Schede PT -->
     <fragment
         android:id="@+id/navigation_ptSchedule"
-        android:name="com.example.progetto_tosa.ui.home.PTscheduleFragment"
+        android:name="com.example.progetto_tosa.ui.home.PTcalendar"
         android:label="Le schede del mio PT"
-        tools:layout="@layout/fragment_pt_schedule" />
+        tools:layout="@layout/fragment_pt_calendar" />
 
     <!-- Il calendario -->
     <fragment
@@ -253,6 +256,16 @@
         <action
             android:id="@+id/action_navigation_cronotimer_to_navigation_timer"
             app:destination="@id/navigation_timer" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/navigation_allievi"
+        android:name="com.example.progetto_tosa.ui.account.Allievi"
+        android:label="Allievi"
+        tools:layout="@layout/fragment_allievi" >
+        <action
+            android:id="@+id/action_navigation_allievi_to_navigation_ptSchedule"
+            app:destination="@id/navigation_ptSchedule" />
     </fragment>
 
 </navigation>

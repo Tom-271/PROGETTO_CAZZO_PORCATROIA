@@ -72,6 +72,9 @@ class AccountFragment : Fragment() {
             }
         }
 
+        binding.UserJourney.setOnClickListener {
+            findNavController().navigate(R.id.action_navigation_account_to_navigation_allievi)
+        }
         // ─── BUTTONS & NAVIGATION ──────────────────────────────────────────────
         binding.ButtonLogin.setOnClickListener {
             startActivity(Intent(requireContext(), LoginActivity::class.java))
