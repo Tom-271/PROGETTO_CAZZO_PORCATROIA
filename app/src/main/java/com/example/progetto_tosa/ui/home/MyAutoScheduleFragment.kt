@@ -2,10 +2,11 @@ package com.example.progetto_tosa.ui.home
 
 import android.graphics.Typeface
 import android.os.Bundle
+import android.util.Log
+import android.view.LayoutInflater
 import android.view.View
 import android.view.View.GONE
 import android.view.View.VISIBLE
-import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.TextView
@@ -30,6 +31,12 @@ class MyAutoScheduleFragment : Fragment() {
 
     private lateinit var selectedDateId: String
 
+    // recupera il nome e cognome utente loggato
+    private val currentUserName: String?
+        get() = requireActivity()
+            .getSharedPreferences("user_data", android.content.Context.MODE_PRIVATE)
+            .getString("saved_display_name", null)
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -42,31 +49,31 @@ class MyAutoScheduleFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Ottieni la data passata
         selectedDateId = requireArguments().getString("selectedDate")
             ?: error("selectedDate mancante")
+        Log.d("MyAutoSchedule", "selectedDateId = $selectedDateId")
 
-        // Giorno della settimana
+        // giorno della settimana
         val parsedDate = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
             .parse(selectedDateId)!!
         val dayOfWeek = Calendar.getInstance().apply { time = parsedDate }
             .get(Calendar.DAY_OF_WEEK)
         val dayDisplayName = when (dayOfWeek) {
-            Calendar.MONDAY    -> "LUNEDÌ"
-            Calendar.TUESDAY   -> "MARTEDÌ"
+            Calendar.MONDAY -> "LUNEDÌ"
+            Calendar.TUESDAY -> "MARTEDÌ"
             Calendar.WEDNESDAY -> "MERCOLEDÌ"
-            Calendar.THURSDAY  -> "GIOVEDÌ"
-            Calendar.FRIDAY    -> "VENERDÌ"
-            Calendar.SATURDAY  -> "SABATO"
-            Calendar.SUNDAY    -> "DOMENICA"
-            else               -> ""
+            Calendar.THURSDAY -> "GIOVEDÌ"
+            Calendar.FRIDAY -> "VENERDÌ"
+            Calendar.SATURDAY -> "SABATO"
+            Calendar.SUNDAY -> "DOMENICA"
+            else -> ""
         }
         binding.subtitlePPPPPPPPROOOOOVA.apply {
             visibility = VISIBLE
             text = "SCHEDA DI $dayDisplayName"
         }
 
-        // Pulsante "Aggiungi esercizio"
+        // bottone per aggiungere esercizi
         binding.btnFillSchedule.apply {
             visibility = VISIBLE
             setOnClickListener {
@@ -77,122 +84,113 @@ class MyAutoScheduleFragment : Fragment() {
             }
         }
 
-        // Categorie e muscoli
-        val categories = mapOf(
-            "bodybuilding" to listOf("petto", "gambe", "spalle", "schiena", "bicipiti", "tricipiti"),
-            "cardio" to listOf("cardio1", "cardio2"),
-            "corpo_libero" to listOf("libero1", "libero2"),
-            "stretching" to listOf("stretch1", "stretch2")
-        )
-
-        // Inizializza contatori e click listener
-        categories.forEach { (category, muscoli) ->
-            val subtitleView = when (category) {
-                "bodybuilding" -> binding.subtitleBodyBuilding
-                "cardio" -> binding.subtitleCardio
-                "corpo_libero" -> binding.subtitleCorpoLibero
-                "stretching" -> binding.subtitleStretching
-                else -> null
+        // categorie da verificare
+        val categories = listOf("bodybuilding", "cardio", "corpo_libero", "stretching")
+        categories.forEach { category ->
+            val (subtitleView, container) = when (category) {
+                "bodybuilding" -> binding.subtitleBodyBuilding to binding.bodybuildingDetailsContainer
+                "cardio" -> binding.subtitleCardio to binding.cardioDetailsContainer
+                "corpo_libero" -> binding.subtitleCorpoLibero to binding.corpoliberoDetailsContainer
+                "stretching" -> binding.subtitleStretching to binding.stretchingDetailsContainer
+                else -> null to null
             }
-            subtitleView?.let {
-                initExerciseCountListener(category, muscoli, it)
-            }
-            val container = when (category) {
-                "bodybuilding" -> binding.bodybuildingDetailsContainer
-                "cardio" -> binding.cardioDetailsContainer
-                "corpo_libero" -> binding.corpoliberoDetailsContainer
-                "stretching" -> binding.stretchingDetailsContainer
-                else -> null
-            }
-            container?.let { cont ->
-                when (category) {
+            if (subtitleView != null && container != null) {
+                initCountAndAutoPopulate(category, subtitleView, container)
+                val toggleBtn = when (category) {
                     "bodybuilding" -> binding.btnBodybuilding
                     "cardio" -> binding.btnCardio
                     "corpo_libero" -> binding.btnCorpoLibero
                     "stretching" -> binding.btnStretching
                     else -> null
-                }?.setOnClickListener {
-                    toggleAndPopulate(cont, category, muscoli)
+                }
+                toggleBtn?.setOnClickListener {
+                    toggleAndPopulate(category, container)
                 }
             }
         }
     }
 
-    private fun initExerciseCountListener(
+    private fun initCountAndAutoPopulate(
         category: String,
-        muscoli: List<String>,
-        subtitleView: TextView
+        subtitleView: TextView,
+        container: LinearLayout
     ) {
-        val counts = muscoli.associateWith { 0 }.toMutableMap()
-        muscoli.forEach { m ->
-            val listener = db.collection("schede_giornaliere")
-                .document(selectedDateId)
-                .collection(category)
-                .document(m)
-                .collection("esercizi")
-                .addSnapshotListener { snap, err ->
-                    counts[m] = if (err != null) 0 else (snap?.size() ?: 0)
-                    val total = counts.values.sum()
-                    subtitleView.text = if (total == 1) "$total esercizio" else "$total esercizi"
+        val user = currentUserName ?: return
+        val listener = db.collection("schede_giornaliere")
+            .document(user)
+            .collection(selectedDateId)
+            .document(category)
+            .collection("esercizi")
+            .addSnapshotListener { snap, err ->
+                val total = if (err != null) 0 else (snap?.documents?.size ?: 0)
+                subtitleView.text = if (total == 1) "$total esercizio" else "$total esercizi"
+                if (total > 0 && container.visibility == GONE) {
+                    toggleAndPopulate(category, container)
                 }
-            activeListeners.add(listener)
-        }
+            }
+        activeListeners.add(listener)
     }
 
     private fun toggleAndPopulate(
-        container: LinearLayout,
         category: String,
-        muscoli: List<String>
+        container: LinearLayout
     ) {
+        val user = currentUserName ?: return
         if (container.visibility == GONE) {
             container.visibility = VISIBLE
             container.removeAllViews()
-            muscoli.forEach { m ->
-                db.collection("schede_giornaliere")
-                    .document(selectedDateId)
-                    .collection(category)
-                    .document(m)
-                    .collection("esercizi")
-                    .get()
-                    .addOnSuccessListener { snap ->
-                        if (snap.isEmpty) return@addOnSuccessListener
-                        val byMuscle = snap.documents.groupBy {
-                            it.getString("muscoloPrincipale") ?: "Altro"
+
+            db.collection("schede_giornaliere")
+                .document(user)
+                .collection(selectedDateId)
+                .document(category)
+                .collection("esercizi")
+                .get()
+                .addOnSuccessListener { snap ->
+                    if (snap.isEmpty) return@addOnSuccessListener
+
+                    val byMuscle = snap.documents.groupBy {
+                        it.getString("muscoloPrincipale") ?: "Altro"
+                    }
+                    byMuscle.forEach { (muscle, exercises) ->
+                        val header = TextView(requireContext()).apply {
+                            text = muscle.uppercase()
+                            typeface = Typeface.DEFAULT_BOLD
+                            setTextColor(ContextCompat.getColor(requireContext(), R.color.sky))
+                            setPadding(40, 30, 0, 0)
                         }
-                        byMuscle.forEach { (muscle, exercises) ->
-                            // Header muscolo
-                            val header = TextView(requireContext()).apply {
-                                text = muscle.uppercase()
-                                typeface = Typeface.DEFAULT_BOLD
-                                setTextColor(ContextCompat.getColor(requireContext(), R.color.sky))
-                                setPadding(40, 30, 0, 0)
+                        container.addView(header)
+
+                        container.addView(View(requireContext()).apply {
+                            layoutParams = LinearLayout.LayoutParams(
+                                LinearLayout.LayoutParams.MATCH_PARENT, 3
+                            ).apply { setMargins(40, 16, 40, 16) }
+                            setBackgroundColor(
+                                ContextCompat.getColor(requireContext(), R.color.dark_gray)
+                            )
+                        })
+
+                        exercises.forEach { doc ->
+                            val nome = doc.getString("nomeEsercizio") ?: doc.id
+                            val serie = doc.getLong("numeroSerie")?.toString() ?: "0"
+                            val rep = doc.getLong("numeroRipetizioni")?.toString() ?: "0"
+                            val item = TextView(requireContext()).apply {
+                                text = "○ $nome  |  Serie: $serie  •  Rep: $rep"
+                                setTextColor(ContextCompat.getColor(requireContext(), android.R.color.white))
+                                setPadding(36, 4, 8, 16)
                             }
-                            container.addView(header)
-                            // Divider
-                            container.addView(View(requireContext()).apply {
-                                layoutParams = LinearLayout.LayoutParams(
-                                    LinearLayout.LayoutParams.MATCH_PARENT, 3
-                                ).apply { setMargins(40, 16, 40, 16) }
-                                setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.dark_gray))
-                            })
-                            // Esercizi
-                            exercises.forEach { doc ->
-                                val nome = doc.getString("nomeEsercizio") ?: doc.id
-                                val serie = doc.getLong("numeroSerie")?.toString() ?: "0"
-                                val rep = doc.getLong("numeroRipetizioni")?.toString() ?: "0"
-                                val item = TextView(requireContext()).apply {
-                                    text = "○ $nome  |  Serie: $serie  •  Rep: $rep"
-                                    setTextColor(ContextCompat.getColor(requireContext(), android.R.color.white))
-                                    setPadding(36, 4, 8, 16)
-                                }
-                                container.addView(item)
-                            }
+                            container.addView(item)
                         }
                     }
-                    .addOnFailureListener {
-                        Toast.makeText(requireContext(), "Errore nel caricamento degli esercizi", Toast.LENGTH_SHORT).show()
-                    }
-            }
+                }
+                .addOnFailureListener {
+                    Toast.makeText(
+                        requireContext(),
+                        "Errore nel caricamento degli esercizi",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+
         } else {
             container.visibility = GONE
         }

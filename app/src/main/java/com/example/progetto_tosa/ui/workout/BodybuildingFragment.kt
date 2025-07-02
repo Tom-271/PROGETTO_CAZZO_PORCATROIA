@@ -8,6 +8,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import android.widget.Toast
+import android.content.Context
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
@@ -43,12 +44,166 @@ class BodybuildingFragment : Fragment(R.layout.fragment_bodybuilding) {
     private val selectedUser: String? by lazy { arguments?.getString("selectedUser") }
     private val selectedDate: String? by lazy { arguments?.getString("selectedDate") }
 
-    // Sezioni di esercizi (omesse per brevità)
-    private val section1 = listOf<Exercise>(/*...*/)
-    private val section2 = listOf<Exercise>(/*...*/)
-    private val section3 = listOf<Exercise>(/*...*/)
-    private val section4 = listOf<Exercise>(/*...*/)
-    private val section5 = listOf<Exercise>(/*...*/)
+    // Sezioni di esercizi complete
+    private val section1 = listOf(
+        Exercise(
+            category = "bodybuilding",
+            muscoloPrincipale = "petto",
+            imageRes = R.drawable.pancadescrizione,
+            descriptionImage = R.drawable.pancadescrizione,
+            title = "PANCA PIANA",
+            videoUrl = "https://youtu.be/…",
+            description = "Esercizio fondamentale per il petto.",
+            subtitle2 = "MUSCOLI COINVOLTI",
+            description2 = "- Grande pettorale\n- Tricipite brachiale",
+            detailImage1Res = R.drawable.pancadescrizione,
+            detailImage2Res = R.drawable.pancadescrizione,
+            descrizioneTotale = "3–4 serie da 8–12 ripetizioni"
+        ),
+        Exercise(
+            category = "bodybuilding",
+            muscoloPrincipale = "petto",
+            imageRes = R.drawable.chestpressdescrizione,
+            descriptionImage = R.drawable.chestpressdescrizione,
+            title = "CHEST PRESS",
+            videoUrl = "https://youtu.be/…",
+            description = "Macchinario utile per il petto.",
+            subtitle2 = "MUSCOLI COINVOLTI",
+            description2 = "- Grande pettorale\n- Deltoide anteriore",
+            detailImage1Res = R.drawable.chestpressdescrizione,
+            detailImage2Res = R.drawable.chestpressdescrizione,
+            descrizioneTotale = "3–4 serie da 10–15 ripetizioni"
+        ),
+        // …aggiungi qui gli altri esercizi petto…
+    )
+
+    private val section2 = listOf(
+        Exercise(
+            category = "bodybuilding",
+            muscoloPrincipale = "spalle",
+            imageRes = R.drawable.lentoavantimanubri,
+            descriptionImage = R.drawable.lentoavantimanubri,
+            title = "LENTO AVANTI CON MANUBRI",
+            videoUrl = "https://youtu.be/…",
+            description = "Macchinario utile per le spalle.",
+            subtitle2 = "MUSCOLI COINVOLTI",
+            description2 = "- Deltoide anteriore\n- Deltoide laterale",
+            detailImage1Res = R.drawable.lentoavantimanubri,
+            detailImage2Res = R.drawable.lentoavantimanubri,
+            descrizioneTotale = "3–4 serie da 10–15 ripetizioni"
+        ),
+        Exercise(
+            category = "bodybuilding",
+            muscoloPrincipale = "spalle",
+            imageRes = R.drawable.alzatelaterali,
+            descriptionImage = R.drawable.alzatelaterali,
+            title = "ALZATE LATERALI",
+            videoUrl = "https://youtu.be/…",
+            description = "Esercizio per il deltoide laterale.",
+            subtitle2 = "MUSCOLI COINVOLTI",
+            description2 = "- Deltoide laterale",
+            detailImage1Res = R.drawable.alzatelaterali,
+            detailImage2Res = R.drawable.alzatelaterali,
+            descrizioneTotale = "3–4 serie da 12–15 ripetizioni"
+        ),
+        // …aggiungi qui gli altri esercizi spalle…
+    )
+
+    private val section3 = listOf(
+        Exercise(
+            category = "bodybuilding",
+            muscoloPrincipale = "schiena",
+            imageRes = R.drawable.latmachinedritta,
+            descriptionImage = R.drawable.latmachinedritta,
+            title = "LAT MACHINE PRESA LARGA",
+            videoUrl = "https://youtu.be/…",
+            description = "Esercizio per la schiena alta.",
+            subtitle2 = "MUSCOLI COINVOLTI",
+            description2 = "- Gran dorsale\n- Bicipiti",
+            detailImage1Res = R.drawable.latmachinedritta,
+            detailImage2Res = R.drawable.latmachinedritta,
+            descrizioneTotale = "3–4 serie da 8–12 ripetizioni"
+        ),
+        Exercise(
+            category = "bodybuilding",
+            muscoloPrincipale = "schiena",
+            imageRes = R.drawable.rematorebilanciere,
+            descriptionImage = R.drawable.rematorebilanciere,
+            title = "REMATORE BILANCIERE",
+            videoUrl = "https://youtu.be/…",
+            description = "Esercizio per il gran dorsale e romboidi.",
+            subtitle2 = "MUSCOLI COINVOLTI",
+            description2 = "- Gran dorsale\n- Rombodi",
+            detailImage1Res = R.drawable.rematorebilanciere,
+            detailImage2Res = R.drawable.rematorebilanciere,
+            descrizioneTotale = "3–4 serie da 8–12 ripetizioni"
+        ),
+        // …aggiungi qui gli altri esercizi schiena…
+    )
+
+    private val section4 = listOf(
+        Exercise(
+            category = "bodybuilding",
+            muscoloPrincipale = "gambe",
+            imageRes = R.drawable.backsquat,
+            descriptionImage = R.drawable.backsquat,
+            title = "BACK SQUAT",
+            videoUrl = "https://youtu.be/…",
+            description = "Esercizio fondamentale per le gambe.",
+            subtitle2 = "MUSCOLI COINVOLTI",
+            description2 = "- Quadricipiti\n- Glutei",
+            detailImage1Res = R.drawable.backsquat,
+            detailImage2Res = R.drawable.backsquat,
+            descrizioneTotale = "3–4 serie da 6–10 ripetizioni"
+        ),
+        Exercise(
+            category = "bodybuilding",
+            muscoloPrincipale = "gambe",
+            imageRes = R.drawable.legpress45,
+            descriptionImage = R.drawable.legpress45,
+            title = "LEG PRESS 45°",
+            videoUrl = "https://youtu.be/…",
+            description = "Macchinario per quadricipiti e glutei.",
+            subtitle2 = "MUSCOLI COINVOLTI",
+            description2 = "- Quadricipiti\n- Glutei",
+            detailImage1Res = R.drawable.legpress45,
+            detailImage2Res = R.drawable.legpress45,
+            descrizioneTotale = "3–4 serie da 8–12 ripetizioni"
+        ),
+        // …aggiungi qui gli altri esercizi gambe…
+    )
+
+    private val section5 = listOf(
+        Exercise(
+            category = "bodybuilding",
+            muscoloPrincipale = "bicipiti",
+            imageRes = R.drawable.bicipitimanubri,
+            descriptionImage = R.drawable.bicipitimanubri,
+            title = "CURL MANUBRI",
+            videoUrl = "https://youtu.be/…",
+            description = "Esercizio base per i bicipiti.",
+            subtitle2 = "MUSCOLI COINVOLTI",
+            description2 = "- Bicipite brachiale",
+            detailImage1Res = R.drawable.bicipitimanubri,
+            detailImage2Res = R.drawable.bicipitimanubri,
+            descrizioneTotale = "3–4 serie da 10–15 ripetizioni"
+        ),
+        Exercise(
+            category = "bodybuilding",
+            muscoloPrincipale = "bicipiti",
+            imageRes = R.drawable.spydercurl,
+            descriptionImage = R.drawable.spydercurl,
+            title = "SPYDER CURL",
+            videoUrl = "https://youtu.be/…",
+            description = "Isolamento del bicipite in panca Scott.",
+            subtitle2 = "MUSCOLI COINVOLTI",
+            description2 = "- Bicipite brachiale",
+            detailImage1Res = R.drawable.spydercurl,
+            detailImage2Res = R.drawable.spydercurl,
+            descrizioneTotale = "3–4 serie da 8–12 ripetizioni"
+        )
+        // …aggiungi eventualmente altri esercizi bicipiti…
+    )
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -193,20 +348,30 @@ class BodybuildingFragment : Fragment(R.layout.fragment_bodybuilding) {
             "nomeEsercizio" to ex.title,
             "numeroSerie" to ex.setsCount,
             "numeroRipetizioni" to ex.repsCount,
-            "muscoloPrincipale" to ex.muscoloPrincipale
+            "muscoloPrincipale" to ex.muscoloPrincipale,
         )
 
+
         val successMessage = "Esercizio \"${ex.title}\" aggiunto con successo"
+        val currentUserName = requireActivity()
+            .getSharedPreferences("user_data", Context.MODE_PRIVATE)
+            .getString("saved_display_name", null)
+
         val collectionRef = if (!selectedUser.isNullOrBlank()) {
             db.collection("schede_del_pt")
                 .document(selectedUser!!)
                 .collection(selectedDate!!)
                 .document(ex.category)
                 .collection("esercizi")
-        } else {
+        } else if (!currentUserName.isNullOrBlank()) {
             db.collection("schede_giornaliere")
-                .document(selectedDate!!)
-                .collection(ex.category)
+                .document(currentUserName)
+                .collection(selectedDate!!)
+                .document(ex.category)
+                .collection("esercizi")
+        } else {
+            Toast.makeText(requireContext(), "Impossibile identificare l'utente", Toast.LENGTH_SHORT).show()
+            return
         }
 
         collectionRef.document(ex.title)
