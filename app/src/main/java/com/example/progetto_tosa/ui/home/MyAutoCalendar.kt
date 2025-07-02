@@ -16,6 +16,7 @@ class MyAutoCalendar : Fragment() {
 
     private var _binding: FragmentMyautocalendarBinding? = null
     private val binding get() = _binding!!
+    private var weekOffset = 0
 
     private var dateId: String? = null
     private val daysTextViews by lazy {
@@ -42,6 +43,9 @@ class MyAutoCalendar : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        dateId = null
+        binding.btnFancy.visibility = View.INVISIBLE
+
         setupDays()
 
         binding.btnFancy.setOnClickListener {
@@ -52,31 +56,55 @@ class MyAutoCalendar : Fragment() {
                 )
             }
         }
+
+        binding.btnPrevWeek.setOnClickListener {
+            weekOffset -= 1
+            dateId = null
+            binding.btnFancy.visibility = View.INVISIBLE
+            setupDays()
+        }
+
+        binding.btnNextWeek.setOnClickListener {
+            weekOffset += 1
+            dateId = null
+            binding.btnFancy.visibility = View.INVISIBLE
+            setupDays()
+        }
+
     }
 
     private fun setupDays() {
         val calendar = Calendar.getInstance()
         calendar.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY)
+        calendar.add(Calendar.WEEK_OF_YEAR, weekOffset)
 
         val dateFormatLabel = SimpleDateFormat("EEEE d MMMM", Locale("it", "IT"))
         val dateFormatId = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
 
-        daysTextViews.forEachIndexed { index, cardView ->
-            val currentDate = calendar.time
-            val label = dateFormatLabel.format(currentDate).replaceFirstChar { it.uppercase() }
-            val id = dateFormatId.format(currentDate)
+        val dayViews = listOf(
+            Triple(binding.cardMonday, binding.textMonday, 0),
+            Triple(binding.cardTuesday, binding.textTuesday, 1),
+            Triple(binding.cardWednesday, binding.textWednesday, 2),
+            Triple(binding.cardThursday, binding.textThursday, 3),
+            Triple(binding.cardFriday, binding.textFriday, 4),
+            Triple(binding.cardSaturday, binding.textSaturday, 5),
+            Triple(binding.cardSunday, binding.textSunday, 6)
+        )
 
-            // Trova il TextView figlio e aggiorna il testo
-            val textView = cardView.findViewById<ViewGroup>(0)
-                ?.getChildAt(0) as? android.widget.TextView
-            textView?.text = label
+        dayViews.forEach { (card, textView, dayOffset) ->
+            val dayCalendar = calendar.clone() as Calendar
+            dayCalendar.add(Calendar.DAY_OF_YEAR, dayOffset)
 
-            cardView.setOnClickListener {
+            val label = dateFormatLabel.format(dayCalendar.time)
+                .replaceFirstChar { it.uppercase() }
+            val id = dateFormatId.format(dayCalendar.time)
+
+            textView.text = label
+
+            card.setOnClickListener {
                 dateId = id
                 binding.btnFancy.visibility = View.VISIBLE
             }
-
-            calendar.add(Calendar.DAY_OF_YEAR, 1)
         }
     }
 
@@ -84,4 +112,12 @@ class MyAutoCalendar : Fragment() {
         super.onDestroyView()
         _binding = null
     }
+
+    override fun onResume() {
+        super.onResume()
+        dateId = null
+        binding.btnFancy.visibility = View.INVISIBLE
+        setupDays()
+    }
+
 }

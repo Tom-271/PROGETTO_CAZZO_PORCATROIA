@@ -6,8 +6,7 @@ import android.util.TypedValue
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
-import android.view.View.GONE
-import android.view.View.VISIBLE
+import android.view.View.*
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.LinearLayout
@@ -18,7 +17,6 @@ import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import com.example.progetto_tosa.R
 import com.example.progetto_tosa.databinding.FragmentMyAutoScheduleBinding
-import com.google.firebase.Timestamp
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
 import java.text.SimpleDateFormat
@@ -32,13 +30,8 @@ class MyAutoScheduleFragment : Fragment() {
     private val db = FirebaseFirestore.getInstance()
     private val activeListeners = mutableListOf<ListenerRegistration>()
 
-    private val selectedDateId: String by lazy {
-        requireArguments().getString("selectedDate")
-            ?: error("selectedDate mancante")
-    }
-
-    // mappa per conteggi
-    private val countsMap = mutableMapOf<String, MutableMap<String, Int>>()
+    private lateinit var dayName: String
+    private lateinit var dayDisplayName: String
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -53,81 +46,72 @@ class MyAutoScheduleFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         val b = binding
 
-        // imposta data
-        val displayDate = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
-            .format(SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).parse(selectedDateId)!!)
-        val today = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).format(Date())
-        b.subtitlePPPPPPPPROOOOOVA.apply {
-            visibility = VISIBLE
-            text =
-                if (displayDate == today) "LA MIA SCHEDA di oggi" else "LA MIA SCHEDA DEL: $displayDate"
+        // ottieni la data passata
+        val selectedDateId = requireArguments().getString("selectedDate")
+            ?: error("selectedDate mancante")
+
+        // ricava giorno della settimana
+        val parsedDate = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).parse(selectedDateId)
+        val calendar = Calendar.getInstance()
+        calendar.time = parsedDate!!
+        val dayOfWeek = calendar.get(Calendar.DAY_OF_WEEK)
+
+        dayName = when (dayOfWeek) {
+            Calendar.MONDAY -> "monday"
+            Calendar.TUESDAY -> "tuesday"
+            Calendar.WEDNESDAY -> "wednesday"
+            Calendar.THURSDAY -> "thursday"
+            Calendar.FRIDAY -> "friday"
+            Calendar.SATURDAY -> "saturday"
+            Calendar.SUNDAY -> "sunday"
+            else -> "unknown"
         }
 
-        // assicurati documento
-        db.collection("schede_giornaliere").document(selectedDateId)
-            .get()
-            .addOnSuccessListener { snap ->
-                if (!snap.exists()) {
-                    snap.reference.set(mapOf("date" to Timestamp.now()))
-                }
-            }
-
-        // bottone aggiungi generico
-        b.btnFillSchedule.apply {
-            visibility = VISIBLE
-            setOnClickListener {
-                findNavController().navigate(
-                    R.id.action_fragment_my_auto_schedule_to_fragment_workout,
-                    Bundle().apply { putString("selectedDate", selectedDateId) }
-                )
-            }
+        dayDisplayName = when (dayName) {
+            "monday" -> "LUNEDÌ"
+            "tuesday" -> "MARTEDÌ"
+            "wednesday" -> "MERCOLEDÌ"
+            "thursday" -> "GIOVEDÌ"
+            "friday" -> "VENERDÌ"
+            "saturday" -> "SABATO"
+            "sunday" -> "DOMENICA"
+            else -> "GIORNO"
         }
 
-        // inizializza contatori
-        initExerciseCountListener(
-            "bodybuilding",
-            listOf("petto", "gambe", "spalle", "dorso", "bicipiti", "tricipiti"),
-            b.subtitleBodyBuilding
-        )
-        initExerciseCountListener("cardio", listOf("cardio1", "cardio2"), b.subtitleCardio)
-        initExerciseCountListener(
-            "corpo_libero",
-            listOf("libero1", "libero2"),
-            b.subtitleCorpoLibero
-        )
-        initExerciseCountListener(
-            "stretching",
-            listOf("stretch1", "stretch2"),
-            b.subtitleStretching
-        )
+        // mostra intestazione
+        b.subtitlePPPPPPPPROOOOOVA.visibility = VISIBLE
+        b.subtitlePPPPPPPPROOOOOVA.text = "SCHEDA DEL $dayDisplayName"
 
-        // setup toggle e popolamento al click
-        b.btnBodybuilding.setOnClickListener {
-            toggleAndPopulate(
-                b.bodybuildingDetailsContainer,
-                "bodybuilding",
-                listOf("petto", "gambe", "spalle", "dorso", "bicipiti", "tricipiti")
+        // bottone aggiungi
+        b.btnFillSchedule.visibility = VISIBLE
+        b.btnFillSchedule.setOnClickListener {
+            findNavController().navigate(
+                R.id.action_fragment_my_auto_schedule_to_fragment_workout,
+                Bundle().apply { putString("selectedDate", selectedDateId) }
             )
+        }
+
+        // ascoltatori contatori
+        initExerciseCountListener("bodybuilding", listOf("petto", "gambe", "spalle", "dorso", "bicipiti", "tricipiti"), b.subtitleBodyBuilding)
+        initExerciseCountListener("cardio", listOf("cardio1", "cardio2"), b.subtitleCardio)
+        initExerciseCountListener("corpo_libero", listOf("libero1", "libero2"), b.subtitleCorpoLibero)
+        initExerciseCountListener("stretching", listOf("stretch1", "stretch2"), b.subtitleStretching)
+
+        // toggle e mostra dettagli
+        b.btnBodybuilding.setOnClickListener {
+            toggleAndPopulate(b.bodybuildingDetailsContainer, "bodybuilding", listOf("petto", "gambe", "spalle", "dorso", "bicipiti", "tricipiti"))
         }
         b.btnCardio.setOnClickListener {
             toggleAndPopulate(b.cardioDetailsContainer, "cardio", listOf("cardio1", "cardio2"))
         }
         b.btnCorpoLibero.setOnClickListener {
-            toggleAndPopulate(
-                b.corpoliberoDetailsContainer,
-                "corpo_libero",
-                listOf("libero1", "libero2")
-            )
+            toggleAndPopulate(b.corpoliberoDetailsContainer, "corpo_libero", listOf("libero1", "libero2"))
         }
         b.btnStretching.setOnClickListener {
-            toggleAndPopulate(
-                b.stretchingDetailsContainer,
-                "stretching",
-                listOf("stretch1", "stretch2")
-            )
+            toggleAndPopulate(b.stretchingDetailsContainer, "stretching", listOf("stretch1", "stretch2"))
         }
 
-        // cronotimer
+        // bottone cronotimer
         b.fabAdd.setOnClickListener {
             findNavController().navigate(R.id.action_fragment_my_auto_schedule_to_navigation_cronotimer)
         }
@@ -145,20 +129,17 @@ class MyAutoScheduleFragment : Fragment() {
         muscoli: List<String>,
         subtitleView: TextView
     ) {
-        // inizializza mappe contatori
         val counts = muscoli.associateWith { 0 }.toMutableMap()
-        countsMap[category] = counts
         muscoli.forEach { m ->
             val listener = db.collection("schede_giornaliere")
-                .document(selectedDateId)
+                .document(dayName)
                 .collection(category)
                 .document(m)
                 .collection("esercizi")
                 .addSnapshotListener { snap, err ->
                     counts[m] = if (err != null) 0 else (snap?.size() ?: 0)
                     val total = counts.values.sum()
-                    subtitleView.text =
-                        if (total == 1) "${total} esercizio" else "${total} esercizi"
+                    subtitleView.text = if (total == 1) "$total esercizio" else "$total esercizi"
                 }
             activeListeners.add(listener)
         }
@@ -172,19 +153,18 @@ class MyAutoScheduleFragment : Fragment() {
         if (container.visibility == GONE) {
             container.visibility = VISIBLE
             container.removeAllViews()
-            // Popola con fetch una tantum
             lista.forEach { m ->
                 val colRef = db.collection("schede_giornaliere")
-                    .document(selectedDateId)
+                    .document(dayName)
                     .collection(category)
                     .document(m)
                     .collection("esercizi")
+
                 colRef.get().addOnSuccessListener { snap ->
                     if (snap.isEmpty) return@addOnSuccessListener
 
-                    // Header muscolo
                     val header = TextView(requireContext()).apply {
-                        text = m.uppercase(Locale.getDefault())
+                        text = m.uppercase()
                         typeface = Typeface.DEFAULT_BOLD
                         setTextColor(ContextCompat.getColor(requireContext(), R.color.sky))
                         setPadding(40, 30, 0, 0)
@@ -192,28 +172,19 @@ class MyAutoScheduleFragment : Fragment() {
                     }
                     container.addView(header)
 
-                    // Divider
                     val divider = View(requireContext()).apply {
                         layoutParams = LinearLayout.LayoutParams(
                             LinearLayout.LayoutParams.MATCH_PARENT, 3
                         ).apply { setMargins(40, 16, 40, 16) }
-                        setBackgroundColor(
-                            ContextCompat.getColor(
-                                requireContext(),
-                                R.color.dark_gray
-                            )
-                        )
+                        setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.dark_gray))
                     }
                     container.addView(divider)
 
-                    // Esercizi con pulsante elimina
                     snap.documents.forEach { doc ->
                         val nome = doc.getString("nomeEsercizio") ?: doc.id
                         val serie = doc.getLong("numeroSerie")?.toString() ?: "0"
                         val rep = doc.getLong("numeroRipetizioni")?.toString() ?: "0"
-                        val eserciziPath = colRef
 
-                        // Layout orizzontale per ogni esercizio
                         val itemLayout = LinearLayout(requireContext()).apply {
                             orientation = LinearLayout.HORIZONTAL
                             layoutParams = LinearLayout.LayoutParams(
@@ -223,25 +194,13 @@ class MyAutoScheduleFragment : Fragment() {
                             gravity = Gravity.CENTER_VERTICAL
                         }
 
-                        // Info esercizio
                         val infoView = TextView(requireContext()).apply {
                             text = "$nome  ○ Rep: $rep  •  Serie: $serie"
-                            setTextColor(
-                                ContextCompat.getColor(
-                                    requireContext(),
-                                    android.R.color.white
-                                )
-                            )
+                            setTextColor(ContextCompat.getColor(requireContext(), android.R.color.white))
                             textSize = 16f
-                            layoutParams = LinearLayout.LayoutParams(
-                                0,
-                                LinearLayout.LayoutParams.WRAP_CONTENT,
-                                1f
-                            )
+                            layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
                         }
-                        itemLayout.addView(infoView)
 
-                        // Bottone Elimina
                         val sizeDp = 32
                         val sizePx = TypedValue.applyDimension(
                             TypedValue.COMPLEX_UNIT_DIP,
@@ -252,7 +211,6 @@ class MyAutoScheduleFragment : Fragment() {
                         val btnDelete = Button(requireContext()).apply {
                             text = "✕"
                             textSize = 12f
-                            setPadding(0, 0, 0, 0)
                             minimumWidth = 0
                             minimumHeight = 0
                             layoutParams = LinearLayout.LayoutParams(sizePx, sizePx).apply {
@@ -262,28 +220,19 @@ class MyAutoScheduleFragment : Fragment() {
                                     resources.displayMetrics
                                 ).toInt()
                             }
-                            background = ContextCompat.getDrawable(
-                                requireContext(),
-                                R.drawable.rounded_delete_button
-                            )
+                            background = ContextCompat.getDrawable(requireContext(), R.drawable.rounded_delete_button)
                             setOnClickListener {
-                                eserciziPath.document(doc.id)
+                                colRef.document(doc.id)
                                     .delete()
-                                    .addOnSuccessListener {
-                                        container.removeView(itemLayout)
-                                    }
+                                    .addOnSuccessListener { container.removeView(itemLayout) }
                                     .addOnFailureListener { e ->
-                                        Toast.makeText(
-                                            requireContext(),
-                                            "Errore: ${e.message}",
-                                            Toast.LENGTH_SHORT
-                                        ).show()
+                                        Toast.makeText(requireContext(), "Errore: ${e.message}", Toast.LENGTH_SHORT).show()
                                     }
                             }
                         }
-                        itemLayout.addView(btnDelete)
 
-                        // aggiungi tutto al container
+                        itemLayout.addView(infoView)
+                        itemLayout.addView(btnDelete)
                         container.addView(itemLayout)
                     }
                 }

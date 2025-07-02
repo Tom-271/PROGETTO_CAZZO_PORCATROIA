@@ -9,15 +9,16 @@ import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import com.example.progetto_tosa.R
 import com.example.progetto_tosa.databinding.FragmentWorkoutBinding
+import java.text.SimpleDateFormat
+import java.util.*
 
 class WorkoutFragment : Fragment() {
 
     private var _binding: FragmentWorkoutBinding? = null
     private val binding get() = _binding!!
 
-    private val selectedDate: String by lazy {
-        requireArguments().getString("selectedDate")
-            ?: error("selectedDate mancante")
+    private val selectedDate: String? by lazy {
+        requireArguments().getString("selectedDate") // può essere null
     }
     private val selectedUser: String? by lazy {
         requireArguments().getString("selectedUser")
@@ -35,8 +36,8 @@ class WorkoutFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         binding.btnItem1.setOnClickListener {
-            // PESI → Bodybuilding
-            val args = bundleOf("selectedDate" to selectedDate).apply {
+            val args = bundleOf().apply {
+                selectedDate?.let { putString("selectedDate", it) }
                 selectedUser?.let { putString("selectedUser", it) }
             }
             findNavController().navigate(
@@ -45,20 +46,9 @@ class WorkoutFragment : Fragment() {
             )
         }
 
-        binding.btnItem3.setOnClickListener {
-            // CARDIO
-            val args = bundleOf("selectedDate" to selectedDate).apply {
-                selectedUser?.let { putString("selectedUser", it) }
-            }
-            findNavController().navigate(
-                R.id.action_fragment_workout_to_navigation_cardio,
-                args
-            )
-        }
-
         binding.btnItem2.setOnClickListener {
-            // CORPO LIBERO
-            val args = bundleOf("selectedDate" to selectedDate).apply {
+            val args = bundleOf().apply {
+                selectedDate?.let { putString("selectedDate", it) }
                 selectedUser?.let { putString("selectedUser", it) }
             }
             findNavController().navigate(
@@ -67,9 +57,20 @@ class WorkoutFragment : Fragment() {
             )
         }
 
+        binding.btnItem3.setOnClickListener {
+            val args = bundleOf().apply {
+                selectedDate?.let { putString("selectedDate", it) }
+                selectedUser?.let { putString("selectedUser", it) }
+            }
+            findNavController().navigate(
+                R.id.action_fragment_workout_to_navigation_cardio,
+                args
+            )
+        }
+
         binding.btnItem4.setOnClickListener {
-            // STRETCHING
-            val args = bundleOf("selectedDate" to selectedDate).apply {
+            val args = bundleOf().apply {
+                selectedDate?.let { putString("selectedDate", it) }
                 selectedUser?.let { putString("selectedUser", it) }
             }
             findNavController().navigate(
@@ -77,6 +78,13 @@ class WorkoutFragment : Fragment() {
                 args
             )
         }
+    }
+
+    private fun getDayNameFromDate(dateString: String): String {
+        val inputFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+        val outputFormat = SimpleDateFormat("EEEE", Locale("it", "IT"))
+        val date = inputFormat.parse(dateString)
+        return outputFormat.format(date!!).replaceFirstChar { it.uppercase() }
     }
 
     override fun onDestroyView() {
