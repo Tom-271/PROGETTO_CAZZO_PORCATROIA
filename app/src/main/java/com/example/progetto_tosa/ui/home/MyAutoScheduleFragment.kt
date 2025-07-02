@@ -32,6 +32,7 @@ class MyAutoScheduleFragment : Fragment() {
 
     private lateinit var dayName: String
     private lateinit var dayDisplayName: String
+    private lateinit var selectedDateId: String
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -47,8 +48,7 @@ class MyAutoScheduleFragment : Fragment() {
         val b = binding
 
         // ottieni la data passata
-        val selectedDateId = requireArguments().getString("selectedDate")
-            ?: error("selectedDate mancante")
+        selectedDateId = requireArguments().getString("selectedDate") ?: error("selectedDate mancante")
 
         // ricava giorno della settimana
         val parsedDate = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).parse(selectedDateId)
@@ -92,14 +92,14 @@ class MyAutoScheduleFragment : Fragment() {
         }
 
         // ascoltatori contatori
-        initExerciseCountListener("bodybuilding", listOf("petto", "gambe", "spalle", "dorso", "bicipiti", "tricipiti"), b.subtitleBodyBuilding)
+        initExerciseCountListener("bodybuilding", listOf("petto", "gambe", "spalle", "schiena", "bicipiti", "tricipiti"), b.subtitleBodyBuilding)
         initExerciseCountListener("cardio", listOf("cardio1", "cardio2"), b.subtitleCardio)
         initExerciseCountListener("corpo_libero", listOf("libero1", "libero2"), b.subtitleCorpoLibero)
         initExerciseCountListener("stretching", listOf("stretch1", "stretch2"), b.subtitleStretching)
 
         // toggle e mostra dettagli
         b.btnBodybuilding.setOnClickListener {
-            toggleAndPopulate(b.bodybuildingDetailsContainer, "bodybuilding", listOf("petto", "gambe", "spalle", "dorso", "bicipiti", "tricipiti"))
+            toggleAndPopulate(b.bodybuildingDetailsContainer, "bodybuilding", listOf("petto", "gambe", "spalle", "schiena", "bicipiti", "tricipiti"))
         }
         b.btnCardio.setOnClickListener {
             toggleAndPopulate(b.cardioDetailsContainer, "cardio", listOf("cardio1", "cardio2"))
@@ -132,7 +132,7 @@ class MyAutoScheduleFragment : Fragment() {
         val counts = muscoli.associateWith { 0 }.toMutableMap()
         muscoli.forEach { m ->
             val listener = db.collection("schede_giornaliere")
-                .document(dayName)
+                .document(selectedDateId)
                 .collection(category)
                 .document(m)
                 .collection("esercizi")
@@ -155,7 +155,7 @@ class MyAutoScheduleFragment : Fragment() {
             container.removeAllViews()
             lista.forEach { m ->
                 val colRef = db.collection("schede_giornaliere")
-                    .document(dayName)
+                    .document(selectedDateId)
                     .collection(category)
                     .document(m)
                     .collection("esercizi")
