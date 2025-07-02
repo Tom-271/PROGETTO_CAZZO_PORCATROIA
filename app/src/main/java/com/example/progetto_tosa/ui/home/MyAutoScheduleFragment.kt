@@ -2,12 +2,10 @@ package com.example.progetto_tosa.ui.home
 
 import android.graphics.Typeface
 import android.os.Bundle
-import android.util.TypedValue
-import android.view.Gravity
+import android.view.View
 import android.view.View.GONE
 import android.view.View.VISIBLE
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.TextView
@@ -30,8 +28,6 @@ class MyAutoScheduleFragment : Fragment() {
     private val db = FirebaseFirestore.getInstance()
     private val activeListeners = mutableListOf<ListenerRegistration>()
 
-    private lateinit var dayName: String
-    private lateinit var dayDisplayName: String
     private lateinit var selectedDateId: String
 
     override fun onCreateView(
@@ -46,11 +42,11 @@ class MyAutoScheduleFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        // Ottieni la data passata
+        selectedDateId = requireArguments().getString("selectedDate")
+            ?: error("selectedDate mancante")
 
-        // ottieni la data passata
-        selectedDateId = requireArguments().getString("selectedDate") ?: error("selectedDate mancante")
-
-        // 2) Ricava giorno della settimana per la label
+        // Giorno della settimana
         val parsedDate = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
             .parse(selectedDateId)!!
         val dayOfWeek = Calendar.getInstance().apply { time = parsedDate }
@@ -65,13 +61,12 @@ class MyAutoScheduleFragment : Fragment() {
             Calendar.SUNDAY    -> "DOMENICA"
             else               -> ""
         }
-
         binding.subtitlePPPPPPPPROOOOOVA.apply {
             visibility = VISIBLE
-            text = "SCHEDA DEL $dayDisplayName"
+            text = "SCHEDA DI $dayDisplayName"
         }
 
-        // 3) Pulsante "Aggiungi esercizio"
+        // Pulsante "Aggiungi esercizio"
         binding.btnFillSchedule.apply {
             visibility = VISIBLE
             setOnClickListener {
@@ -82,69 +77,52 @@ class MyAutoScheduleFragment : Fragment() {
             }
         }
 
-        // 4) Inizializza i contatori
-        initExerciseCountListener(
-            category = "bodybuilding",
-            subtitleView = binding.subtitleBodyBuilding
-        )
-        initExerciseCountListener(
-            category = "cardio",
-            subtitleView = binding.subtitleCardio
-        )
-        initExerciseCountListener(
-            category = "corpo_libero",
-            subtitleView = binding.subtitleCorpoLibero
-        )
-        initExerciseCountListener(
-            category = "stretching",
-            subtitleView = binding.subtitleStretching
+        // Categorie e muscoli
+        val categories = mapOf(
+            "bodybuilding" to listOf("petto", "gambe", "spalle", "schiena", "bicipiti", "tricipiti"),
+            "cardio" to listOf("cardio1", "cardio2"),
+            "corpo_libero" to listOf("libero1", "libero2"),
+            "stretching" to listOf("stretch1", "stretch2")
         )
 
-        // 5) Toggle e dettagli
-        binding.btnBodybuilding.setOnClickListener {
-            toggleAndPopulate(
-                container = binding.bodybuildingDetailsContainer,
-                category = "bodybuilding"
-            )
+        // Inizializza contatori e click listener
+        categories.forEach { (category, muscoli) ->
+            val subtitleView = when (category) {
+                "bodybuilding" -> binding.subtitleBodyBuilding
+                "cardio" -> binding.subtitleCardio
+                "corpo_libero" -> binding.subtitleCorpoLibero
+                "stretching" -> binding.subtitleStretching
+                else -> null
+            }
+            subtitleView?.let {
+                initExerciseCountListener(category, muscoli, it)
+            }
+            val container = when (category) {
+                "bodybuilding" -> binding.bodybuildingDetailsContainer
+                "cardio" -> binding.cardioDetailsContainer
+                "corpo_libero" -> binding.corpoliberoDetailsContainer
+                "stretching" -> binding.stretchingDetailsContainer
+                else -> null
+            }
+            container?.let { cont ->
+                when (category) {
+                    "bodybuilding" -> binding.btnBodybuilding
+                    "cardio" -> binding.btnCardio
+                    "corpo_libero" -> binding.btnCorpoLibero
+                    "stretching" -> binding.btnStretching
+                    else -> null
+                }?.setOnClickListener {
+                    toggleAndPopulate(cont, category, muscoli)
+                }
+            }
         }
-
-
-        // ascoltatori contatori
-        initExerciseCountListener("bodybuilding", listOf("petto", "gambe", "spalle", "schiena", "bicipiti", "tricipiti"), b.subtitleBodyBuilding)
-        initExerciseCountListener("cardio", listOf("cardio1", "cardio2"), b.subtitleCardio)
-        initExerciseCountListener("corpo_libero", listOf("libero1", "libero2"), b.subtitleCorpoLibero)
-        initExerciseCountListener("stretching", listOf("stretch1", "stretch2"), b.subtitleStretching)
-
-        // toggle e mostra dettagli
-        b.btnBodybuilding.setOnClickListener {
-            toggleAndPopulate(b.bodybuildingDetailsContainer, "bodybuilding", listOf("petto", "gambe", "spalle", "schiena", "bicipiti", "tricipiti"))
-        }
-        binding.btnCorpoLibero.setOnClickListener {
-            toggleAndPopulate(
-                container = binding.corpoliberoDetailsContainer,
-                category = "corpo_libero"
-            )
-        }
-        binding.btnStretching.setOnClickListener {
-            toggleAndPopulate(
-                container = binding.stretchingDetailsContainer,
-                category = "stretching"
-            )
-        }
-    }
-
-    override fun onDestroyView() {
-        activeListeners.forEach { it.remove() }
-        activeListeners.clear()
-        _binding = null
-        super.onDestroyView()
     }
 
     private fun initExerciseCountListener(
         category: String,
+        muscoli: List<String>,
         subtitleView: TextView
     ) {
-
         val counts = muscoli.associateWith { 0 }.toMutableMap()
         muscoli.forEach { m ->
             val listener = db.collection("schede_giornaliere")
@@ -163,75 +141,67 @@ class MyAutoScheduleFragment : Fragment() {
 
     private fun toggleAndPopulate(
         container: LinearLayout,
-        category: String
+        category: String,
+        muscoli: List<String>
     ) {
         if (container.visibility == GONE) {
             container.visibility = VISIBLE
             container.removeAllViews()
-
-            lista.forEach { m ->
-                val colRef = db.collection("schede_giornaliere")
+            muscoli.forEach { m ->
+                db.collection("schede_giornaliere")
                     .document(selectedDateId)
                     .collection(category)
                     .document(m)
                     .collection("esercizi")
-
-            db.collection("schede_giornaliere")
-                .document(selectedDateId)
-                .collection(category)
-                .get()
-                .addOnSuccessListener { snap ->
-                    if (snap.isEmpty) return@addOnSuccessListener
-
-                    // Raggruppa esercizi per muscolo
-                    val exercisesByMuscle = snap.documents.groupBy {
-                        it.getString("muscoloPrincipale") ?: "Altro"
-                    }
-
-                    exercisesByMuscle.forEach { (muscle, exercises) ->
-                        // Header muscolo
-                        val header = TextView(requireContext()).apply {
-                            text = muscle.uppercase()
-                            typeface = Typeface.DEFAULT_BOLD
-                            setTextColor(ContextCompat.getColor(requireContext(), R.color.sky))
-                            setPadding(40, 30, 0, 0)
-                            textSize = 20f
+                    .get()
+                    .addOnSuccessListener { snap ->
+                        if (snap.isEmpty) return@addOnSuccessListener
+                        val byMuscle = snap.documents.groupBy {
+                            it.getString("muscoloPrincipale") ?: "Altro"
                         }
-                        container.addView(header)
-
-                        // Divider
-                        val divider = View(requireContext()).apply {
-                            layoutParams = LinearLayout.LayoutParams(
-                                LinearLayout.LayoutParams.MATCH_PARENT,
-                                3
-                            ).apply { setMargins(40, 16, 40, 16) }
-                            setBackgroundColor(
-                                ContextCompat.getColor(requireContext(), R.color.dark_gray)
-                            )
-                        }
-                        container.addView(divider)
-
-                        // Esercizi
-                        exercises.forEach { doc ->
-                            val nome = doc.getString("nomeEsercizio") ?: doc.id
-                            val serie = doc.getLong("numeroSerie")?.toString() ?: "0"
-                            val rep = doc.getLong("numeroRipetizioni")?.toString() ?: "0"
-
-                            val item = TextView(requireContext()).apply {
-                                text = "○ $nome  |  Serie: $serie  •  Rep: $rep"
-                                setTextColor(ContextCompat.getColor(requireContext(), android.R.color.white))
-                                setPadding(36, 4, 8, 16)
-                                textSize = 14f
+                        byMuscle.forEach { (muscle, exercises) ->
+                            // Header muscolo
+                            val header = TextView(requireContext()).apply {
+                                text = muscle.uppercase()
+                                typeface = Typeface.DEFAULT_BOLD
+                                setTextColor(ContextCompat.getColor(requireContext(), R.color.sky))
+                                setPadding(40, 30, 0, 0)
                             }
-                            container.addView(item)
+                            container.addView(header)
+                            // Divider
+                            container.addView(View(requireContext()).apply {
+                                layoutParams = LinearLayout.LayoutParams(
+                                    LinearLayout.LayoutParams.MATCH_PARENT, 3
+                                ).apply { setMargins(40, 16, 40, 16) }
+                                setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.dark_gray))
+                            })
+                            // Esercizi
+                            exercises.forEach { doc ->
+                                val nome = doc.getString("nomeEsercizio") ?: doc.id
+                                val serie = doc.getLong("numeroSerie")?.toString() ?: "0"
+                                val rep = doc.getLong("numeroRipetizioni")?.toString() ?: "0"
+                                val item = TextView(requireContext()).apply {
+                                    text = "○ $nome  |  Serie: $serie  •  Rep: $rep"
+                                    setTextColor(ContextCompat.getColor(requireContext(), android.R.color.white))
+                                    setPadding(36, 4, 8, 16)
+                                }
+                                container.addView(item)
+                            }
                         }
                     }
-                }
-                .addOnFailureListener { e ->
-                    Toast.makeText(requireContext(), "Errore nel caricamento degli esercizi", Toast.LENGTH_SHORT).show()
-                }
+                    .addOnFailureListener {
+                        Toast.makeText(requireContext(), "Errore nel caricamento degli esercizi", Toast.LENGTH_SHORT).show()
+                    }
+            }
         } else {
             container.visibility = GONE
         }
+    }
+
+    override fun onDestroyView() {
+        activeListeners.forEach { it.remove() }
+        activeListeners.clear()
+        _binding = null
+        super.onDestroyView()
     }
 }

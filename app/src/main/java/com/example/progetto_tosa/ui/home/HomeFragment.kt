@@ -7,9 +7,9 @@ import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import android.widget.Toast
 import androidx.core.os.bundleOf
-import android.view.ViewGroup
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
@@ -45,68 +45,89 @@ class HomeFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Data odierna
-        val today    = Date()
-        val displayF = SimpleDateFormat("EEEE, d MMMM yyyy", Locale.getDefault())
-        binding.bannerDate.text = displayF.format(today)
+        // 1) Data
+        val today      = Date()
+        val displayFmt = SimpleDateFormat("EEEE, d MMMM yyyy", Locale.getDefault())
+        val keyFmt     = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+        val displayDate= displayFmt.format(today)
+        val todayId    = keyFmt.format(today)
+        binding.bannerDate.text = displayDate
+        Log.d(TAG, "DisplayDate=$displayDate, TodayId=$todayId")
 
-        // ID data in Firestore: "yyyy-MM-dd"
-        val keyF    = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-        val todayId = keyF.format(today)
-        Log.d(TAG, "TodayId = $todayId")
-
-        // Chi è loggato?
+        // 2) Login check
         val user = auth.currentUser
         if (user == null) {
-            // nessuno loggato: tutto nascosto
+            Log.d(TAG, "Nessun utente loggato")
             binding.bannerStatus.visibility = View.GONE
             setAllGone()
             return
         }
+        Log.d(TAG, "User UID=${user.uid}")
 
-        // Leggo la flag is_trainer dalle prefs
-        val prefs     = requireActivity()
-            .getSharedPreferences("user_data", Context.MODE_PRIVATE)
+        // 3) Ruolo PT/Atleta
+        val prefs     = requireActivity().getSharedPreferences("user_data", Context.MODE_PRIVATE)
         val isTrainer = prefs.getBoolean("is_trainer", false)
+        Log.d(TAG, "isTrainer flag=$isTrainer")
         if (isTrainer) {
-            // se è PT non mostro la sezione stato e mostro i bottoni PT
+            Log.d(TAG, "Accesso come Personal Trainer")
             binding.bannerStatus.visibility = View.GONE
             showButtonsForPT()
             return
         }
 
-        // se arrivo qui: è un atleta → mostro sezione stato e bottoni user
+        // 4) Atleta UI
         binding.bannerCard.visibility = View.VISIBLE
-        binding.bannerStatus.text       = "Controllo in corso…"
+        binding.bannerStatus.text     = "Controllo in corso…"
         showButtonsForUser()
 
-        // Recupero displayName salvato in prefs (come in AccountFragment)
-        val savedName   = prefs.getString("saved_display_name", null)
-        val fullNameRaw = savedName.takeUnless { it.isNullOrBlank() }
-            ?: user.displayName.orEmpty()
-        val fullName    = fullNameRaw.trim()
+        // 5) Recupera saved_display_name
+        val fullName = prefs.getString("saved_display_name","").orEmpty()
+        Log.d(TAG, "saved_display_name='$fullName'")
         if (fullName.isBlank()) {
-            Log.e(TAG, "Nome completo utente mancante")
-            binding.bannerStatus.text = "Errore: nome utente non disponibile"
+            Log.e(TAG, "Nome utente mancante dalle prefs")
+            binding.bannerStatus.text = "Errore controllo scheda"
             return
         }
-        Log.d(TAG, "Verifico schede_del_pt/$fullName/$todayId")
 
-        // Query Firestore: schede_del_pt/{fullName}/{todayId}
+        // 6) DEBUG: logga tutti gli ID in schede_del_pt
         db.collection("schede_del_pt")
-            .document(fullName)
-            .collection(todayId)
-            .limit(1)
             .get()
-            .addOnSuccessListener { snap ->
-                binding.bannerStatus.text = if (snap.isEmpty)
-                    "Oggi giornata libera!"
-                else
-                    "Hai una nuova scheda caricata dal tuo PT"
-                Log.d(TAG, "Firestore response: isEmpty=${snap.isEmpty}")
+            .addOnSuccessListener { col ->
+                Log.d(TAG, "Documenti in schede_del_pt:")
+                col.documents.forEach { Log.d(TAG, " • '${it.id}'") }
+
+                // Trova doc con match case‐INSENSITIVE
+                val match = col.documents.find { it.id.equals(fullName, ignoreCase = true) }
+                if (match == null) {
+                    Log.d(TAG, "❌ Nessun documento match per '$fullName'")
+                    binding.bannerStatus.text = "Oggi giornata libera!"
+                } else {
+                    val docId = match.id
+                    Log.d(TAG, "✅ Trovato docId='$docId', ora controllo subcollezione $todayId")
+
+                    // 7) Controlla sub-collezione oggi
+                    db.collection("schede_del_pt")
+                        .document(docId)
+                        .collection(todayId)
+                        .limit(1)
+                        .get()
+                        .addOnSuccessListener { snap ->
+                            if (snap.isEmpty) {
+                                Log.d(TAG, "⛔ Subcollezione '$todayId' vuota per '$docId'")
+                                binding.bannerStatus.text = "Oggi giornata libera!"
+                            } else {
+                                Log.d(TAG, "✔️ Subcollezione '$todayId' contiene ${snap.size()} doc")
+                                binding.bannerStatus.text = "Hai una nuova scheda caricata dal tuo PT"
+                            }
+                        }
+                        .addOnFailureListener { e ->
+                            Log.e(TAG, "Errore controllo subcollezione '$todayId'", e)
+                            binding.bannerStatus.text = "Errore controllo scheda"
+                        }
+                }
             }
             .addOnFailureListener { e ->
-                Log.e(TAG, "Errore nella query schede_del_pt/$fullName/$todayId", e)
+                Log.e(TAG, "Errore lettura collection schede_del_pt", e)
                 binding.bannerStatus.text = "Errore controllo scheda"
             }
     }
@@ -115,7 +136,7 @@ class HomeFragment : Fragment() {
         binding.buttonForTheScheduleIDid.visibility               = View.GONE
         binding.buttonForTheSchedulePersonalTrainerDid.visibility = View.GONE
         binding.buttonForPersonalTrainer.visibility               = View.GONE
-        binding.buttonInutile.visibility                           = View.VISIBLE
+        binding.buttonInutile.visibility                          = View.VISIBLE
         binding.buttonInutile.strokeColor = ColorStateList.valueOf(
             ContextCompat.getColor(requireContext(), R.color.orange)
         )
@@ -126,40 +147,28 @@ class HomeFragment : Fragment() {
     }
 
     private fun showButtonsForUser() {
-        binding.buttonForPersonalTrainer.visibility = View.GONE
-        binding.buttonForTheScheduleIDid.visibility = View.VISIBLE
+        val prefs = requireActivity().getSharedPreferences("user_data", Context.MODE_PRIVATE)
+        val fullName = prefs.getString("saved_display_name","").orEmpty()
+        Log.d(TAG, "showButtonsForUser: fullName='$fullName'")
+
+        binding.buttonForPersonalTrainer.visibility               = View.GONE
+        binding.buttonForTheScheduleIDid.visibility               = View.VISIBLE
         binding.buttonForTheSchedulePersonalTrainerDid.visibility = View.VISIBLE
 
-        // 1) Bottone “Scopri gli esercizi”
         binding.buttonForTheScheduleIDid.setOnClickListener {
-            findNavController().navigate(
-                R.id.action_navigation_home_to_navigation_myautocalendar
-            )
+            findNavController().navigate(R.id.action_navigation_home_to_navigation_myautocalendar)
         }
-
-        // 2) Bottone “Scopri il tuo piano” → apri PTcalendar **passando** selectedUser
         binding.buttonForTheSchedulePersonalTrainerDid.setOnClickListener {
-            // recupera nome completo da prefs (come fai già in HomeFragment)
-            val prefs = requireActivity()
-                .getSharedPreferences("user_data", Context.MODE_PRIVATE)
-            val fullName = prefs.getString("saved_display_name", "")
-                ?: ""
-
-            // se è vuoto, fai un fallback (magari uid) o un toast
             if (fullName.isBlank()) {
-                Toast.makeText(requireContext(),
-                    "Nome utente non disponibile", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), "Nome utente non disponibile", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
-
-            // nav con bundle
             findNavController().navigate(
                 R.id.action_navigation_home_to_pt_schedule,
                 bundleOf("selectedUser" to fullName)
             )
         }
     }
-
 
     private fun showButtonsForPT() {
         binding.buttonForPersonalTrainer.visibility               = View.VISIBLE
