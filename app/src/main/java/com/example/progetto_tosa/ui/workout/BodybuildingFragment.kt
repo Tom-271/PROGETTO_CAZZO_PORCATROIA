@@ -77,14 +77,608 @@ class BodybuildingFragment : Fragment(R.layout.fragment_bodybuilding) {
             detailImage1Res = R.drawable.chestpressdescrizione,
             detailImage2Res = R.drawable.chestpressdescrizione,
             descrizioneTotale = "3–4 serie da 10–15 ripetizioni"
+        ),
+        Exercise(
+            category = "bodybuilding",
+            muscoloPrincipale = "petto",
+            imageRes = R.drawable.spinte,
+            descriptionImage = R.drawable.spinte,
+                title = "SPINTE SU PANCA INCLINATA",
+            videoUrl = "https://youtu.be/...",
+            description = "Macchinario utile per il petto.",
+            subtitle2 = "MUSCOLI COINVOLTI",
+            description2 = "- Grande pettorale\n- Deltoide anteriore",
+            detailImage1Res = R.drawable.spinte,
+            detailImage2Res = R.drawable.spinte,
+            descrizioneTotale = "3–4 serie da 10–15 ripetizioni"
+        ),
+        Exercise(
+            category = "bodybuilding",
+            muscoloPrincipale = "petto",
+            imageRes = R.drawable.crocicavi,
+            descriptionImage = R.drawable.crocicavi,
+            title = "CROCI AI CAVI ALTI",
+            videoUrl = "https://youtu.be/...",
+            description = "Macchinario utile per il petto.",
+            subtitle2 = "MUSCOLI COINVOLTI",
+            description2 = "- Grande pettorale\n- Deltoide anteriore",
+            detailImage1Res = R.drawable.crocicavi,
+            detailImage2Res = R.drawable.crocicavi,
+            descrizioneTotale = "3–4 serie da 10–15 ripetizioni"
+        ),
+        Exercise(
+            category = "bodybuilding",
+            muscoloPrincipale = "petto",
+            imageRes = R.drawable.crocipiana,
+            descriptionImage = R.drawable.crocipiana,
+            title = "CROCI SU PANCA PIANA",
+            videoUrl = "https://youtu.be/...",
+            description = "Macchinario utile per il petto.",
+            subtitle2 = "MUSCOLI COINVOLTI",
+            description2 = "- Grande pettorale\n- Deltoide anteriore",
+            detailImage1Res = R.drawable.crocipiana,
+            detailImage2Res = R.drawable.crocipiana,
+            descrizioneTotale = "3–4 serie da 10–15 ripetizioni"
+        ),
+        Exercise(
+            category = "bodybuilding",
+            muscoloPrincipale = "petto",
+            imageRes = R.drawable.peckdeck,
+            descriptionImage = R.drawable.peckdeck,
+            title = "PECK DECK",
+            videoUrl = "https://youtu.be/...",
+            description = "Macchinario utile per il petto.",
+            subtitle2 = "MUSCOLI COINVOLTI",
+            description2 = "- Grande pettorale\n- Deltoide anteriore",
+            detailImage1Res = R.drawable.peckdeck,
+            detailImage2Res = R.drawable.peckdeck,
+            descrizioneTotale = "3–4 serie da 10–15 ripetizioni"
+        ),
+        Exercise(
+            category = "bodybuilding",
+            muscoloPrincipale = "petto",
+            imageRes = R.drawable.dipparallele,
+            descriptionImage = R.drawable.dipparallele,
+            title = "DIP ALLE PARALLELE",
+            videoUrl = "https://youtu.be/...",
+            description = "Macchinario utile per il petto.",
+            subtitle2 = "MUSCOLI COINVOLTI",
+            description2 = "- Grande pettorale\n- Deltoide anteriore",
+            detailImage1Res = R.drawable.dipparallele,
+            detailImage2Res = R.drawable.dipparallele,
+            descrizioneTotale = "3–4 serie da 10–15 ripetizioni"
+        )
+    )
+
+    // === SPALLE ===
+
+    private val section2 = listOf(
+        Exercise(
+            category = "bodybuilding",
+            muscoloPrincipale = "spalle",
+            imageRes = R.drawable.lentoavantimanubri,
+            descriptionImage = R.drawable.lentoavantimanubri,
+            title = "LENTO AVANTI CON MANUBRI",
+            videoUrl = "https://youtu.be/...",
+            description = "Macchinario utile per il petto.",
+            subtitle2 = "MUSCOLI COINVOLTI",
+            description2 = "- Grande pettorale\n- Deltoide anteriore",
+            detailImage1Res = R.drawable.lentoavantimanubri,
+            detailImage2Res = R.drawable.lentoavantimanubri,
+            descrizioneTotale = "3–4 serie da 10–15 ripetizioni"
+        ),
+        Exercise(
+            category = "bodybuilding",
+            muscoloPrincipale = "spalle",
+            imageRes = R.drawable.alzatelaterali,
+            descriptionImage = R.drawable.alzatelaterali,
+            title = "ALZATE LATERALI",
+            videoUrl = "https://youtu.be/...",
+            description = "Macchinario utile per il petto.",
+            subtitle2 = "MUSCOLI COINVOLTI",
+            description2 = "- Grande pettorale\n- Deltoide anteriore",
+            detailImage1Res = R.drawable.alzatelaterali,
+            detailImage2Res = R.drawable.alzatelaterali,
+            descrizioneTotale = "3–4 serie da 10–15 ripetizioni"
+        ),
+        Exercise(
+            category = "bodybuilding",
+            muscoloPrincipale = "spalle",
+            imageRes = R.drawable.alzatefrontali,
+            descriptionImage = R.drawable.alzatefrontali,
+            title = "ALZATE FRONTALI",
+            videoUrl = "https://youtu.be/...",
+            description = "Macchinario utile per il petto.",
+            subtitle2 = "MUSCOLI COINVOLTI",
+            description2 = "- Grande pettorale\n- Deltoide anteriore",
+            detailImage1Res = R.drawable.alzatefrontali,
+            detailImage2Res = R.drawable.alzatefrontali,
+            descrizioneTotale = "3–4 serie da 10–15 ripetizioni"
+        ),
+        Exercise(
+            category = "bodybuilding",
+            muscoloPrincipale = "spalle",
+            imageRes = R.drawable.tiratealmento,
+            descriptionImage = R.drawable.tiratealmento,
+            title = "TIRATE AL MENTO",
+            videoUrl = "https://youtu.be/...",
+            description = "Macchinario utile per il petto.",
+            subtitle2 = "MUSCOLI COINVOLTI",
+            description2 = "- Grande pettorale\n- Deltoide anteriore",
+            detailImage1Res = R.drawable.tiratealmento,
+            detailImage2Res = R.drawable.tiratealmento,
+            descrizioneTotale = "3–4 serie da 10–15 ripetizioni"
+        ),
+        Exercise(
+            category = "bodybuilding",
+            muscoloPrincipale = "spalle",
+            imageRes = R.drawable.deltoideposteriore,
+            descriptionImage = R.drawable.deltoideposteriore,
+            title = "DELTOIDE POSTERIORE",
+            videoUrl = "https://youtu.be/...",
+            description = "Macchinario utile per il petto.",
+            subtitle2 = "MUSCOLI COINVOLTI",
+            description2 = "- Grande pettorale\n- Deltoide anteriore",
+            detailImage1Res = R.drawable.deltoideposteriore,
+            detailImage2Res = R.drawable.deltoideposteriore,
+            descrizioneTotale = "3–4 serie da 10–15 ripetizioni"
+        )
+    )
+
+    // === SCHIENA ===
+
+    private val section3 = listOf(
+        Exercise(
+            category = "bodybuilding",
+            muscoloPrincipale = "schiena",
+            imageRes = R.drawable.latmachinedritta,
+            descriptionImage = R.drawable.latmachinedritta,
+            title = "LAT MACHINE PRESA LARGA",
+            videoUrl = "https://youtu.be/...",
+            description = "Macchinario utile per il petto.",
+            subtitle2 = "MUSCOLI COINVOLTI",
+            description2 = "- Grande pettorale\n- Deltoide anteriore",
+            detailImage1Res = R.drawable.latmachinedritta,
+            detailImage2Res = R.drawable.latmachinedritta,
+            descrizioneTotale = "3–4 serie da 10–15 ripetizioni"
+        ),
+        Exercise(
+            category = "bodybuilding",
+            muscoloPrincipale = "schiena",
+            imageRes = R.drawable.latmachineinversa,
+            descriptionImage = R.drawable.latmachineinversa,
+            title = "LAT MACHINE PRESA INVERSA",
+            videoUrl = "https://youtu.be/...",
+            description = "Macchinario utile per il petto.",
+            subtitle2 = "MUSCOLI COINVOLTI",
+            description2 = "- Grande pettorale\n- Deltoide anteriore",
+            detailImage1Res = R.drawable.latmachineinversa,
+            detailImage2Res = R.drawable.latmachineinversa,
+            descrizioneTotale = "3–4 serie da 10–15 ripetizioni"
+        ),
+        Exercise(
+            category = "bodybuilding",
+            muscoloPrincipale = "schiena",
+            imageRes = R.drawable.latmachineneutra,
+            descriptionImage = R.drawable.latmachineneutra,
+            title = "LAT MACHINE PRESA NEUTRA",
+            videoUrl = "https://youtu.be/...",
+            description = "Macchinario utile per il petto.",
+            subtitle2 = "MUSCOLI COINVOLTI",
+            description2 = "- Grande pettorale\n- Deltoide anteriore",
+            detailImage1Res = R.drawable.latmachineneutra,
+            detailImage2Res = R.drawable.latmachineneutra,
+            descrizioneTotale = "3–4 serie da 10–15 ripetizioni"
+        ),
+        Exercise(
+            category = "bodybuilding",
+            muscoloPrincipale = "schiena",
+            imageRes = R.drawable.tiratealmento,
+            descriptionImage = R.drawable.tiratealmento,
+            title = "TIRATE AL MENTO",
+            videoUrl = "https://youtu.be/...",
+            description = "Macchinario utile per il petto.",
+            subtitle2 = "MUSCOLI COINVOLTI",
+            description2 = "- Grande pettorale\n- Deltoide anteriore",
+            detailImage1Res = R.drawable.tiratealmento,
+            detailImage2Res = R.drawable.tiratealmento,
+            descrizioneTotale = "3–4 serie da 10–15 ripetizioni"
+        ),
+        Exercise(
+            category = "bodybuilding",
+            muscoloPrincipale = "schiena",
+            imageRes = R.drawable.pulleytriangolo,
+            descriptionImage = R.drawable.pulleytriangolo,
+            title = "PULLEY TRIANGOLO",
+            videoUrl = "https://youtu.be/...",
+            description = "Macchinario utile per il petto.",
+            subtitle2 = "MUSCOLI COINVOLTI",
+            description2 = "- Grande pettorale\n- Deltoide anteriore",
+            detailImage1Res = R.drawable.pulleytriangolo,
+            detailImage2Res = R.drawable.pulleytriangolo,
+            descrizioneTotale = "3–4 serie da 10–15 ripetizioni"
+        ),
+        Exercise(
+            category = "bodybuilding",
+            muscoloPrincipale = "schiena",
+            imageRes = R.drawable.pulleybilancere,
+            descriptionImage = R.drawable.pulleybilancere,
+            title = "PULLEY BILANCERE",
+            videoUrl = "https://youtu.be/...",
+            description = "Macchinario utile per il petto.",
+            subtitle2 = "MUSCOLI COINVOLTI",
+            description2 = "- Grande pettorale\n- Deltoide anteriore",
+            detailImage1Res = R.drawable.pulleybilancere,
+            detailImage2Res = R.drawable.pulleybilancere,
+            descrizioneTotale = "3–4 serie da 10–15 ripetizioni"
+        ),
+        Exercise(
+            category = "bodybuilding",
+            muscoloPrincipale = "schiena",
+            imageRes = R.drawable.rematorebilanciere,
+            descriptionImage = R.drawable.rematorebilanciere,
+            title = "REMATORE BILANCIERE",
+            videoUrl = "https://youtu.be/...",
+            description = "Macchinario utile per il petto.",
+            subtitle2 = "MUSCOLI COINVOLTI",
+            description2 = "- Grande pettorale\n- Deltoide anteriore",
+            detailImage1Res = R.drawable.rematorebilanciere,
+            detailImage2Res = R.drawable.rematorebilanciere,
+            descrizioneTotale = "3–4 serie da 10–15 ripetizioni"
+        ),
+        Exercise(
+            category = "bodybuilding",
+            muscoloPrincipale = "schiena",
+            imageRes = R.drawable.rematoremanubrio,
+            descriptionImage = R.drawable.rematoremanubrio,
+            title = "REMATORE MANUBRIO",
+            videoUrl = "https://youtu.be/...",
+            description = "Macchinario utile per il petto.",
+            subtitle2 = "MUSCOLI COINVOLTI",
+            description2 = "- Grande pettorale\n- Deltoide anteriore",
+            detailImage1Res = R.drawable.rematoremanubrio,
+            detailImage2Res = R.drawable.rematoremanubrio,
+            descrizioneTotale = "3–4 serie da 10–15 ripetizioni"
+        ),
+        Exercise(
+            category = "bodybuilding",
+            muscoloPrincipale = "schiena",
+            imageRes = R.drawable.rematoretbar,
+            descriptionImage = R.drawable.rematoretbar,
+            title = "REMATORE T BAR",
+            videoUrl = "https://youtu.be/...",
+            description = "Macchinario utile per il petto.",
+            subtitle2 = "MUSCOLI COINVOLTI",
+            description2 = "- Grande pettorale\n- Deltoide anteriore",
+            detailImage1Res = R.drawable.rematoretbar,
+            detailImage2Res = R.drawable.rematoretbar,
+            descrizioneTotale = "3–4 serie da 10–15 ripetizioni"
+        ),
+        Exercise(
+            category = "bodybuilding",
+            muscoloPrincipale = "schiena",
+            imageRes = R.drawable.pulldown,
+            descriptionImage = R.drawable.pulldown,
+            title = "PULL DOWN",
+            videoUrl = "https://youtu.be/...",
+            description = "Macchinario utile per il petto.",
+            subtitle2 = "MUSCOLI COINVOLTI",
+            description2 = "- Grande pettorale\n- Deltoide anteriore",
+            detailImage1Res = R.drawable.pulldown,
+            detailImage2Res = R.drawable.pulldown,
+            descrizioneTotale = "3–4 serie da 10–15 ripetizioni"
+        ),
+        Exercise(
+            category = "bodybuilding",
+            muscoloPrincipale = "schiena",
+            imageRes = R.drawable.trazionisbarra,
+            descriptionImage = R.drawable.trazionisbarra,
+            title = "TRAZIONI ALLA SBARRA",
+            videoUrl = "https://youtu.be/...",
+            description = "Macchinario utile per il petto.",
+            subtitle2 = "MUSCOLI COINVOLTI",
+            description2 = "- Grande pettorale\n- Deltoide anteriore",
+            detailImage1Res = R.drawable.trazionisbarra,
+            detailImage2Res = R.drawable.trazionisbarra,
+            descrizioneTotale = "3–4 serie da 10–15 ripetizioni"
+        ),
+        Exercise(
+            category = "bodybuilding",
+            muscoloPrincipale = "schiena",
+            imageRes = R.drawable.trazionipresaneutra,
+            descriptionImage = R.drawable.trazionipresaneutra,
+            title = "TRAZIONI PRESA NEUTRA",
+            videoUrl = "https://youtu.be/...",
+            description = "Macchinario utile per il petto.",
+            subtitle2 = "MUSCOLI COINVOLTI",
+            description2 = "- Grande pettorale\n- Deltoide anteriore",
+            detailImage1Res = R.drawable.trazionipresaneutra,
+            detailImage2Res = R.drawable.trazionipresaneutra,
+            descrizioneTotale = "3–4 serie da 10–15 ripetizioni"
+        )
+    )
+
+    private val section4 = listOf(
+        Exercise(
+            category = "bodybuilding",
+            muscoloPrincipale = "gambe",
+            imageRes = R.drawable.backsquat,
+            descriptionImage = R.drawable.backsquat,
+            title = "BACK SQUAT",
+            videoUrl = "https://youtu.be/...",
+            description = "Macchinario utile per il petto.",
+            subtitle2 = "MUSCOLI COINVOLTI",
+            description2 = "- Grande pettorale\n- Deltoide anteriore",
+            detailImage1Res = R.drawable.backsquat,
+            detailImage2Res = R.drawable.backsquat,
+            descrizioneTotale = "3–4 serie da 10–15 ripetizioni"
+        ),
+        Exercise(
+            category = "bodybuilding",
+            muscoloPrincipale = "gambe",
+            imageRes = R.drawable.squatmultipower,
+            descriptionImage = R.drawable.squatmultipower,
+            title = "SQUAT AL MULTIPOWER",
+            videoUrl = "https://youtu.be/...",
+            description = "Macchinario utile per il petto.",
+            subtitle2 = "MUSCOLI COINVOLTI",
+            description2 = "- Grande pettorale\n- Deltoide anteriore",
+            detailImage1Res = R.drawable.squatmultipower,
+            detailImage2Res = R.drawable.squatmultipower,
+            descrizioneTotale = "3–4 serie da 10–15 ripetizioni"
+        ),
+        Exercise(
+            category = "bodybuilding",
+            muscoloPrincipale = "gambe",
+            imageRes = R.drawable.legpress45,
+            descriptionImage = R.drawable.legpress45,
+            title = "LEG PRESS 45°",
+            videoUrl = "https://youtu.be/...",
+            description = "Macchinario utile per il petto.",
+            subtitle2 = "MUSCOLI COINVOLTI",
+            description2 = "- Grande pettorale\n- Deltoide anteriore",
+            detailImage1Res = R.drawable.legpress45,
+            detailImage2Res = R.drawable.legpress45,
+            descrizioneTotale = "3–4 serie da 10–15 ripetizioni"
+        ),
+        Exercise(
+            category = "bodybuilding",
+            muscoloPrincipale = "gambe",
+            imageRes = R.drawable.hacksquat,
+            descriptionImage = R.drawable.hacksquat,
+            title = "HACK SQUAT",
+            videoUrl = "https://youtu.be/...",
+            description = "Macchinario utile per il petto.",
+            subtitle2 = "MUSCOLI COINVOLTI",
+            description2 = "- Grande pettorale\n- Deltoide anteriore",
+            detailImage1Res = R.drawable.hacksquat,
+            detailImage2Res = R.drawable.hacksquat,
+            descrizioneTotale = "3–4 serie da 10–15 ripetizioni"
+        ),
+        Exercise(
+            category = "bodybuilding",
+            muscoloPrincipale = "gambe",
+            imageRes = R.drawable.squatbulgaro,
+            descriptionImage = R.drawable.squatbulgaro,
+            title = "SQUAT BULGARO",
+            videoUrl = "https://youtu.be/...",
+            description = "Macchinario utile per il petto.",
+            subtitle2 = "MUSCOLI COINVOLTI",
+            description2 = "- Grande pettorale\n- Deltoide anteriore",
+            detailImage1Res = R.drawable.squatbulgaro,
+            detailImage2Res = R.drawable.squatbulgaro,
+            descrizioneTotale = "3–4 serie da 10–15 ripetizioni"
+        ),
+        Exercise(
+            category = "bodybuilding",
+            muscoloPrincipale = "gambe",
+            imageRes = R.drawable.squatpendulum,
+            descriptionImage = R.drawable.squatpendulum,
+            title = "SQUAT PENDULUM",
+            videoUrl = "https://youtu.be/...",
+            description = "Macchinario utile per il petto.",
+            subtitle2 = "MUSCOLI COINVOLTI",
+            description2 = "- Grande pettorale\n- Deltoide anteriore",
+            detailImage1Res = R.drawable.squatpendulum,
+            detailImage2Res = R.drawable.squatpendulum,
+            descrizioneTotale = "3–4 serie da 10–15 ripetizioni"
+        ),
+        Exercise(
+            category = "bodybuilding",
+            muscoloPrincipale = "gambe",
+            imageRes = R.drawable.legextension,
+            descriptionImage = R.drawable.legextension,
+            title = "LEG EXTENSION",
+            videoUrl = "https://youtu.be/...",
+            description = "Macchinario utile per il petto.",
+            subtitle2 = "MUSCOLI COINVOLTI",
+            description2 = "- Grande pettorale\n- Deltoide anteriore",
+            detailImage1Res = R.drawable.legextension,
+            detailImage2Res = R.drawable.legextension,
+            descrizioneTotale = "3–4 serie da 10–15 ripetizioni"
+        ),
+        Exercise(
+            category = "bodybuilding",
+            muscoloPrincipale = "gambe",
+            imageRes = R.drawable.rematoremanubrio,
+            descriptionImage = R.drawable.rematoremanubrio,
+            title = "LEG CURL SDRAIATO",
+            videoUrl = "https://youtu.be/...",
+            description = "Macchinario utile per il petto.",
+            subtitle2 = "MUSCOLI COINVOLTI",
+            description2 = "- Grande pettorale\n- Deltoide anteriore",
+            detailImage1Res = R.drawable.rematoremanubrio,
+            detailImage2Res = R.drawable.rematoremanubrio,
+            descrizioneTotale = "3–4 serie da 10–15 ripetizioni"
+        ),
+        Exercise(
+            category = "bodybuilding",
+            muscoloPrincipale = "gambe",
+            imageRes = R.drawable.adductormachine,
+            descriptionImage = R.drawable.adductormachine,
+            title = "ADDUCTOR MACHINE",
+            videoUrl = "https://youtu.be/...",
+            description = "Macchinario utile per il petto.",
+            subtitle2 = "MUSCOLI COINVOLTI",
+            description2 = "- Grande pettorale\n- Deltoide anteriore",
+            detailImage1Res = R.drawable.adductormachine,
+            detailImage2Res = R.drawable.adductormachine,
+            descrizioneTotale = "3–4 serie da 10–15 ripetizioni"
+        ),
+        Exercise(
+            category = "bodybuilding",
+            muscoloPrincipale = "gambe",
+            imageRes = R.drawable.abductormachine,
+            descriptionImage = R.drawable.abductormachine,
+            title = "ABDUCTOR MACHINE",
+            videoUrl = "https://youtu.be/...",
+            description = "Macchinario utile per il petto.",
+            subtitle2 = "MUSCOLI COINVOLTI",
+            description2 = "- Grande pettorale\n- Deltoide anteriore",
+            detailImage1Res = R.drawable.abductormachine,
+            detailImage2Res = R.drawable.abductormachine,
+            descrizioneTotale = "3–4 serie da 10–15 ripetizioni"
+        ),
+        Exercise(
+            category = "bodybuilding",
+            muscoloPrincipale = "gambe",
+            imageRes = R.drawable.calfinpiedi,
+            descriptionImage = R.drawable.calfinpiedi,
+            title = "CALF IN PIEDI",
+            videoUrl = "https://youtu.be/...",
+            description = "Macchinario utile per il petto.",
+            subtitle2 = "MUSCOLI COINVOLTI",
+            description2 = "- Grande pettorale\n- Deltoide anteriore",
+            detailImage1Res = R.drawable.calfinpiedi,
+            detailImage2Res = R.drawable.calfinpiedi,
+            descrizioneTotale = "3–4 serie da 10–15 ripetizioni"
+        ),
+        Exercise(
+            category = "bodybuilding",
+            muscoloPrincipale = "gambe",
+            imageRes = R.drawable.calfraise,
+            descriptionImage = R.drawable.calfraise,
+            title = "CALF RAISE",
+            videoUrl = "https://youtu.be/...",
+            description = "Macchinario utile per il petto.",
+            subtitle2 = "MUSCOLI COINVOLTI",
+            description2 = "- Grande pettorale\n- Deltoide anteriore",
+            detailImage1Res = R.drawable.calfraise,
+            detailImage2Res = R.drawable.calfraise,
+            descrizioneTotale = "3–4 serie da 10–15 ripetizioni"
+        ),
+        Exercise(
+            category = "bodybuilding",
+            muscoloPrincipale = "gambe",
+            imageRes = R.drawable.calfseduto,
+            descriptionImage = R.drawable.calfseduto,
+            title = "CALF SEDUTO",
+            videoUrl = "https://youtu.be/...",
+            description = "Macchinario utile per il petto.",
+            subtitle2 = "MUSCOLI COINVOLTI",
+            description2 = "- Grande pettorale\n- Deltoide anteriore",
+            detailImage1Res = R.drawable.calfseduto,
+            detailImage2Res = R.drawable.calfseduto,
+            descrizioneTotale = "3–4 serie da 10–15 ripetizioni"
+        ),
+        Exercise(
+            category = "bodybuilding",
+            muscoloPrincipale = "gambe",
+            imageRes = R.drawable.affondi,
+            descriptionImage = R.drawable.affondi,
+            title = "AFFONDI",
+            videoUrl = "https://youtu.be/...",
+            description = "Macchinario utile per il petto.",
+            subtitle2 = "MUSCOLI COINVOLTI",
+            description2 = "- Grande pettorale\n- Deltoide anteriore",
+            detailImage1Res = R.drawable.affondi,
+            detailImage2Res = R.drawable.affondi,
+            descrizioneTotale = "3–4 serie da 10–15 ripetizioni"
+        )
+    )
+
+    private val section5 = listOf(
+        Exercise(
+            category = "bodybuilding",
+            muscoloPrincipale = "bicipiti",
+            imageRes = R.drawable.bicipitimanubri,
+            descriptionImage = R.drawable.bicipitimanubri,
+            title = "CURL MANUBRI",
+            videoUrl = "https://youtu.be/...",
+            description = "Macchinario utile per il petto.",
+            subtitle2 = "MUSCOLI COINVOLTI",
+            description2 = "- Grande pettorale\n- Deltoide anteriore",
+            detailImage1Res = R.drawable.bicipitimanubri,
+            detailImage2Res = R.drawable.bicipitimanubri,
+            descrizioneTotale = "3–4 serie da 10–15 ripetizioni"
+        ),
+        Exercise(
+            category = "bodybuilding",
+            muscoloPrincipale = "bicipiti",
+            imageRes = R.drawable.spydercurl,
+            descriptionImage = R.drawable.spydercurl,
+            title = "SPYDER CURL",
+            videoUrl = "https://youtu.be/...",
+            description = "Macchinario utile per il petto.",
+            subtitle2 = "MUSCOLI COINVOLTI",
+            description2 = "- Grande pettorale\n- Deltoide anteriore",
+            detailImage1Res = R.drawable.spydercurl,
+            detailImage2Res = R.drawable.spydercurl,
+            descrizioneTotale = "3–4 serie da 10–15 ripetizioni"
+        ),
+        Exercise(
+            category = "bodybuilding",
+            muscoloPrincipale = "bicipiti",
+            imageRes = R.drawable.pancascott,
+            descriptionImage = R.drawable.pancascott,
+            title = "CURL SU PANCA SCOTT",
+            videoUrl = "https://youtu.be/...",
+            description = "Macchinario utile per il petto.",
+            subtitle2 = "MUSCOLI COINVOLTI",
+            description2 = "- Grande pettorale\n- Deltoide anteriore",
+            detailImage1Res = R.drawable.pancascott,
+            detailImage2Res = R.drawable.pancascott,
+            descrizioneTotale = "3–4 serie da 10–15 ripetizioni"
+        ),
+        Exercise(
+            category = "bodybuilding",
+            muscoloPrincipale = "bicipiti",
+            imageRes = R.drawable.curlbilanciere,
+            descriptionImage = R.drawable.curlbilanciere,
+            title = "",
+            videoUrl = "https://youtu.be/...",
+            description = "Macchinario utile per il petto.",
+            subtitle2 = "MUSCOLI COINVOLTI",
+            description2 = "- Grande pettorale\n- Deltoide anteriore",
+            detailImage1Res = R.drawable.curlbilanciere,
+            detailImage2Res = R.drawable.curlbilanciere,
+            descrizioneTotale = "3–4 serie da 10–15 ripetizioni"
         )
     )
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val headerCard = view.findViewById<MaterialCardView>(R.id.cardSection1)
-        val recyclerView = view.findViewById<RecyclerView>(R.id.rvSection1).apply {
+    private fun initUI(root: View) {
+        applyStrokeColor(root)
+        setupSection(R.id.cardSection1, R.id.rvSection1, section1)
+        setupSection(R.id.cardSection2, R.id.rvSection2, section2)
+        setupSection(R.id.cardSection3, R.id.rvSection3, section3)
+        setupSection(R.id.cardSection4, R.id.rvSection4, section4)
+        setupSection(R.id.cardSection5, R.id.rvSection5, section5)
+        loadSavedExercises()
+    }
+
+    private fun applyStrokeColor(root: View) {
+        val night = resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK
+        val colorRes = if (night == Configuration.UI_MODE_NIGHT_YES) R.color.white else R.color.black
+        val strokeColor = ContextCompat.getColor(requireContext(), colorRes)
+        root.findViewById<MaterialCardView>(R.id.cardSection1).strokeColor = strokeColor
+    }
+
+    private fun setupSection(headerId: Int, recyclerId: Int, data: List<Exercise>) {
+        val headerCard = requireView().findViewById<MaterialCardView>(headerId)
+        val recyclerView = requireView().findViewById<RecyclerView>(recyclerId).apply {
             layoutManager = GridLayoutManager(requireContext(), 2)
             adapter = ExerciseAdapter(section1, ::openDetail, ::saveExercise)
         }
@@ -199,12 +793,13 @@ class BodybuildingFragment : Fragment(R.layout.fragment_bodybuilding) {
     }
 
     private fun saveExercise(ex: Exercise) {
-        if (selectedDate == null) {
-            Toast.makeText(requireContext(), "Seleziona prima una data", Toast.LENGTH_SHORT).show()
+
+        if (selectedDate.isNullOrBlank()) {
+            Toast.makeText(requireContext(), "Seleziona prima una data per aggiungere l'esercizio", Toast.LENGTH_SHORT).show()
             return
         }
         if (ex.setsCount <= 0 || ex.repsCount <= 0) {
-            Toast.makeText(requireContext(), "Serie o ripetizioni non valide", Toast.LENGTH_SHORT).show()
+            Toast.makeText(requireContext(), "Imposta almeno 1 serie e 1 ripetizione", Toast.LENGTH_SHORT).show()
             return
         }
 
@@ -216,8 +811,10 @@ class BodybuildingFragment : Fragment(R.layout.fragment_bodybuilding) {
             "muscoloPrincipale" to ex.muscoloPrincipale,
         )
 
-        if (selectedUser != null) {
-            // PT-flow: schede_del_pt/{user}/{date}/{category}/{exerciseName}
+
+        val successMessage = "Esercizio \"${ex.title}\" aggiunto con successo"
+
+        if (!selectedUser.isNullOrBlank()) {
             db.collection("schede_del_pt")
                 .document(selectedUser!!)
                 .collection(selectedDate!!)
@@ -226,18 +823,11 @@ class BodybuildingFragment : Fragment(R.layout.fragment_bodybuilding) {
                 .document(ex.title) // Usa direttamente il nome esercizio come ID
                 .set(data)
                 .addOnSuccessListener {
-                    Toast.makeText(
-                        requireContext(),
-                        "${ex.title} aggiunta a ${ex.category}",
-                        Toast.LENGTH_SHORT
-                    ).show()
+
+                    Toast.makeText(requireContext(), successMessage, Toast.LENGTH_SHORT).show()
                 }
                 .addOnFailureListener {
-                    Toast.makeText(
-                        requireContext(),
-                        "Errore: impossibile aggiungere ${ex.title}",
-                        Toast.LENGTH_SHORT
-                    ).show()
+                    Toast.makeText(requireContext(), "Errore durante il salvataggio", Toast.LENGTH_SHORT).show()
                 }
         } else {
             // Auto-flow: schede_giornaliere/{date}/{category}/{exerciseName}
@@ -247,19 +837,62 @@ class BodybuildingFragment : Fragment(R.layout.fragment_bodybuilding) {
                 .document(ex.title) // Usa direttamente il nome esercizio come ID
                 .set(data)
                 .addOnSuccessListener {
-                    Toast.makeText(
-                        requireContext(),
-                        "${ex.title} aggiunta alle tue schede",
-                        Toast.LENGTH_SHORT
-                    ).show()
+
+                    Toast.makeText(requireContext(), successMessage, Toast.LENGTH_SHORT).show()
                 }
                 .addOnFailureListener {
-                    Toast.makeText(
-                        requireContext(),
-                        "Errore: impossibile aggiungere ${ex.title}",
-                        Toast.LENGTH_SHORT
-                    ).show()
+                    Toast.makeText(requireContext(), "Errore durante il salvataggio", Toast.LENGTH_SHORT).show()
                 }
         }
     }
+
+    private fun loadSavedExercises() {
+        if (selectedDate.isNullOrBlank()) return
+
+        val muscoliPrincipali = section1.map { it.muscoloPrincipale }.distinct()
+        val snapshotList = mutableListOf<Pair<String, List<Map<String, Any>>>>()
+
+        muscoliPrincipali.forEach { muscolo ->
+            db.collection("schede_giornaliere")
+                .document(selectedDate!!)
+                .collection("bodybuilding")
+                .document(muscolo)
+                .collection("esercizi")
+                .get()
+                .addOnSuccessListener { snap ->
+                    val esercizi = snap.documents.mapNotNull { doc ->
+                        mapOf(
+                            "title" to doc.id,
+                            "sets" to (doc.getLong("numeroSerie")?.toInt() ?: 0),
+                            "reps" to (doc.getLong("numeroRipetizioni")?.toInt() ?: 0)
+                        )
+                    }
+
+                    snapshotList.add(muscolo to esercizi)
+
+                    // quando ha caricato tutti
+                    if (snapshotList.size == muscoliPrincipali.size) {
+                        snapshotList.forEach { (_, esercizi) ->
+                            esercizi.forEach { entry ->
+                                val title = entry["title"] as? String ?: return@forEach
+                                val sets = entry["sets"] as? Int ?: return@forEach
+                                val reps = entry["reps"] as? Int ?: return@forEach
+
+                                section1.find { it.title == title }?.apply {
+                                    setsCount = sets
+                                    repsCount = reps
+                                }
+                            }
+                        }
+
+                        setupSection(R.id.cardSection1, R.id.rvSection1, section1)
+                    }
+                }
+                .addOnFailureListener {
+                    Toast.makeText(requireContext(), "Errore caricamento $muscolo", Toast.LENGTH_SHORT).show()
+                }
+        }
+    }
+
+
 }

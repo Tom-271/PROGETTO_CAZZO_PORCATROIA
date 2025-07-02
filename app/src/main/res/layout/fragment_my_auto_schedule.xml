@@ -3,6 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:layout_marginTop="50dp"
     android:background="#121212">
 
     <ScrollView
@@ -20,7 +21,8 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:paddingBottom="50dp">
 
             <TextView
                 android:layout_width="wrap_content"
@@ -209,9 +211,10 @@
             <!-- Pulsante Aggiungi Generale -->
             <Button
                 android:id="@+id/btnFillSchedule"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Aggiungi degli esercizi!"
+                android:gravity="center"
                 android:visibility="gone"
                 android:layout_marginBottom="24dp" />
         </LinearLayout>
@@ -222,11 +225,11 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="16dp"
-        android:layout_marginTop="660dp"
+        android:layout_marginBottom="16dp"
         android:src="@drawable/ic_tools"
         android:tint="@android:color/white"
         app:backgroundTint="@color/navy_blue"
-        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         android:translationZ="8dp"
         android:contentDescription="dd_exercise"/>

@@ -30,6 +30,8 @@ class MyAutoScheduleFragment : Fragment() {
     private val db = FirebaseFirestore.getInstance()
     private val activeListeners = mutableListOf<ListenerRegistration>()
 
+    private lateinit var dayName: String
+    private lateinit var dayDisplayName: String
     private lateinit var selectedDateId: String
 
     override fun onCreateView(
@@ -44,9 +46,9 @@ class MyAutoScheduleFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // 1) Leggi la data passata
-        selectedDateId = requireArguments().getString("selectedDate")
-            ?: error("selectedDate mancante")
+
+        // ottieni la data passata
+        selectedDateId = requireArguments().getString("selectedDate") ?: error("selectedDate mancante")
 
         // 2) Ricava giorno della settimana per la label
         val parsedDate = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
@@ -105,11 +107,17 @@ class MyAutoScheduleFragment : Fragment() {
                 category = "bodybuilding"
             )
         }
-        binding.btnCardio.setOnClickListener {
-            toggleAndPopulate(
-                container = binding.cardioDetailsContainer,
-                category = "cardio"
-            )
+
+
+        // ascoltatori contatori
+        initExerciseCountListener("bodybuilding", listOf("petto", "gambe", "spalle", "schiena", "bicipiti", "tricipiti"), b.subtitleBodyBuilding)
+        initExerciseCountListener("cardio", listOf("cardio1", "cardio2"), b.subtitleCardio)
+        initExerciseCountListener("corpo_libero", listOf("libero1", "libero2"), b.subtitleCorpoLibero)
+        initExerciseCountListener("stretching", listOf("stretch1", "stretch2"), b.subtitleStretching)
+
+        // toggle e mostra dettagli
+        b.btnBodybuilding.setOnClickListener {
+            toggleAndPopulate(b.bodybuildingDetailsContainer, "bodybuilding", listOf("petto", "gambe", "spalle", "schiena", "bicipiti", "tricipiti"))
         }
         binding.btnCorpoLibero.setOnClickListener {
             toggleAndPopulate(
@@ -136,14 +144,21 @@ class MyAutoScheduleFragment : Fragment() {
         category: String,
         subtitleView: TextView
     ) {
-        val listener = db.collection("schede_giornaliere")
-            .document(selectedDateId)
-            .collection(category)
-            .addSnapshotListener { snap, err ->
-                val total = if (err != null) 0 else (snap?.size() ?: 0)
-                subtitleView.text = if (total == 1) "$total esercizio" else "$total esercizi"
-            }
-        activeListeners.add(listener)
+
+        val counts = muscoli.associateWith { 0 }.toMutableMap()
+        muscoli.forEach { m ->
+            val listener = db.collection("schede_giornaliere")
+                .document(selectedDateId)
+                .collection(category)
+                .document(m)
+                .collection("esercizi")
+                .addSnapshotListener { snap, err ->
+                    counts[m] = if (err != null) 0 else (snap?.size() ?: 0)
+                    val total = counts.values.sum()
+                    subtitleView.text = if (total == 1) "$total esercizio" else "$total esercizi"
+                }
+            activeListeners.add(listener)
+        }
     }
 
     private fun toggleAndPopulate(
@@ -153,6 +168,13 @@ class MyAutoScheduleFragment : Fragment() {
         if (container.visibility == GONE) {
             container.visibility = VISIBLE
             container.removeAllViews()
+
+            lista.forEach { m ->
+                val colRef = db.collection("schede_giornaliere")
+                    .document(selectedDateId)
+                    .collection(category)
+                    .document(m)
+                    .collection("esercizi")
 
             db.collection("schede_giornaliere")
                 .document(selectedDateId)
