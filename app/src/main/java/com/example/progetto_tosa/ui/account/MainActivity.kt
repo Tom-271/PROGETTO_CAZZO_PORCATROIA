@@ -66,6 +66,7 @@ class MainActivity : AppCompatActivity() {
                 else -> false
             }
         }
+        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
 
         // 🔔 notifiche
         createNotificationChannel()

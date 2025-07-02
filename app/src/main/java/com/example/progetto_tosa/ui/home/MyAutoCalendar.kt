@@ -9,14 +9,26 @@ import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import com.example.progetto_tosa.R
 import com.example.progetto_tosa.databinding.FragmentMyautocalendarBinding
+import java.text.SimpleDateFormat
+import java.util.*
 
 class MyAutoCalendar : Fragment() {
 
     private var _binding: FragmentMyautocalendarBinding? = null
     private val binding get() = _binding!!
 
-    // verrà valorizzato alla selezione di un giorno
     private var dateId: String? = null
+    private val daysTextViews by lazy {
+        listOf(
+            binding.cardMonday,
+            binding.cardTuesday,
+            binding.cardWednesday,
+            binding.cardThursday,
+            binding.cardFriday,
+            binding.cardSaturday,
+            binding.cardSunday
+        )
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -30,13 +42,8 @@ class MyAutoCalendar : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // salva in dateId la stringa "yyyy-MM-dd" quando l’utente sceglie un giorno
-        binding.calendarView.setOnDateChangeListener { _, year, month, dayOfMonth ->
-            dateId = "%04d-%02d-%02d".format(year, month + 1, dayOfMonth)
-            binding.btnFancy.visibility = View.VISIBLE
-        }
+        setupDays()
 
-        // recupera il button via binding e imposta il click
         binding.btnFancy.setOnClickListener {
             dateId?.let { id ->
                 findNavController().navigate(
@@ -44,6 +51,32 @@ class MyAutoCalendar : Fragment() {
                     bundleOf("selectedDate" to id)
                 )
             }
+        }
+    }
+
+    private fun setupDays() {
+        val calendar = Calendar.getInstance()
+        calendar.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY)
+
+        val dateFormatLabel = SimpleDateFormat("EEEE d MMMM", Locale("it", "IT"))
+        val dateFormatId = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+
+        daysTextViews.forEachIndexed { index, cardView ->
+            val currentDate = calendar.time
+            val label = dateFormatLabel.format(currentDate).replaceFirstChar { it.uppercase() }
+            val id = dateFormatId.format(currentDate)
+
+            // Trova il TextView figlio e aggiorna il testo
+            val textView = cardView.findViewById<ViewGroup>(0)
+                ?.getChildAt(0) as? android.widget.TextView
+            textView?.text = label
+
+            cardView.setOnClickListener {
+                dateId = id
+                binding.btnFancy.visibility = View.VISIBLE
+            }
+
+            calendar.add(Calendar.DAY_OF_YEAR, 1)
         }
     }
 

@@ -207,30 +207,6 @@
                         app:iconGravity="textStart"
                         android:text="" />
 
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btnLightMode"
-                        style="@style/Widget.MaterialComponents.Button.TextButton"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        app:icon="@drawable/ic_sun"
-                        app:iconTint="@android:color/black"
-                        app:iconSize="30dp"
-                        app:iconGravity="textStart"
-                        android:text="" />
-
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btnDarkMode"
-                        style="@style/Widget.MaterialComponents.Button.TextButton"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        app:icon="@drawable/ic_moon"
-                        app:iconTint="@android:color/black"
-                        app:iconSize="30dp"
-                        app:iconGravity="textStart"
-                        android:text="" />
-
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 

@@ -54,38 +54,6 @@ class AccountFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
 
-        // === TEMA CHIARO/SCURO ===
-
-
-        val prefs = requireActivity().getSharedPreferences("settings", Context.MODE_PRIVATE)
-        var isDarkMode = prefs.getBoolean("darkMode", true)
-
-        AppCompatDelegate.setDefaultNightMode(
-            if (isDarkMode) AppCompatDelegate.MODE_NIGHT_YES
-            else AppCompatDelegate.MODE_NIGHT_NO
-        )
-
-        updateThemeButtons(isDarkMode)
-
-        binding.btnLightMode.setOnClickListener {
-            if (!isDarkMode) {
-                isDarkMode = true
-                prefs.edit().putBoolean("darkMode", true).apply()
-                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
-                updateThemeButtons(isDarkMode)
-            }
-        }
-
-        binding.btnDarkMode.setOnClickListener {
-            if (isDarkMode) {
-                isDarkMode = false
-                prefs.edit().putBoolean("darkMode", false).apply()
-                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
-                updateThemeButtons(isDarkMode)
-            }
-        }
-
-
         // === NAVIGAZIONE ===
 
 
@@ -165,11 +133,6 @@ class AccountFragment : Fragment() {
         val isLoggedIn = auth.currentUser != null
         binding.ButtonLogin.visibility = if (isLoggedIn) View.GONE else View.VISIBLE
         binding.signOut.visibility = if (isLoggedIn) View.VISIBLE else View.GONE
-    }
-
-    private fun updateThemeButtons(isDark: Boolean) {
-        binding.btnDarkMode.visibility = if (isDark) View.VISIBLE else View.GONE
-        binding.btnLightMode.visibility = if (!isDark) View.VISIBLE else View.GONE
     }
 
 
