@@ -4,11 +4,11 @@ import android.graphics.Typeface
 import android.os.Bundle
 import android.util.TypedValue
 import android.view.Gravity
+import android.view.View.GONE
+import android.view.View.VISIBLE
 import android.view.LayoutInflater
 import android.view.View
-import android.view.View.*
 import android.view.ViewGroup
-import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
@@ -30,8 +30,7 @@ class MyAutoScheduleFragment : Fragment() {
     private val db = FirebaseFirestore.getInstance()
     private val activeListeners = mutableListOf<ListenerRegistration>()
 
-    private lateinit var dayName: String
-    private lateinit var dayDisplayName: String
+    private lateinit var selectedDateId: String
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -44,76 +43,85 @@ class MyAutoScheduleFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        val b = binding
 
-        // ottieni la data passata
-        val selectedDateId = requireArguments().getString("selectedDate")
+        // 1) Leggi la data passata
+        selectedDateId = requireArguments().getString("selectedDate")
             ?: error("selectedDate mancante")
 
-        // ricava giorno della settimana
-        val parsedDate = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).parse(selectedDateId)
-        val calendar = Calendar.getInstance()
-        calendar.time = parsedDate!!
-        val dayOfWeek = calendar.get(Calendar.DAY_OF_WEEK)
-
-        dayName = when (dayOfWeek) {
-            Calendar.MONDAY -> "monday"
-            Calendar.TUESDAY -> "tuesday"
-            Calendar.WEDNESDAY -> "wednesday"
-            Calendar.THURSDAY -> "thursday"
-            Calendar.FRIDAY -> "friday"
-            Calendar.SATURDAY -> "saturday"
-            Calendar.SUNDAY -> "sunday"
-            else -> "unknown"
+        // 2) Ricava giorno della settimana per la label
+        val parsedDate = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+            .parse(selectedDateId)!!
+        val dayOfWeek = Calendar.getInstance().apply { time = parsedDate }
+            .get(Calendar.DAY_OF_WEEK)
+        val dayDisplayName = when (dayOfWeek) {
+            Calendar.MONDAY    -> "LUNEDÌ"
+            Calendar.TUESDAY   -> "MARTEDÌ"
+            Calendar.WEDNESDAY -> "MERCOLEDÌ"
+            Calendar.THURSDAY  -> "GIOVEDÌ"
+            Calendar.FRIDAY    -> "VENERDÌ"
+            Calendar.SATURDAY  -> "SABATO"
+            Calendar.SUNDAY    -> "DOMENICA"
+            else               -> ""
         }
 
-        dayDisplayName = when (dayName) {
-            "monday" -> "LUNEDÌ"
-            "tuesday" -> "MARTEDÌ"
-            "wednesday" -> "MERCOLEDÌ"
-            "thursday" -> "GIOVEDÌ"
-            "friday" -> "VENERDÌ"
-            "saturday" -> "SABATO"
-            "sunday" -> "DOMENICA"
-            else -> "GIORNO"
+        binding.subtitlePPPPPPPPROOOOOVA.apply {
+            visibility = VISIBLE
+            text = "SCHEDA DEL $dayDisplayName"
         }
 
-        // mostra intestazione
-        b.subtitlePPPPPPPPROOOOOVA.visibility = VISIBLE
-        b.subtitlePPPPPPPPROOOOOVA.text = "SCHEDA DEL $dayDisplayName"
+        // 3) Pulsante "Aggiungi esercizio"
+        binding.btnFillSchedule.apply {
+            visibility = VISIBLE
+            setOnClickListener {
+                findNavController().navigate(
+                    R.id.action_fragment_my_auto_schedule_to_fragment_workout,
+                    Bundle().apply { putString("selectedDate", selectedDateId) }
+                )
+            }
+        }
 
-        // bottone aggiungi
-        b.btnFillSchedule.visibility = VISIBLE
-        b.btnFillSchedule.setOnClickListener {
-            findNavController().navigate(
-                R.id.action_fragment_my_auto_schedule_to_fragment_workout,
-                Bundle().apply { putString("selectedDate", selectedDateId) }
+        // 4) Inizializza i contatori
+        initExerciseCountListener(
+            category = "bodybuilding",
+            subtitleView = binding.subtitleBodyBuilding
+        )
+        initExerciseCountListener(
+            category = "cardio",
+            subtitleView = binding.subtitleCardio
+        )
+        initExerciseCountListener(
+            category = "corpo_libero",
+            subtitleView = binding.subtitleCorpoLibero
+        )
+        initExerciseCountListener(
+            category = "stretching",
+            subtitleView = binding.subtitleStretching
+        )
+
+        // 5) Toggle e dettagli
+        binding.btnBodybuilding.setOnClickListener {
+            toggleAndPopulate(
+                container = binding.bodybuildingDetailsContainer,
+                category = "bodybuilding"
             )
         }
-
-        // ascoltatori contatori
-        initExerciseCountListener("bodybuilding", listOf("petto", "gambe", "spalle", "dorso", "bicipiti", "tricipiti"), b.subtitleBodyBuilding)
-        initExerciseCountListener("cardio", listOf("cardio1", "cardio2"), b.subtitleCardio)
-        initExerciseCountListener("corpo_libero", listOf("libero1", "libero2"), b.subtitleCorpoLibero)
-        initExerciseCountListener("stretching", listOf("stretch1", "stretch2"), b.subtitleStretching)
-
-        // toggle e mostra dettagli
-        b.btnBodybuilding.setOnClickListener {
-            toggleAndPopulate(b.bodybuildingDetailsContainer, "bodybuilding", listOf("petto", "gambe", "spalle", "dorso", "bicipiti", "tricipiti"))
+        binding.btnCardio.setOnClickListener {
+            toggleAndPopulate(
+                container = binding.cardioDetailsContainer,
+                category = "cardio"
+            )
         }
-        b.btnCardio.setOnClickListener {
-            toggleAndPopulate(b.cardioDetailsContainer, "cardio", listOf("cardio1", "cardio2"))
+        binding.btnCorpoLibero.setOnClickListener {
+            toggleAndPopulate(
+                container = binding.corpoliberoDetailsContainer,
+                category = "corpo_libero"
+            )
         }
-        b.btnCorpoLibero.setOnClickListener {
-            toggleAndPopulate(b.corpoliberoDetailsContainer, "corpo_libero", listOf("libero1", "libero2"))
-        }
-        b.btnStretching.setOnClickListener {
-            toggleAndPopulate(b.stretchingDetailsContainer, "stretching", listOf("stretch1", "stretch2"))
-        }
-
-        // bottone cronotimer
-        b.fabAdd.setOnClickListener {
-            findNavController().navigate(R.id.action_fragment_my_auto_schedule_to_navigation_cronotimer)
+        binding.btnStretching.setOnClickListener {
+            toggleAndPopulate(
+                container = binding.stretchingDetailsContainer,
+                category = "stretching"
+            )
         }
     }
 
@@ -126,117 +134,80 @@ class MyAutoScheduleFragment : Fragment() {
 
     private fun initExerciseCountListener(
         category: String,
-        muscoli: List<String>,
         subtitleView: TextView
     ) {
-        val counts = muscoli.associateWith { 0 }.toMutableMap()
-        muscoli.forEach { m ->
-            val listener = db.collection("schede_giornaliere")
-                .document(dayName)
-                .collection(category)
-                .document(m)
-                .collection("esercizi")
-                .addSnapshotListener { snap, err ->
-                    counts[m] = if (err != null) 0 else (snap?.size() ?: 0)
-                    val total = counts.values.sum()
-                    subtitleView.text = if (total == 1) "$total esercizio" else "$total esercizi"
-                }
-            activeListeners.add(listener)
-        }
+        val listener = db.collection("schede_giornaliere")
+            .document(selectedDateId)
+            .collection(category)
+            .addSnapshotListener { snap, err ->
+                val total = if (err != null) 0 else (snap?.size() ?: 0)
+                subtitleView.text = if (total == 1) "$total esercizio" else "$total esercizi"
+            }
+        activeListeners.add(listener)
     }
 
     private fun toggleAndPopulate(
         container: LinearLayout,
-        category: String,
-        lista: List<String>
+        category: String
     ) {
         if (container.visibility == GONE) {
             container.visibility = VISIBLE
             container.removeAllViews()
-            lista.forEach { m ->
-                val colRef = db.collection("schede_giornaliere")
-                    .document(dayName)
-                    .collection(category)
-                    .document(m)
-                    .collection("esercizi")
 
-                colRef.get().addOnSuccessListener { snap ->
+            db.collection("schede_giornaliere")
+                .document(selectedDateId)
+                .collection(category)
+                .get()
+                .addOnSuccessListener { snap ->
                     if (snap.isEmpty) return@addOnSuccessListener
 
-                    val header = TextView(requireContext()).apply {
-                        text = m.uppercase()
-                        typeface = Typeface.DEFAULT_BOLD
-                        setTextColor(ContextCompat.getColor(requireContext(), R.color.sky))
-                        setPadding(40, 30, 0, 0)
-                        textSize = 20f
+                    // Raggruppa esercizi per muscolo
+                    val exercisesByMuscle = snap.documents.groupBy {
+                        it.getString("muscoloPrincipale") ?: "Altro"
                     }
-                    container.addView(header)
 
-                    val divider = View(requireContext()).apply {
-                        layoutParams = LinearLayout.LayoutParams(
-                            LinearLayout.LayoutParams.MATCH_PARENT, 3
-                        ).apply { setMargins(40, 16, 40, 16) }
-                        setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.dark_gray))
-                    }
-                    container.addView(divider)
+                    exercisesByMuscle.forEach { (muscle, exercises) ->
+                        // Header muscolo
+                        val header = TextView(requireContext()).apply {
+                            text = muscle.uppercase()
+                            typeface = Typeface.DEFAULT_BOLD
+                            setTextColor(ContextCompat.getColor(requireContext(), R.color.sky))
+                            setPadding(40, 30, 0, 0)
+                            textSize = 20f
+                        }
+                        container.addView(header)
 
-                    snap.documents.forEach { doc ->
-                        val nome = doc.getString("nomeEsercizio") ?: doc.id
-                        val serie = doc.getLong("numeroSerie")?.toString() ?: "0"
-                        val rep = doc.getLong("numeroRipetizioni")?.toString() ?: "0"
-
-                        val itemLayout = LinearLayout(requireContext()).apply {
-                            orientation = LinearLayout.HORIZONTAL
+                        // Divider
+                        val divider = View(requireContext()).apply {
                             layoutParams = LinearLayout.LayoutParams(
                                 LinearLayout.LayoutParams.MATCH_PARENT,
-                                LinearLayout.LayoutParams.WRAP_CONTENT
-                            ).apply { setMargins(36, 8, 8, 8) }
-                            gravity = Gravity.CENTER_VERTICAL
+                                3
+                            ).apply { setMargins(40, 16, 40, 16) }
+                            setBackgroundColor(
+                                ContextCompat.getColor(requireContext(), R.color.dark_gray)
+                            )
                         }
+                        container.addView(divider)
 
-                        val infoView = TextView(requireContext()).apply {
-                            text = "$nome  ○ Rep: $rep  •  Serie: $serie"
-                            setTextColor(ContextCompat.getColor(requireContext(), android.R.color.white))
-                            textSize = 16f
-                            layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
-                        }
+                        // Esercizi
+                        exercises.forEach { doc ->
+                            val nome = doc.getString("nomeEsercizio") ?: doc.id
+                            val serie = doc.getLong("numeroSerie")?.toString() ?: "0"
+                            val rep = doc.getLong("numeroRipetizioni")?.toString() ?: "0"
 
-                        val sizeDp = 32
-                        val sizePx = TypedValue.applyDimension(
-                            TypedValue.COMPLEX_UNIT_DIP,
-                            sizeDp.toFloat(),
-                            resources.displayMetrics
-                        ).toInt()
-
-                        val btnDelete = Button(requireContext()).apply {
-                            text = "✕"
-                            textSize = 12f
-                            minimumWidth = 0
-                            minimumHeight = 0
-                            layoutParams = LinearLayout.LayoutParams(sizePx, sizePx).apply {
-                                marginStart = TypedValue.applyDimension(
-                                    TypedValue.COMPLEX_UNIT_DIP,
-                                    8f,
-                                    resources.displayMetrics
-                                ).toInt()
+                            val item = TextView(requireContext()).apply {
+                                text = "○ $nome  |  Serie: $serie  •  Rep: $rep"
+                                setTextColor(ContextCompat.getColor(requireContext(), android.R.color.white))
+                                setPadding(36, 4, 8, 16)
+                                textSize = 14f
                             }
-                            background = ContextCompat.getDrawable(requireContext(), R.drawable.rounded_delete_button)
-                            setOnClickListener {
-                                colRef.document(doc.id)
-                                    .delete()
-                                    .addOnSuccessListener { container.removeView(itemLayout) }
-                                    .addOnFailureListener { e ->
-                                        Toast.makeText(requireContext(), "Errore: ${e.message}", Toast.LENGTH_SHORT).show()
-                                    }
-                            }
+                            container.addView(item)
                         }
-
-                        itemLayout.addView(infoView)
-                        itemLayout.addView(btnDelete)
-                        container.addView(itemLayout)
                     }
                 }
-            }
+                .addOnFailureListener { e ->
+                    Toast.makeText(requireContext(), "Errore nel caricamento degli esercizi", Toast.LENGTH_SHORT).show()
+                }
         } else {
             container.visibility = GONE
         }

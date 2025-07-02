@@ -1,0 +1,17 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="4000dp"
+    android:height="1920dp"
+    android:viewportWidth="1080"
+    android:viewportHeight="1920">
+
+    <!-- Sezione superiore: navy blue -->
+    <path
+        android:fillColor="#FF001F3F"
+        android:pathData="M0,0 H1080 V960 H0 Z" />
+
+    <!-- Sezione inferiore: orange -->
+    <path
+        android:fillColor="#FFFF9500"
+        android:pathData="M0,960 H1080 V1920 H0 Z" />
+
+</vector>

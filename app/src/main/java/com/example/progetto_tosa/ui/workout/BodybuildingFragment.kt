@@ -18,8 +18,6 @@ import com.google.android.material.button.MaterialButton
 import com.google.android.material.card.MaterialCardView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.firebase.firestore.FirebaseFirestore
-import java.text.SimpleDateFormat
-import java.util.*
 
 class BodybuildingFragment : Fragment(R.layout.fragment_bodybuilding) {
 
@@ -43,10 +41,10 @@ class BodybuildingFragment : Fragment(R.layout.fragment_bodybuilding) {
 
     private val db = FirebaseFirestore.getInstance()
 
+    // se passo selectedUser = nome atleta, altrimenti null per auto‐flow
     private val selectedUser: String? by lazy {
         arguments?.getString("selectedUser")
     }
-
     private val selectedDate: String? by lazy {
         arguments?.getString("selectedDate")
     }
@@ -58,7 +56,7 @@ class BodybuildingFragment : Fragment(R.layout.fragment_bodybuilding) {
             imageRes = R.drawable.pancadescrizione,
             descriptionImage = R.drawable.pancadescrizione,
             title = "PANCA PIANA",
-            videoUrl = "https://youtu.be/...",
+            videoUrl = "https://youtu.be/…",
             description = "Esercizio fondamentale per il petto.",
             subtitle2 = "MUSCOLI COINVOLTI",
             description2 = "- Grande pettorale\n- Tricipite brachiale",
@@ -72,7 +70,7 @@ class BodybuildingFragment : Fragment(R.layout.fragment_bodybuilding) {
             imageRes = R.drawable.chestpressdescrizione,
             descriptionImage = R.drawable.chestpressdescrizione,
             title = "CHEST PRESS",
-            videoUrl = "https://youtu.be/...",
+            videoUrl = "https://youtu.be/…",
             description = "Macchinario utile per il petto.",
             subtitle2 = "MUSCOLI COINVOLTI",
             description2 = "- Grande pettorale\n- Deltoide anteriore",
@@ -84,29 +82,24 @@ class BodybuildingFragment : Fragment(R.layout.fragment_bodybuilding) {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        initUI(view)
-    }
 
-    private fun initUI(root: View) {
-        applyStrokeColor(root)
-        setupSection(R.id.cardSection1, R.id.rvSection1, section1)
-    }
-
-    private fun applyStrokeColor(root: View) {
-        val night = resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK
-        val colorRes = if (night == Configuration.UI_MODE_NIGHT_YES) R.color.white else R.color.black
-        val strokeColor = ContextCompat.getColor(requireContext(), colorRes)
-        root.findViewById<MaterialCardView>(R.id.cardSection1).strokeColor = strokeColor
-    }
-
-    private fun setupSection(headerId: Int, recyclerId: Int, data: List<Exercise>) {
-        val headerCard = requireView().findViewById<MaterialCardView>(headerId)
-        val recyclerView = requireView().findViewById<RecyclerView>(recyclerId).apply {
+        val headerCard = view.findViewById<MaterialCardView>(R.id.cardSection1)
+        val recyclerView = view.findViewById<RecyclerView>(R.id.rvSection1).apply {
             layoutManager = GridLayoutManager(requireContext(), 2)
-            adapter = ExerciseAdapter(data, ::openDetail, ::saveExercise)
+            adapter = ExerciseAdapter(section1, ::openDetail, ::saveExercise)
         }
+
+        // colore stroke dinamico
+        val night = resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK
+        val strokeColor = ContextCompat.getColor(
+            requireContext(),
+            if (night == Configuration.UI_MODE_NIGHT_YES) R.color.white else R.color.black
+        )
+        headerCard.strokeColor = strokeColor
+
         headerCard.setOnClickListener {
-            recyclerView.visibility = if (recyclerView.visibility == View.VISIBLE) View.GONE else View.VISIBLE
+            recyclerView.visibility =
+                if (recyclerView.visibility == View.VISIBLE) View.GONE else View.VISIBLE
         }
     }
 
@@ -117,75 +110,76 @@ class BodybuildingFragment : Fragment(R.layout.fragment_bodybuilding) {
     ) : RecyclerView.Adapter<ExerciseAdapter.VH>() {
 
         inner class VH(view: View) : RecyclerView.ViewHolder(view) {
-            private val titleTv = view.findViewById<TextView>(R.id.textViewTitleTop)
-            private val btnSets = view.findViewById<MaterialButton>(R.id.toggleSets)
-            private val btnReps = view.findViewById<MaterialButton>(R.id.toggleReps)
+            private val titleTv     = view.findViewById<TextView>(R.id.textViewTitleTop)
+            private val btnSets     = view.findViewById<MaterialButton>(R.id.toggleSets)
+            private val btnReps     = view.findViewById<MaterialButton>(R.id.toggleReps)
             private val counterSets = view.findViewById<TextView>(R.id.counterSets)
             private val counterReps = view.findViewById<TextView>(R.id.counterReps)
-            private val btnMinus = view.findViewById<FloatingActionButton>(R.id.buttonMinus)
-            private val btnPlus = view.findViewById<FloatingActionButton>(R.id.buttonPlus)
-            private val btnConfirm = view.findViewById<MaterialButton>(R.id.buttonConfirm)
-            private val green = ContextCompat.getColor(view.context, R.color.green)
-            private val black = ContextCompat.getColor(view.context, R.color.black)
+            private val btnMinus    = view.findViewById<FloatingActionButton>(R.id.buttonMinus)
+            private val btnPlus     = view.findViewById<FloatingActionButton>(R.id.buttonPlus)
+            private val btnConfirm  = view.findViewById<MaterialButton>(R.id.buttonConfirm)
+            private val green       = ContextCompat.getColor(view.context, R.color.green)
+            private val black       = ContextCompat.getColor(view.context, R.color.black)
 
             init {
-                btnConfirm.setOnClickListener { onConfirmClick(items[adapterPosition]) }
+                btnConfirm.setOnClickListener {
+                    val pos = adapterPosition.takeIf { it != RecyclerView.NO_POSITION } ?: return@setOnClickListener
+                    onConfirmClick(items[pos])
+                }
                 btnSets.setOnClickListener {
-                    items[adapterPosition].isSetsMode = true
-                    notifyItemChanged(adapterPosition)
+                    val pos = adapterPosition.takeIf { it != RecyclerView.NO_POSITION } ?: return@setOnClickListener
+                    items[pos].isSetsMode = true
+                    notifyItemChanged(pos)
                 }
                 btnReps.setOnClickListener {
-                    items[adapterPosition].isSetsMode = false
-                    notifyItemChanged(adapterPosition)
+                    val pos = adapterPosition.takeIf { it != RecyclerView.NO_POSITION } ?: return@setOnClickListener
+                    items[pos].isSetsMode = false
+                    notifyItemChanged(pos)
                 }
                 btnPlus.setOnClickListener {
-                    val ex = items[adapterPosition]
+                    val pos = adapterPosition.takeIf { it != RecyclerView.NO_POSITION } ?: return@setOnClickListener
+                    val ex = items[pos]
                     if (ex.isSetsMode) ex.setsCount++ else ex.repsCount++
-                    notifyItemChanged(adapterPosition)
+                    notifyItemChanged(pos)
                 }
                 btnMinus.setOnClickListener {
-                    val ex = items[adapterPosition]
+                    val pos = adapterPosition.takeIf { it != RecyclerView.NO_POSITION } ?: return@setOnClickListener
+                    val ex = items[pos]
                     if (ex.isSetsMode && ex.setsCount > 0) ex.setsCount--
                     else if (!ex.isSetsMode && ex.repsCount > 0) ex.repsCount--
-                    notifyItemChanged(adapterPosition)
+                    notifyItemChanged(pos)
                 }
             }
 
             fun bind(ex: Exercise) {
-                titleTv.text = ex.title
-                counterSets.text = ex.setsCount.toString()
-                counterReps.text = ex.repsCount.toString()
-
-                btnSets.isChecked = ex.isSetsMode
-                btnReps.isChecked = !ex.isSetsMode
+                titleTv.text          = ex.title
+                counterSets.text      = ex.setsCount.toString()
+                counterReps.text      = ex.repsCount.toString()
+                btnSets.isChecked     = ex.isSetsMode
+                btnReps.isChecked     = !ex.isSetsMode
                 btnSets.backgroundTintList = ColorStateList.valueOf(if (ex.isSetsMode) green else black)
                 btnReps.backgroundTintList = ColorStateList.valueOf(if (ex.isSetsMode) black else green)
 
-                val isTrackingMode = selectedDate != null
+                val isTracking = selectedDate != null
+                btnSets.visibility     = if (isTracking) View.VISIBLE else View.GONE
+                btnReps.visibility     = if (isTracking) View.VISIBLE else View.GONE
+                btnPlus.visibility     = if (isTracking) View.VISIBLE else View.GONE
+                btnMinus.visibility    = if (isTracking) View.VISIBLE else View.GONE
+                btnConfirm.visibility  = if (isTracking) View.VISIBLE else View.GONE
+                counterSets.visibility = if (isTracking && ex.isSetsMode) View.VISIBLE else View.GONE
+                counterReps.visibility = if (isTracking && !ex.isSetsMode) View.VISIBLE else View.GONE
 
-                // Tracking UI visibilità
-                btnSets.visibility = if (isTrackingMode) View.VISIBLE else View.GONE
-                btnReps.visibility = if (isTrackingMode) View.VISIBLE else View.GONE
-                btnPlus.visibility = if (isTrackingMode) View.VISIBLE else View.GONE
-                btnMinus.visibility = if (isTrackingMode) View.VISIBLE else View.GONE
-                btnConfirm.visibility = if (isTrackingMode) View.VISIBLE else View.GONE
-                counterSets.visibility = if (isTrackingMode && ex.isSetsMode) View.VISIBLE else View.GONE
-                counterReps.visibility = if (isTrackingMode && !ex.isSetsMode) View.VISIBLE else View.GONE
-
-                // Informative UI visibilità
                 itemView.setOnClickListener {
-                    if (!isTrackingMode) {
-                        onCardClick(ex)
-                    }
+                    if (!isTracking) onCardClick(ex)
                 }
             }
-
         }
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
             VH(LayoutInflater.from(parent.context).inflate(R.layout.cards_exercise, parent, false))
 
-        override fun onBindViewHolder(holder: VH, position: Int) = holder.bind(items[position])
+        override fun onBindViewHolder(holder: VH, position: Int) =
+            holder.bind(items[position])
 
         override fun getItemCount() = items.size
     }
@@ -206,7 +200,7 @@ class BodybuildingFragment : Fragment(R.layout.fragment_bodybuilding) {
 
     private fun saveExercise(ex: Exercise) {
         if (selectedDate == null) {
-            Toast.makeText(requireContext(), "Seleziona prima una data per aggiungere l'esercizio", Toast.LENGTH_SHORT).show()
+            Toast.makeText(requireContext(), "Seleziona prima una data", Toast.LENGTH_SHORT).show()
             return
         }
         if (ex.setsCount <= 0 || ex.repsCount <= 0) {
@@ -214,27 +208,58 @@ class BodybuildingFragment : Fragment(R.layout.fragment_bodybuilding) {
             return
         }
 
-        val data = mapOf(
+        val data = hashMapOf(
             "category" to ex.category,
             "nomeEsercizio" to ex.title,
             "numeroSerie" to ex.setsCount,
-            "numeroRipetizioni" to ex.repsCount
+            "numeroRipetizioni" to ex.repsCount,
+            "muscoloPrincipale" to ex.muscoloPrincipale,
         )
 
         if (selectedUser != null) {
+            // PT-flow: schede_del_pt/{user}/{date}/{category}/{exerciseName}
             db.collection("schede_del_pt")
                 .document(selectedUser!!)
+                .collection(selectedDate!!)
+                .document(ex.category)
                 .collection("esercizi")
-                .document(ex.title)
+                .document(ex.title) // Usa direttamente il nome esercizio come ID
                 .set(data)
+                .addOnSuccessListener {
+                    Toast.makeText(
+                        requireContext(),
+                        "${ex.title} aggiunta a ${ex.category}",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+                .addOnFailureListener {
+                    Toast.makeText(
+                        requireContext(),
+                        "Errore: impossibile aggiungere ${ex.title}",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
         } else {
+            // Auto-flow: schede_giornaliere/{date}/{category}/{exerciseName}
             db.collection("schede_giornaliere")
                 .document(selectedDate!!)
                 .collection(ex.category)
-                .document(ex.muscoloPrincipale)
-                .collection("esercizi")
-                .document(ex.title)
+                .document(ex.title) // Usa direttamente il nome esercizio come ID
                 .set(data)
+                .addOnSuccessListener {
+                    Toast.makeText(
+                        requireContext(),
+                        "${ex.title} aggiunta alle tue schede",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+                .addOnFailureListener {
+                    Toast.makeText(
+                        requireContext(),
+                        "Errore: impossibile aggiungere ${ex.title}",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
         }
     }
 }

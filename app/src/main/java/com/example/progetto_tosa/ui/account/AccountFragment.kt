@@ -52,7 +52,9 @@ class AccountFragment : Fragment() {
         binding.UserProgram.setOnClickListener {
             findNavController().navigate(R.id.action_navigation_account_to_navigation_home)
         }
-
+        binding.TrainerAllievs.setOnClickListener {
+            findNavController().navigate(R.id.action_navigation_account_to_navigation_allievi)
+        }
         // Login/Logout
         binding.ButtonLogin.setOnClickListener {
             startActivity(Intent(requireContext(), LoginActivity::class.java))
