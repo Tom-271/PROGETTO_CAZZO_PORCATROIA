@@ -13,8 +13,8 @@
     <!-- ShapeAppearance per angoli arrotondati in basso -->
     <style name="ShapeAppearance.BottomRounded" parent="ShapeAppearance.MaterialComponents.SmallComponent">
         <item name="cornerFamily">rounded</item>
-        <item name="cornerSizeBottomLeft">10dp</item>
-        <item name="cornerSizeBottomRight">10dp</item>
+        <item name="cornerSizeBottomLeft">20dp</item>
+        <item name="cornerSizeBottomRight">20dp</item>
         <item name="cornerSizeTopRight">0dp</item>
         <item name="cornerSizeTopLeft">0dp</item>
     </style>

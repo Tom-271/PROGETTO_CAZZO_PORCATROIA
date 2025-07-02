@@ -10,8 +10,8 @@
     android:scrollbars="none"
     android:layout_marginTop="130dp"
     android:fitsSystemWindows="true"
-
     tools:context="com.example.progetto_tosa.ui.account.AccountFragment">
+
 
     <!-- Dettagli utente (nascosti) -->
     <TextView
@@ -90,11 +90,11 @@
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/cardInfo"
         android:layout_width="match_parent"
+        android:layout_height="350dp"
         android:layout_marginLeft="8dp"
         android:layout_marginRight="8dp"
-        android:layout_height="350dp"
         android:backgroundTint="@color/navy_blue"
-        app:cardCornerRadius="20dp"
+        app:shapeAppearanceOverlay="@style/ShapeAppearance.BottomRounded"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
@@ -127,8 +127,8 @@
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:gravity="center_vertical"
-                android:orientation="vertical">
+                android:orientation="vertical"
+                android:gravity="center_vertical">
 
                 <TextView
                     android:id="@+id/NomeUtente"
@@ -147,9 +147,7 @@
                     android:textSize="15sp"
                     android:textStyle="italic" />
             </LinearLayout>
-
         </LinearLayout>
-
     </com.google.android.material.card.MaterialCardView>
 
     <!-- Contenitore senza ombra -->
@@ -207,6 +205,17 @@
                         app:iconGravity="textStart"
                         android:text="" />
 
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/impostazioni"
+                        style="@style/Widget.MaterialComponents.Button.TextButton"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        app:icon="@drawable/ingranagges"
+                        app:iconTint="@android:color/black"
+                        app:iconSize="30dp"
+                        app:iconGravity="textStart"
+                        android:text="" />
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
@@ -220,16 +229,20 @@
 
                 <Button
                     android:id="@+id/UserProgram"
-                    android:layout_width="130dp"
+                    android:layout_width="match_parent"
                     android:layout_height="110dp"
-                    android:layout_marginEnd="4dp"
-                    android:backgroundTint="@color/navy_blue"
-                    app:cornerRadius="0dp"
-                    app:strokeWidth="0.5dp"
-                    app:strokeColor="@color/black"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginEnd="16dp"
+                    app:strokeColor="@color/dark_gray"
+                    android:textStyle="bold"
+                    android:textSize="15dp"
+                    android:backgroundTint="@color/orange"
+                    android:elevation="3dp"
+                    android:stateListAnimator="@null"
                     android:text="I miei programmi"
-                    android:textColor="@color/light_gray"/>
+                    android:textColor="@color/black" />
 
+                <!-- per la tesi
                 <Button
                     android:id="@+id/UserJourney"
                     android:layout_width="130dp"
@@ -241,41 +254,58 @@
                     app:strokeColor="@color/black"
                     android:text="Il mio percorso"
                     android:textColor="@color/light_gray"/>
+                -->
             </LinearLayout>
 
             <!-- TrainerProgram -->
             <com.google.android.material.button.MaterialButton
                 xmlns:android="http://schemas.android.com/apk/res/android"
                 xmlns:app="http://schemas.android.com/apk/res-auto"
-                android:id="@+id/TrainerProgram"
+                android:id="@+id/TrainerAllievs"
                 android:layout_width="match_parent"
                 android:layout_height="100dp"
-                android:layout_marginStart="10dp"
-                android:layout_marginEnd="10dp"
                 android:visibility="gone"
                 style="@style/Widget.MaterialComponents.Button"
                 app:shapeAppearanceOverlay="@style/ShapeAppearance.BottomRounded"
-                android:backgroundTint="@color/beige"
+                android:backgroundTint="@color/green"
                 app:strokeWidth="0dp"
                 app:strokeColor="@color/dark_gray"
-                android:translationZ="7dp"
-                android:textColor="@color/white"
+                android:layout_marginStart="10dp"
+                android:layout_marginEnd="10dp"
+                android:textColor="@color/black"
                 android:text="I TUOI ALLIEVI"
                 android:textStyle="bold"
-                android:textSize="20dp" />
+                android:textSize="15dp" />
 
-            <Switch
-                android:id="@+id/switchReminder"
-                android:layout_width="224dp"
-                android:layout_height="42dp"
-                android:text="Promemoria Allenamento"
-                android:textColor="@color/black"
-                tools:layout_editor_absoluteX="96dp"
-                tools:layout_editor_absoluteY="487dp" />
+            <!-- Sostituisci il vecchio Switch con questo LinearLayout verticale -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:gravity="center"
+                android:layout_marginTop="16dp">
+
+                <!-- Testo sopra il toggle, centrato -->
+                <TextView
+                    android:id="@+id/labelReminder"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:visibility="gone"
+                    android:text="Notifiche per l'allenamento"
+                    android:textColor="@color/black"
+                    android:textSize="16sp"
+                    android:layout_marginBottom="8dp"/>
+
+                <!-- Toggle centrato sotto il testo -->
+                <Switch
+                    android:id="@+id/switchReminder"
+                    android:visibility="gone"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:checked="false"/>
+            </LinearLayout>
 
         </LinearLayout>
-
-
     </com.google.android.material.card.MaterialCardView>
 
     <!-- Logout + Login sempre sul fondo -->
@@ -290,7 +320,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toBottomOf="parent">
-
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/sign_out"
@@ -311,7 +340,5 @@
             android:backgroundTint="@color/sky"
             android:text="LOGIN"
             app:shapeAppearanceOverlay="@style/ShapeAppearance.Rounded" />
-
     </LinearLayout>
-
 </androidx.constraintlayout.widget.ConstraintLayout>
