@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/infoCard"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="16dp"
+    android:visibility="gone"
+    android:elevation="8dp"
+    android:background="@color/white">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <TextView
+            android:id="@+id/cardExerciseTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Nome esercizio"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/cardSetsReps"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Serie: 3  |  Ripetizioni: 10"
+            android:layout_marginTop="8dp" />
+
+        <EditText
+            android:id="@+id/cardWeightInput"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Peso sollevato (kg)"
+            android:inputType="numberDecimal"
+            android:layout_marginTop="12dp" />
+
+        <Button
+            android:id="@+id/cardSaveButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Salva"
+            android:layout_marginTop="12dp" />
+
+    </LinearLayout>
+</androidx.cardview.widget.CardView>

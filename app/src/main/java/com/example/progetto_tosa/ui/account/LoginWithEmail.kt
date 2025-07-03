@@ -12,7 +12,7 @@ import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
 import com.google.firebase.auth.FirebaseAuthInvalidUserException
 import com.google.firebase.firestore.FirebaseFirestore
 
-class LoginActivity : AppCompatActivity() {
+class LoginWithEmail : AppCompatActivity() {
 
     private lateinit var etEmail: EditText
     private lateinit var etPassword: EditText
@@ -25,7 +25,7 @@ class LoginActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_login)
+        setContentView(R.layout.activity_login_with_email)
 
         // bind delle view
         etEmail      = findViewById(R.id.etEmailLog)
@@ -75,7 +75,10 @@ class LoginActivity : AppCompatActivity() {
                                 btnLogin.animate()
                                     .scaleX(1f).scaleY(1f)
                                     .setDuration(100)
-                                    .withEndAction { finish() }
+                                    .withEndAction { val intent = Intent(this, MainActivity::class.java)
+                                        intent.putExtra("navigateTo", "account")
+                                        startActivity(intent)
+                                        finish() }
                                     .start()
                             }
                             .start()

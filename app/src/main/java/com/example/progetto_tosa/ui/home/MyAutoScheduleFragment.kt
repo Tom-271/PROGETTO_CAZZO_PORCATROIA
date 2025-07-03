@@ -8,9 +8,13 @@ import android.view.View
 import android.view.View.GONE
 import android.view.View.VISIBLE
 import android.view.ViewGroup
+import android.widget.Button
+import android.widget.EditText
+import android.widget.ImageButton
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
+import androidx.cardview.widget.CardView
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
@@ -18,6 +22,7 @@ import com.example.progetto_tosa.R
 import com.example.progetto_tosa.databinding.FragmentMyAutoScheduleBinding
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
+import com.google.firebase.firestore.SetOptions
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -53,7 +58,7 @@ class MyAutoScheduleFragment : Fragment() {
             ?: error("selectedDate mancante")
         Log.d("MyAutoSchedule", "selectedDateId = $selectedDateId")
 
-        // giorno della settimana
+        // mostra giorno della settimana
         val parsedDate = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
             .parse(selectedDateId)!!
         val dayOfWeek = Calendar.getInstance().apply { time = parsedDate }
@@ -68,7 +73,7 @@ class MyAutoScheduleFragment : Fragment() {
             Calendar.SUNDAY -> "DOMENICA"
             else -> ""
         }
-        binding.subtitlePPPPPPPPROOOOOVA.apply {
+        binding.subtitleAllExercises.apply {
             visibility = VISIBLE
             text = "SCHEDA DI $dayDisplayName"
         }
@@ -84,31 +89,132 @@ class MyAutoScheduleFragment : Fragment() {
             }
         }
 
-        // categorie da verificare
+        // chiama nuova funzione unificata
+        populateUnifiedExerciseList()
+    }
+
+    private fun populateUnifiedExerciseList() {
+        val user = currentUserName ?: return
+        val container = binding.allExercisesContainer
+        container.removeAllViews()
+
         val categories = listOf("bodybuilding", "cardio", "corpo_libero", "stretching")
-        categories.forEach { category ->
-            val (subtitleView, container) = when (category) {
-                "bodybuilding" -> binding.subtitleBodyBuilding to binding.bodybuildingDetailsContainer
-                "cardio" -> binding.subtitleCardio to binding.cardioDetailsContainer
-                "corpo_libero" -> binding.subtitleCorpoLibero to binding.corpoliberoDetailsContainer
-                "stretching" -> binding.subtitleStretching to binding.stretchingDetailsContainer
-                else -> null to null
-            }
-            if (subtitleView != null && container != null) {
-                initCountAndAutoPopulate(category, subtitleView, container)
-                val toggleBtn = when (category) {
-                    "bodybuilding" -> binding.btnBodybuilding
-                    "cardio" -> binding.btnCardio
-                    "corpo_libero" -> binding.btnCorpoLibero
-                    "stretching" -> binding.btnStretching
-                    else -> null
+        val unifiedList = mutableListOf<Triple<String, String, String>>() // nome, categoria, id
+        var completedFetches = 0
+
+        for (category in categories) {
+            db.collection("schede_giornaliere")
+                .document(user)
+                .collection(selectedDateId)
+                .document(category)
+                .collection("esercizi")
+                .orderBy("createdAt")
+                .get()
+                .addOnSuccessListener { snap ->
+                    for (doc in snap.documents) {
+                        val nome = doc.getString("nomeEsercizio") ?: doc.id
+                        unifiedList.add(Triple(nome, category, doc.id))
+                    }
+                    completedFetches++
+                    if (completedFetches == categories.size) {
+                        showUnifiedList(container, unifiedList)
+                    }
                 }
-                toggleBtn?.setOnClickListener {
-                    toggleAndPopulate(category, container)
+                .addOnFailureListener {
+                    Toast.makeText(requireContext(), "Errore nel caricamento degli esercizi", Toast.LENGTH_SHORT).show()
                 }
-            }
         }
     }
+
+    private fun showUnifiedList(
+        container: LinearLayout,
+        esercizi: List<Triple<String, String, String>>
+    ) {
+        val user = currentUserName ?: return
+
+        for ((nome, categoria, docId) in esercizi) {
+            val itemLayout = LinearLayout(requireContext()).apply {
+                orientation = LinearLayout.HORIZONTAL
+                setPadding(36, 4, 8, 16)
+            }
+
+            val text = TextView(requireContext()).apply {
+                text = "○ $nome" // solo il nome visibile fuori dalla card
+                setTextColor(ContextCompat.getColor(requireContext(), android.R.color.white))
+                layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
+            }
+
+            val infoButton = ImageButton(requireContext()).apply {
+                setImageResource(R.drawable.info)
+                background = null
+                layoutParams = LinearLayout.LayoutParams(100, 100)
+            }
+
+            val cardView = LayoutInflater.from(requireContext())
+                .inflate(R.layout.exercise_info_card, container, false) as CardView
+            cardView.visibility = View.GONE
+
+            val titleText = cardView.findViewById<TextView>(R.id.cardExerciseTitle)
+            val setsRepsText = cardView.findViewById<TextView>(R.id.cardSetsReps)
+            val pesoInput = cardView.findViewById<EditText>(R.id.cardWeightInput)
+            val saveButton = cardView.findViewById<Button>(R.id.cardSaveButton)
+
+            titleText.text = nome
+
+            // 🔥 Recupera set, rep, peso dalla categoria corretta
+            db.collection("schede_giornaliere")
+                .document(user)
+                .collection(selectedDateId)
+                .document(categoria)
+                .collection("esercizi")
+                .document(docId)
+                .get()
+                .addOnSuccessListener { doc ->
+                    val serie = doc.getLong("numeroSerie")?.toString() ?: "-"
+                    val rip = doc.getLong("numeroRipetizioni")?.toString() ?: "-"
+                    val peso = doc.getDouble("peso")
+                    setsRepsText.text = "Serie: $serie  |  Ripetizioni: $rip"
+                    if (peso != null) pesoInput.setText(peso.toString())
+                }
+
+            infoButton.setOnClickListener {
+                cardView.visibility = if (cardView.visibility == View.GONE) View.VISIBLE else View.GONE
+            }
+
+            saveButton.setOnClickListener {
+                val peso = pesoInput.text.toString().toFloatOrNull()
+                if (peso == null) {
+                    Toast.makeText(requireContext(), "Inserisci un peso valido", Toast.LENGTH_SHORT).show()
+                    return@setOnClickListener
+                }
+
+                val data = mapOf("peso" to peso)
+
+                db.collection("schede_giornaliere")
+                    .document(user)
+                    .collection(selectedDateId)
+                    .document(categoria)
+                    .collection("esercizi")
+                    .document(docId)
+                    .set(data, SetOptions.merge())
+                    .addOnSuccessListener {
+                        Toast.makeText(requireContext(), "Peso salvato", Toast.LENGTH_SHORT).show()
+                    }
+                    .addOnFailureListener {
+                        Toast.makeText(requireContext(), "Errore salvataggio", Toast.LENGTH_SHORT).show()
+                    }
+            }
+
+            itemLayout.addView(text)
+            itemLayout.addView(infoButton)
+
+            container.addView(itemLayout)
+            container.addView(cardView)
+        }
+    }
+
+
+
 
     private fun initCountAndAutoPopulate(
         category: String,

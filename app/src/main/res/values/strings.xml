@@ -30,4 +30,15 @@
     <string name="imposta_tempo">Imposta tempo</string>
     <string name="ok">OK</string>
     <string name="annulla">Annulla</string>
+    <string name="title_activity_login_with_email">LoginWithEmailActivity</string>
+    <string name="prompt_email">Email</string>
+    <string name="prompt_password">Password</string>
+    <string name="action_sign_in">Sign in or register</string>
+    <string name="action_sign_in_short">Sign in</string>
+    <string name="welcome">"Welcome !"</string>
+    <string name="invalid_username">Not a valid username</string>
+    <string name="invalid_password">Password must be >5 characters</string>
+    <string name="login_failed">"Login failed"</string>
+    <string name="title_activity_login_with_google">LoginWithGoogle</string>
+    <string name="default_web_client_id">1041503427752-3eff7fjg9cmji1b8m4rtvsle30di8bn8.apps.googleusercontent.com</string>
 </resources>

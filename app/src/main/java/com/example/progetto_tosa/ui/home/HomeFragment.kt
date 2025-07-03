@@ -15,7 +15,7 @@ import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import com.example.progetto_tosa.R
 import com.example.progetto_tosa.databinding.FragmentHomeBinding
-import com.example.progetto_tosa.ui.account.LoginActivity
+import com.example.progetto_tosa.ui.account.LoginFragment
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import java.text.SimpleDateFormat
@@ -77,7 +77,6 @@ class HomeFragment : Fragment() {
 
         // 4) Atleta UI
         binding.bannerCard.visibility = View.VISIBLE
-        binding.bannerStatus.text     = "Controllo in corso…"
         showButtonsForUser()
 
         // 5) Recupera saved_display_name
@@ -142,7 +141,7 @@ class HomeFragment : Fragment() {
         )
         binding.buttonInutile.text = "Effettua il login per accedere"
         binding.buttonInutile.setOnClickListener {
-            startActivity(Intent(requireContext(), LoginActivity::class.java))
+            startActivity(Intent(requireContext(), LoginFragment::class.java))
         }
     }
 

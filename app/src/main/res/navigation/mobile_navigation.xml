@@ -140,7 +140,16 @@
             <argument android:name="selectedUser" app:argType="string" />
             <argument android:name="selectedDate" app:argType="string" />
         </action>
+        <action
+            android:id="@+id/action_navigation_account_to_navigation_login"
+            app:destination="@id/navigation_login" />
     </fragment>
+
+    <fragment
+        android:id="@+id/navigation_login"
+        android:name="com.example.progetto_tosa.ui.account.LoginFragment"
+        android:label="Login"
+        tools:layout="@layout/fragment_login"/>
 
     <fragment
         android:id="@+id/navigation_UserData"

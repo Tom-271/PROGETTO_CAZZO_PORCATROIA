@@ -1,10 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
     <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.READ_CALENDAR"/>
-    <uses-permission android:name="android.permission.WRITE_CALENDAR"/>
-    <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
+    <uses-permission android:name="android.permission.READ_CALENDAR" />
+    <uses-permission android:name="android.permission.WRITE_CALENDAR" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
     <application
         android:allowBackup="true"
@@ -16,13 +17,18 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.PROGETTO_TOSA"
         tools:targetApi="31">
-
-        <!--portrait ci serve per non far ruotare l'app, + inutile farlo-->
         <activity
-            android:name=".ui.account.LoginActivity"
+            android:name=".ui.login.LoginWithGoogle"
             android:exported="false"
-            android:screenOrientation="portrait" />
-
+            android:label="@string/title_activity_login_with_google" />
+        <activity
+            android:name=".ui.login.LoginWithEmailActivity"
+            android:exported="false"
+            android:label="@string/title_activity_login_with_email" /> <!-- portrait ci serve per non far ruotare l'app, + inutile farlo -->
+        <activity android:name=".ui.account.LoginWithEmail" />
+        <activity
+            android:name=".ui.account.LoginWithGoogle"
+            tools:ignore="Instantiatable" />
         <activity
             android:name=".ui.account.MainActivity"
             android:exported="true"
@@ -30,13 +36,13 @@
             android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
         <activity
             android:name=".ui.account.RegisterActivity"
             android:screenOrientation="portrait" />
-
     </application>
+
 </manifest>

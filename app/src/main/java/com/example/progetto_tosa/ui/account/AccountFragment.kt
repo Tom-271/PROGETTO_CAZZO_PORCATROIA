@@ -57,7 +57,7 @@ class AccountFragment : Fragment() {
         }
         // Login/Logout
         binding.ButtonLogin.setOnClickListener {
-            startActivity(Intent(requireContext(), LoginActivity::class.java))
+            findNavController().navigate(R.id.action_navigation_account_to_navigation_login)
         }
         binding.signOut.setOnClickListener {
             Toast.makeText(requireContext(), "Ci vediamo al prossimo allenamento!", Toast.LENGTH_SHORT).show()
