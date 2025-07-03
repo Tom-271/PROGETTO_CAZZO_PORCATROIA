@@ -16,8 +16,10 @@ import androidx.navigation.fragment.findNavController
 import com.example.progetto_tosa.R
 import com.example.progetto_tosa.databinding.FragmentHomeBinding
 import com.example.progetto_tosa.ui.account.LoginFragment
+import com.google.android.gms.tasks.Tasks
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.QuerySnapshot
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -31,12 +33,12 @@ class HomeFragment : Fragment() {
 
     companion object {
         private const val TAG = "HomeFragment"
+        // Lista delle categorie definite dal PT
+        private val CATEGORIES = listOf("bodybuilding", "cardio", "corpo_libero", "stretching")
     }
 
     override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
+        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
         _binding = FragmentHomeBinding.inflate(inflater, container, false)
         return binding.root
@@ -46,96 +48,84 @@ class HomeFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         // 1) Data
-        val today      = Date()
-        val displayFmt = SimpleDateFormat("EEEE, d MMMM yyyy", Locale.getDefault())
-        val keyFmt     = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-        val displayDate= displayFmt.format(today)
-        val todayId    = keyFmt.format(today)
-        binding.bannerDate.text = displayDate
-        Log.d(TAG, "DisplayDate=$displayDate, TodayId=$todayId")
+        val today       = Date()
+        val displayFmt  = SimpleDateFormat("EEEE, d MMMM yyyy", Locale.getDefault())
+        val keyFmt      = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+        binding.bannerDate.text = displayFmt.format(today)
+        val todayId = keyFmt.format(today)
+        Log.d(TAG, "TodayId = $todayId")
 
-        // 2) Login check
+        // Nascondo inizialmente bannerCard
+        binding.bannerCard.visibility = View.GONE
+
+        // 2) Login
         val user = auth.currentUser
         if (user == null) {
-            Log.d(TAG, "Nessun utente loggato")
+            Log.d(TAG, "Utente non loggato")
             binding.bannerStatus.visibility = View.GONE
             setAllGone()
             return
         }
-        Log.d(TAG, "User UID=${user.uid}")
 
-        // 3) Ruolo PT/Atleta
-        val prefs     = requireActivity().getSharedPreferences("user_data", Context.MODE_PRIVATE)
+        // 3) Ruolo
+        val prefs     = requireActivity()
+            .getSharedPreferences("user_data", Context.MODE_PRIVATE)
         val isTrainer = prefs.getBoolean("is_trainer", false)
-        Log.d(TAG, "isTrainer flag=$isTrainer")
         if (isTrainer) {
-            Log.d(TAG, "Accesso come Personal Trainer")
+            Log.d(TAG, "Accesso come PT")
             binding.bannerStatus.visibility = View.GONE
             showButtonsForPT()
             return
         }
 
-        // 4) Atleta UI
+        // 4) Atleta “normale”
         binding.bannerCard.visibility = View.VISIBLE
         showButtonsForUser()
 
-        // 5) Recupera saved_display_name
+        // 5) Prendo il nome salvato
         val fullName = prefs.getString("saved_display_name","").orEmpty()
-        Log.d(TAG, "saved_display_name='$fullName'")
         if (fullName.isBlank()) {
-            Log.e(TAG, "Nome utente mancante dalle prefs")
+            Log.e(TAG, "FullName mancante")
             binding.bannerStatus.text = "Errore controllo scheda"
             return
         }
 
-        // 6) DEBUG: logga tutti gli ID in schede_del_pt
+        // 6) Verifico la presenza di esercizi
         db.collection("schede_del_pt")
-            .get()
-            .addOnSuccessListener { col ->
-                Log.d(TAG, "Documenti in schede_del_pt:")
-                col.documents.forEach { Log.d(TAG, " • '${it.id}'") }
-
-                // Trova doc con match case‐INSENSITIVE
-                val match = col.documents.find { it.id.equals(fullName, ignoreCase = true) }
-                if (match == null) {
-                    Log.d(TAG, "❌ Nessun documento match per '$fullName'")
-                    binding.bannerStatus.text = "Oggi giornata libera!"
-                } else {
-                    val docId = match.id
-                    Log.d(TAG, "✅ Trovato docId='$docId', ora controllo subcollezione $todayId")
-
-                    // 7) Controlla sub-collezione oggi
-                    db.collection("schede_del_pt")
-                        .document(docId)
+            .document(fullName)  // usiamo esattamente il docId trovato in precedenza
+            .let { userDocRef ->
+                // per ogni categoria creo un Task che legge al massimo 1 esercizio
+                val tasks = CATEGORIES.map { category ->
+                    userDocRef
                         .collection(todayId)
+                        .document(category)
+                        .collection("esercizi")
                         .limit(1)
                         .get()
-                        .addOnSuccessListener { snap ->
-                            if (snap.isEmpty) {
-                                Log.d(TAG, "⛔ Subcollezione '$todayId' vuota per '$docId'")
-                                binding.bannerStatus.text = "Oggi giornata libera!"
-                            } else {
-                                Log.d(TAG, "✔️ Subcollezione '$todayId' contiene ${snap.size()} doc")
-                                binding.bannerStatus.text = "Hai una nuova scheda caricata dal tuo PT"
-                            }
-                        }
-                        .addOnFailureListener { e ->
-                            Log.e(TAG, "Errore controllo subcollezione '$todayId'", e)
-                            binding.bannerStatus.text = "Errore controllo scheda"
-                        }
                 }
-            }
-            .addOnFailureListener { e ->
-                Log.e(TAG, "Errore lettura collection schede_del_pt", e)
-                binding.bannerStatus.text = "Errore controllo scheda"
+                // quando TUTTI sono completati, controllo se almeno uno ha risultati
+                Tasks.whenAllSuccess<QuerySnapshot>(tasks)
+                    .addOnSuccessListener { snaps ->
+                        val hasAny = snaps.any { it.documents.isNotEmpty() }
+                        binding.bannerStatus.text = if (hasAny) {
+                            "Hei! Hai una nuova scheda caricata dal tuo PT"
+                        } else {
+                            "Oggi giornata libera!"
+                        }
+                    }
+                    .addOnFailureListener { e ->
+                        Log.e(TAG, "Errore controllo esercizi", e)
+                        binding.bannerStatus.text = "Errore controllo scheda"
+                    }
             }
     }
 
     private fun setAllGone() {
-        binding.buttonForTheScheduleIDid.visibility               = View.GONE
+        binding.bannerCard.visibility                           = View.GONE
+        binding.buttonForTheScheduleIDid.visibility             = View.GONE
         binding.buttonForTheSchedulePersonalTrainerDid.visibility = View.GONE
-        binding.buttonForPersonalTrainer.visibility               = View.GONE
-        binding.buttonInutile.visibility                          = View.VISIBLE
+        binding.buttonForPersonalTrainer.visibility             = View.GONE
+        binding.buttonInutile.visibility                        = View.VISIBLE
         binding.buttonInutile.strokeColor = ColorStateList.valueOf(
             ContextCompat.getColor(requireContext(), R.color.orange)
         )
@@ -146,9 +136,9 @@ class HomeFragment : Fragment() {
     }
 
     private fun showButtonsForUser() {
-        val prefs = requireActivity().getSharedPreferences("user_data", Context.MODE_PRIVATE)
+        val prefs    = requireActivity()
+            .getSharedPreferences("user_data", Context.MODE_PRIVATE)
         val fullName = prefs.getString("saved_display_name","").orEmpty()
-        Log.d(TAG, "showButtonsForUser: fullName='$fullName'")
 
         binding.buttonForPersonalTrainer.visibility               = View.GONE
         binding.buttonForTheScheduleIDid.visibility               = View.VISIBLE

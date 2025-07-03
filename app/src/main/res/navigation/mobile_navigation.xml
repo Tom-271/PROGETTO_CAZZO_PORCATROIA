@@ -36,6 +36,9 @@
         <action
             android:id="@+id/action_navigation_home_to_navigation_cronotimer"
             app:destination="@id/navigation_cronotimer" />
+        <action
+            android:id="@+id/action_navigation_home_to_navigation_account"
+            app:destination="@id/navigation_account" />
     </fragment>
 
     <!-- Workout container -->
