@@ -131,7 +131,7 @@ class HomeFragment : Fragment() {
         )
         binding.buttonInutile.text = "Effettua il login per accedere"
         binding.buttonInutile.setOnClickListener {
-            startActivity(Intent(requireContext(), LoginFragment::class.java))
+            findNavController().navigate(R.id.action_navigation_home_to_navigation_account)
         }
     }
 
