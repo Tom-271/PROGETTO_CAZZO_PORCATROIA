@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.content.ContextCompat
 import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
@@ -19,15 +20,17 @@ class MyAutoCalendar : Fragment() {
     private var weekOffset = 0
 
     private var dateId: String? = null
-    private val daysTextViews by lazy {
+
+    // Lista di tutti i TextView dei giorni, per il reset e la colorazione
+    private val dayLabels by lazy {
         listOf(
-            binding.cardMonday,
-            binding.cardTuesday,
-            binding.cardWednesday,
-            binding.cardThursday,
-            binding.cardFriday,
-            binding.cardSaturday,
-            binding.cardSunday
+            binding.textMonday,
+            binding.textTuesday,
+            binding.textWednesday,
+            binding.textThursday,
+            binding.textFriday,
+            binding.textSaturday,
+            binding.textSunday
         )
     }
 
@@ -82,13 +85,13 @@ class MyAutoCalendar : Fragment() {
         val dateFormatId = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
 
         val dayViews = listOf(
-            Triple(binding.cardMonday, binding.textMonday, 0),
-            Triple(binding.cardTuesday, binding.textTuesday, 1),
-            Triple(binding.cardWednesday, binding.textWednesday, 2),
-            Triple(binding.cardThursday, binding.textThursday, 3),
-            Triple(binding.cardFriday, binding.textFriday, 4),
-            Triple(binding.cardSaturday, binding.textSaturday, 5),
-            Triple(binding.cardSunday, binding.textSunday, 6)
+            Triple(binding.cardMonday,   binding.textMonday,   0),
+            Triple(binding.cardTuesday,  binding.textTuesday,  1),
+            Triple(binding.cardWednesday,binding.textWednesday,2),
+            Triple(binding.cardThursday, binding.textThursday,  3),
+            Triple(binding.cardFriday,   binding.textFriday,    4),
+            Triple(binding.cardSaturday, binding.textSaturday,  5),
+            Triple(binding.cardSunday,   binding.textSunday,    6)
         )
 
         dayViews.forEach { (card, textView, dayOffset) ->
@@ -99,9 +102,24 @@ class MyAutoCalendar : Fragment() {
                 .replaceFirstChar { it.uppercase() }
             val id = dateFormatId.format(dayCalendar.time)
 
+            // Imposta etichetta e reset colore di default
             textView.text = label
+            textView.setTextColor(
+                ContextCompat.getColor(requireContext(), android.R.color.black)
+            )
 
             card.setOnClickListener {
+                // Reset colore di tutti i giorni
+                dayLabels.forEach { tv ->
+                    tv.setTextColor(
+                        ContextCompat.getColor(requireContext(), android.R.color.black)
+                    )
+                }
+                // Colorazione del giorno selezionato
+                textView.setTextColor(
+                    ContextCompat.getColor(requireContext(), R.color.sky)
+                )
+
                 dateId = id
                 binding.btnFancy.visibility = View.VISIBLE
             }

@@ -2,21 +2,29 @@ package com.example.progetto_tosa.ui.home
 
 import android.graphics.Typeface
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
+import android.view.View.GONE
+import android.view.View.VISIBLE
 import android.view.ViewGroup
+import android.widget.Button
+import android.widget.EditText
+import android.widget.ImageButton
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
+import androidx.cardview.widget.CardView
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import com.example.progetto_tosa.R
 import com.example.progetto_tosa.databinding.FragmentMyTrainerScheduleBinding
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.CollectionReference
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
+import com.google.firebase.firestore.SetOptions
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -54,23 +62,31 @@ class MyTrainerSchedule : Fragment(R.layout.fragment_my_trainer_schedule) {
         val dispDate = outFmt.format(inFmt.parse(dateId)!!)
         val today = outFmt.format(Date())
         binding.subtitlePPPPPPPPROOOOOVA.apply {
-            text = if (dispDate == today) "Oggi il PT ha preparato per me questa scheda:"
-            else "LA sCHEDA che mi ha preparato il pt DEL: $dispDate"
-            visibility = View.VISIBLE
+            text = if (dispDate == today)
+                "Oggi il PT ha preparato per me questa scheda:"
+            else
+                "La scheda che mi ha preparato il PT del: $dispDate"
+            visibility = VISIBLE
         }
+        binding.chrono.setOnClickListener {
 
+        findNavController().navigate(
+            R.id.action_fragment_my_trainer_schedule_to_navigation_cronotimer,
+        )
+        }
         // 3) Mostro btnFillSchedule solo se l'utente è PT
-        binding.btnFillSchedule.visibility = View.GONE
+        binding.btnFillSchedule.visibility = GONE
         auth.currentUser?.uid?.let { uid ->
-            // Controllo in users
             db.collection("users").document(uid)
                 .get()
-                .addOnSuccessListener { userDoc ->
-                    val isPT = userDoc.getBoolean("isPersonalTrainer") == true
-                    if (isPT) {
+                .addOnSuccessListener { doc ->
+                    val isPT = doc.getBoolean("isPersonalTrainer") == true
+                    if (isPT)
+                    {
                         showFillButton()
-                    } else {
-                        // Fallback su personal_trainers
+                        binding.chrono.visibility = GONE
+                    }
+                    else {
                         db.collection("personal_trainers").document(uid)
                             .get()
                             .addOnSuccessListener { ptDoc ->
@@ -78,41 +94,19 @@ class MyTrainerSchedule : Fragment(R.layout.fragment_my_trainer_schedule) {
                                     showFillButton()
                                 }
                             }
+                        binding.chrono.visibility = VISIBLE
+
                     }
                 }
-                .addOnFailureListener {
-                    // in caso di errore mantengo nascosto
-                }
         }
 
-        // 4) Imposto i listener per mostrare i dettagli delle categorie
-        val dateCol: CollectionReference = db
-            .collection("schede_del_pt")
-            .document(selectedUserId)
-            .collection(dateId)
-
-        initCount("bodybuilding", binding.subtitleBodyBuilding, dateCol)
-        initCount("cardio",       binding.subtitleCardio,       dateCol)
-        initCount("corpo_libero", binding.subtitleCorpoLibero, dateCol)
-        initCount("stretching",   binding.subtitleStretching,   dateCol)
-
-        binding.btnBodybuilding.setOnClickListener {
-            toggleAndPopulate(binding.bodybuildingDetailsContainer, "bodybuilding", dateCol)
-        }
-        binding.btnCardio.setOnClickListener {
-            toggleAndPopulate(binding.cardioDetailsContainer, "cardio", dateCol)
-        }
-        binding.btnCorpoLibero.setOnClickListener {
-            toggleAndPopulate(binding.corpoliberoDetailsContainer, "corpo_libero", dateCol)
-        }
-        binding.btnStretching.setOnClickListener {
-            toggleAndPopulate(binding.stretchingDetailsContainer, "stretching", dateCol)
-        }
+        // 4) Popolo **automaticamente** tutti gli esercizi del PT
+        populateUnifiedExerciseList()
     }
 
     private fun showFillButton() {
         binding.btnFillSchedule.apply {
-            visibility = View.VISIBLE
+            visibility = VISIBLE
             setOnClickListener {
                 findNavController().navigate(
                     R.id.action_fragment_my_trainer_schedule_to_fragment_workout,
@@ -125,68 +119,127 @@ class MyTrainerSchedule : Fragment(R.layout.fragment_my_trainer_schedule) {
         }
     }
 
-    private fun initCount(
-        category: String,
-        subtitleView: TextView,
-        dateCol: CollectionReference
-    ) {
-        val reg = dateCol.document(category).collection("esercizi")
-            .addSnapshotListener { snap, err ->
-                val total = if (err != null) 0 else (snap?.size() ?: 0)
-                subtitleView.text = if (total == 1) "$total esercizio" else "$total esercizi"
-            }
-        activeListeners += reg
-    }
+    private fun populateUnifiedExerciseList() {
+        val user = selectedUserId
+        // Trovo il LinearLayout interno al CardView dove mettere gli esercizi
+        val cardInner = binding.exerciseTitle.parent as LinearLayout
 
-    private fun toggleAndPopulate(
-        container: LinearLayout,
-        category: String,
-        dateCol: CollectionReference
-    ) {
-        if (container.visibility == View.GONE) {
-            container.visibility = View.VISIBLE
-            container.removeAllViews()
-            dateCol.document(category).collection("esercizi")
+        val unifiedList = mutableListOf<Triple<String, String, String>>()  // nome, categoria, docId
+        val categories = listOf("bodybuilding", "cardio", "corpo_libero", "stretching")
+        var completedFetches = 0
+
+        for (cat in categories) {
+            db.collection("schede_del_pt")
+                .document(user)
+                .collection(dateId)
+                .document(cat)
+                .collection("esercizi")
+                .orderBy("createdAt")
                 .get()
                 .addOnSuccessListener { snap ->
-                    if (snap.isEmpty) return@addOnSuccessListener
-                    val byMuscle = snap.documents.groupBy {
-                        it.getString("muscoloPrincipale")?.uppercase(Locale.getDefault()) ?: "ALTRO"
+                    for (doc in snap.documents) {
+                        val nome = doc.getString("nomeEsercizio") ?: doc.id
+                        unifiedList.add(Triple(nome, cat, doc.id))
                     }
-                    byMuscle.forEach { (muscle, docs) ->
-                        container.addView(TextView(requireContext()).apply {
-                            text = muscle
-                            typeface = Typeface.DEFAULT_BOLD
-                            setTextColor(ContextCompat.getColor(requireContext(), R.color.sky))
-                            setPadding(40, 24, 0, 8)
-                        })
-                        container.addView(View(requireContext()).apply {
-                            layoutParams = LinearLayout.LayoutParams(
-                                LinearLayout.LayoutParams.MATCH_PARENT, 3
-                            ).apply { setMargins(40, 4, 40, 12) }
-                            setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.dark_gray))
-                        })
-                        docs.forEach { doc ->
-                            val nome  = doc.getString("nomeEsercizio") ?: doc.id
-                            val serie = doc.getLong("numeroSerie")?.toString() ?: "0"
-                            val rep   = doc.getLong("numeroRipetizioni")?.toString() ?: "0"
-                            container.addView(TextView(requireContext()).apply {
-                                text = "○ $nome   •   Serie: $serie   •   Rep: $rep"
-                                setTextColor(ContextCompat.getColor(requireContext(), android.R.color.white))
-                                setPadding(56, 4, 8, 8)
-                            })
-                        }
+                    completedFetches++
+                    if (completedFetches == categories.size) {
+                        showUnifiedList(cardInner, unifiedList)
                     }
                 }
                 .addOnFailureListener {
                     Toast.makeText(
                         requireContext(),
-                        "Errore caricamento esercizi in $category",
+                        "Errore caricamento categoria $cat",
                         Toast.LENGTH_SHORT
                     ).show()
                 }
-        } else {
-            container.visibility = View.GONE
+        }
+    }
+
+    private fun showUnifiedList(
+        container: LinearLayout,
+        esercizi: List<Triple<String, String, String>>
+    ) {
+        val user = selectedUserId
+        container.removeAllViews()
+
+        for ((nome, categoria, docId) in esercizi) {
+            // Riga principale
+            val row = LinearLayout(requireContext()).apply {
+                orientation = LinearLayout.HORIZONTAL
+                setPadding(36, 4, 8, 16)
+            }
+            val text = TextView(requireContext()).apply {
+                text = "○ $nome"
+                setTextColor(ContextCompat.getColor(requireContext(), android.R.color.white))
+                layoutParams = LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f)
+            }
+            val infoBtn = ImageButton(requireContext()).apply {
+                setImageResource(R.drawable.info)
+                background = null
+                layoutParams = LinearLayout.LayoutParams(100, 100)
+            }
+
+            // Card di dettaglio nascosta
+            val detailCard = LayoutInflater.from(requireContext())
+                .inflate(R.layout.exercise_info_card, container, false) as CardView
+            detailCard.visibility = GONE
+
+            val titleTv = detailCard.findViewById<TextView>(R.id.cardExerciseTitle)
+            val setsRepsTv = detailCard.findViewById<TextView>(R.id.cardSetsReps)
+            val weightInput = detailCard.findViewById<EditText>(R.id.cardWeightInput)
+            val saveBtn = detailCard.findViewById<Button>(R.id.cardSaveButton)
+
+            titleTv.text = nome
+
+            // Carico serie/rip e peso
+            db.collection("schede_del_pt")
+                .document(user)
+                .collection(dateId)
+                .document(categoria)
+                .collection("esercizi")
+                .document(docId)
+                .get()
+                .addOnSuccessListener { d ->
+                    val serie = d.getLong("numeroSerie")?.toString() ?: "-"
+                    val rip = d.getLong("numeroRipetizioni")?.toString() ?: "-"
+                    setsRepsTv.text = "Serie: $serie  |  Ripetizioni: $rip"
+                    d.getDouble("peso")?.let { weightInput.setText(it.toString()) }
+                }
+
+            // Toggle visibilità del dettaglio
+            infoBtn.setOnClickListener {
+                detailCard.visibility = if (detailCard.visibility == GONE) VISIBLE else GONE
+            }
+
+            // Salvataggio peso
+            saveBtn.setOnClickListener {
+                val peso = weightInput.text.toString().toFloatOrNull()
+                if (peso == null) {
+                    Toast.makeText(requireContext(), "Inserisci un peso valido", Toast.LENGTH_SHORT)
+                        .show()
+                    return@setOnClickListener
+                }
+                db.collection("schede_del_pt")
+                    .document(user)
+                    .collection(dateId)
+                    .document(categoria)
+                    .collection("esercizi")
+                    .document(docId)
+                    .set(mapOf("peso" to peso), SetOptions.merge())
+                    .addOnSuccessListener {
+                        Toast.makeText(requireContext(), "Peso salvato", Toast.LENGTH_SHORT).show()
+                    }
+                    .addOnFailureListener {
+                        Toast.makeText(requireContext(), "Errore salvataggio", Toast.LENGTH_SHORT)
+                            .show()
+                    }
+            }
+
+            row.addView(text)
+            row.addView(infoBtn)
+            container.addView(row)
+            container.addView(detailCard)
         }
     }
 

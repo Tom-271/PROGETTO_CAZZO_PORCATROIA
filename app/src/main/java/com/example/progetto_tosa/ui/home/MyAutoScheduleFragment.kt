@@ -78,6 +78,11 @@ class MyAutoScheduleFragment : Fragment() {
             text = "SCHEDA DI $dayDisplayName"
         }
 
+        binding.chrono.setOnClickListener {
+            findNavController().navigate(
+                R.id.action_fragment_my_auto_schedule_to_navigation_cronotimer,
+            )
+        }
         // bottone per aggiungere esercizi
         binding.btnFillSchedule.apply {
             visibility = VISIBLE
@@ -213,29 +218,6 @@ class MyAutoScheduleFragment : Fragment() {
         }
     }
 
-
-
-
-    private fun initCountAndAutoPopulate(
-        category: String,
-        subtitleView: TextView,
-        container: LinearLayout
-    ) {
-        val user = currentUserName ?: return
-        val listener = db.collection("schede_giornaliere")
-            .document(user)
-            .collection(selectedDateId)
-            .document(category)
-            .collection("esercizi")
-            .addSnapshotListener { snap, err ->
-                val total = if (err != null) 0 else (snap?.documents?.size ?: 0)
-                subtitleView.text = if (total == 1) "$total esercizio" else "$total esercizi"
-                if (total > 0 && container.visibility == GONE) {
-                    toggleAndPopulate(category, container)
-                }
-            }
-        activeListeners.add(listener)
-    }
 
     private fun toggleAndPopulate(
         category: String,

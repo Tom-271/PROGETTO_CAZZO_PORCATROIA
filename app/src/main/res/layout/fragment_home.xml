@@ -113,7 +113,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
-        android:text="GLI ALLENAMENTI PER TE:"
+        android:text="SCHEDE DI ALLENAMENTO:"
         android:textSize="20sp"
         android:textStyle="bold"
         android:textColor="@color/sky"
@@ -121,7 +121,6 @@
         app:layout_constraintTop_toBottomOf="@id/dividerTop"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
-
 
     <!-- Due bottoni affiancati -->
     <com.google.android.material.button.MaterialButton
@@ -132,7 +131,9 @@
         android:layout_marginTop="16dp"
         android:layout_marginStart="20dp"
         android:layout_marginEnd="8dp"
-        android:text="Scopri gli esercizi"
+        app:strokeWidth="0.6dp"
+        app:strokeColor="@color/orange"
+        android:text="la mia personale"
         app:layout_constraintTop_toBottomOf="@id/titolone"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toStartOf="@id/buttonForTheSchedulePersonalTrainerDid"
@@ -145,7 +146,9 @@
         android:layout_height="200dp"
         android:layout_marginTop="16dp"
         android:layout_marginEnd="20dp"
-        android:text="Scopri il tuo piano"
+        app:strokeWidth="0.6dp"
+        app:strokeColor="@color/green"
+        android:text="quella fatta dal mio pt "
         app:layout_constraintTop_toBottomOf="@id/titolone"
         app:layout_constraintStart_toEndOf="@id/buttonForTheScheduleIDid"
         app:layout_constraintEnd_toEndOf="parent"

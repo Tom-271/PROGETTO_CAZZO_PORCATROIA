@@ -314,6 +314,9 @@
             <argument android:name="selectedUser" app:argType="string" />
             <argument android:name="selectedDate"   app:argType="string" />
         </action>
+        <action
+            android:id="@+id/action_fragment_my_trainer_schedule_to_navigation_cronotimer"
+            app:destination="@id/navigation_cronotimer" />
     </fragment>
 
 </navigation>
