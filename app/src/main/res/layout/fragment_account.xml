@@ -8,7 +8,7 @@
     android:layout_height="match_parent"
     android:fillViewport="true"
     android:scrollbars="none"
-    android:layout_marginTop="130dp"
+    android:layout_marginTop="80dp"
     android:fitsSystemWindows="true"
     tools:context="com.example.progetto_tosa.ui.account.AccountFragment">
 

@@ -56,7 +56,6 @@ class HomeFragment : Fragment() {
         Log.d(TAG, "TodayId = $todayId")
 
         // Nascondo inizialmente bannerCard
-        binding.bannerCard.visibility = View.GONE
 
         // 2) Login
         val user = auth.currentUser
@@ -79,7 +78,6 @@ class HomeFragment : Fragment() {
         }
 
         // 4) Atleta “normale”
-        binding.bannerCard.visibility = View.VISIBLE
         showButtonsForUser()
 
         // 5) Prendo il nome salvato
@@ -108,9 +106,9 @@ class HomeFragment : Fragment() {
                     .addOnSuccessListener { snaps ->
                         val hasAny = snaps.any { it.documents.isNotEmpty() }
                         binding.bannerStatus.text = if (hasAny) {
-                            "Hei! Hai una nuova scheda caricata dal tuo PT"
+                            "Sì! Il pt ha caricato una scheda."
                         } else {
-                            "Oggi giornata libera!"
+                            "No! Oggi giornata libera!"
                         }
                     }
                     .addOnFailureListener { e ->
@@ -121,7 +119,6 @@ class HomeFragment : Fragment() {
     }
 
     private fun setAllGone() {
-        binding.bannerCard.visibility                           = View.GONE
         binding.buttonForTheScheduleIDid.visibility             = View.GONE
         binding.buttonForTheSchedulePersonalTrainerDid.visibility = View.GONE
         binding.buttonForPersonalTrainer.visibility             = View.GONE
@@ -129,7 +126,7 @@ class HomeFragment : Fragment() {
         binding.buttonInutile.strokeColor = ColorStateList.valueOf(
             ContextCompat.getColor(requireContext(), R.color.orange)
         )
-        binding.buttonInutile.text = "Effettua il login per accedere"
+        binding.buttonInutile.text = "Effettua il login per accedere al servizio"
         binding.buttonInutile.setOnClickListener {
             findNavController().navigate(R.id.action_navigation_home_to_navigation_account)
         }

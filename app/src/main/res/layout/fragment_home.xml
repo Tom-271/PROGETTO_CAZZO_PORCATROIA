@@ -8,106 +8,122 @@
     android:layout_marginTop="80dp"
     tools:context=".ui.home.HomeFragment">
 
-    <!-- Titolo principale -->
-    <TextView
-        android:id="@+id/titoloHome"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
-        android:layout_marginStart="20dp"
-        android:text="Benvenuto su IngeFIT!"
-        android:textSize="36sp"
-        android:textStyle="bold|italic"
-        android:textColor="@color/sky"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
-
-    <!-- Descrizione subito sotto il titolo -->
-    <TextView
-        android:id="@+id/descrizione"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:layout_marginStart="20dp"
-        android:layout_marginEnd="20dp"
-        android:gravity="center_horizontal"
-        android:textAlignment="center"
-        android:text="L'App perfetta per te ed i tuoi allenamenti personalizzati."
-        android:textSize="18sp"
-        android:textStyle="italic"
-        android:textColor="@color/light_gray"
-        app:layout_constraintTop_toBottomOf="@id/titoloHome"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
-
+    <!-- Card blu con titolo centrato, descrizione e banner -->
     <com.google.android.material.card.MaterialCardView
-        android:id="@+id/bannerCard"
+        android:id="@+id/containerblue"
         android:layout_width="0dp"
-        android:layout_height="200dp"
-        android:layout_marginTop="24dp"
-        android:layout_marginStart="20dp"
-        android:layout_marginEnd="20dp"
-        app:cardCornerRadius="20dp"
-        app:cardPreventCornerOverlap="false"
-        app:cardUseCompatPadding="true"
-        app:strokeWidth="1dp"
-        app:strokeColor="@color/dark_gray"
-        app:cardBackgroundColor="@android:color/transparent"
-        app:layout_constraintTop_toBottomOf="@id/descrizione"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="18dp"
+        android:layout_marginEnd="18dp"
+        android:backgroundTint="@color/navy_blue"
+        app:shapeAppearanceOverlay="@style/ShapeAppearance.BottomRounded"
+        app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
+        app:layout_constraintEnd_toEndOf="parent"
+        android:elevation="4dp"
+        android:padding="16dp"
+        android:maxHeight="350dp">
 
+        <!-- Interno Card: titolo, descrizione, data+stato -->
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            app:layout_constraintVertical_chainStyle="packed">
+            android:layout_height="wrap_content">
 
-            <!-- Data odierna -->
+            <!-- Titolo IngeFIT -->
             <TextView
-                android:id="@+id/bannerDate"
-                android:layout_width="wrap_content"
+                android:id="@+id/titoloHome"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:text="Loading date..."
-                android:textSize="24sp"
-                android:textStyle="bold"
-                android:textColor="@color/white"
+                android:text="IngeFIT"
+                android:layout_marginTop="20dp"
+                android:layout_marginBottom="20dp"
+                android:textColor="@color/sky"
+                android:gravity="center"
+                android:textAllCaps="true"
+                android:letterSpacing="0.1"
+                android:shadowColor="#80000000"
+                android:shadowDx="4"
+                android:shadowDy="4"
+                android:shadowRadius="6"
+                android:autoSizeTextType="uniform"
+                android:textSize="56dp"
+                android:autoSizeStepGranularity="2sp"
                 app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintBottom_toTopOf="@id/bannerStatus"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"/>
 
-            <!-- Stato PT sotto data -->
+            <!-- Descrizione sotto il titolo -->
             <TextView
-                android:id="@+id/bannerStatus"
-                android:layout_width="wrap_content"
+                android:id="@+id/descrizione"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:textSize="16sp"
-                android:textColor="@color/orange"
-                app:layout_constraintTop_toBottomOf="@id/bannerDate"
-                app:layout_constraintBottom_toBottomOf="parent"
+                android:layout_marginTop="46dp"
+                android:text="Ci sono novità per te oggi?"
+                android:textColor="@color/light_gray"
+                android:gravity="center"
+                android:autoSizeTextType="uniform"
+                android:autoSizeMinTextSize="14sp"
+                android:autoSizeMaxTextSize="18sp"
+                app:layout_constraintTop_toBottomOf="@id/titoloHome"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"/>
 
+            <!-- Container per data e stato -->
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/bannerContainer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:layout_constraintTop_toBottomOf="@id/descrizione"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent">
+
+                <!-- Data odierna -->
+                <TextView
+                    android:id="@+id/bannerDate"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:text="Loading date..."
+                    android:textStyle="bold"
+                    android:gravity="center"
+                    android:autoSizeTextType="uniform"
+                    android:textSize="28dp"
+                    android:textColor="@android:color/white"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"/>
+
+                <!-- Stato PT -->
+                <TextView
+                    android:id="@+id/bannerStatus"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="Loading status..."
+                    android:textSize="16sp"
+                    android:gravity="center"
+                    android:textColor="@color/orange"
+                    app:layout_constraintTop_toBottomOf="@id/bannerDate"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"/>
+
+                <!-- Separator dopo lo stato -->
+                <View
+                    android:id="@+id/dividerAfterDescrizione"
+                    android:layout_width="0dp"
+                    android:layout_height="1dp"
+                    android:layout_marginTop="32dp"
+                    android:layout_marginStart="20dp"
+                    android:layout_marginEnd="20dp"
+                    android:background="@color/steel"
+                    app:layout_constraintTop_toBottomOf="@id/bannerStatus"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"/>
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
         </androidx.constraintlayout.widget.ConstraintLayout>
     </com.google.android.material.card.MaterialCardView>
 
-
-
-    <!-- Linea separatrice -->
-    <View
-        android:id="@+id/dividerTop"
-        android:layout_width="0dp"
-        android:layout_height="2dp"
-        android:layout_marginTop="16dp"
-        android:layout_marginStart="50dp"
-        android:layout_marginEnd="50dp"
-        android:background="@color/steel"
-        app:layout_constraintTop_toBottomOf="@id/bannerCard"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
-
-    <!-- Sottotitolo -->
+    <!-- Sottotitolo e bottoni rimangono invariati -->
     <TextView
         android:id="@+id/titolone"
         android:layout_width="0dp"
@@ -118,16 +134,15 @@
         android:textStyle="bold"
         android:textColor="@color/sky"
         android:gravity="center"
-        app:layout_constraintTop_toBottomOf="@id/dividerTop"
+        app:layout_constraintTop_toBottomOf="@id/containerblue"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintEnd_toEndOf="parent"/>
 
-    <!-- Due bottoni affiancati -->
     <com.google.android.material.button.MaterialButton
         android:id="@+id/buttonForTheScheduleIDid"
         style="@style/MyLeftRoundedButton"
         android:layout_width="0dp"
-        android:layout_height="200dp"
+        android:layout_height="150dp"
         android:layout_marginTop="16dp"
         android:layout_marginStart="20dp"
         android:layout_marginEnd="8dp"
@@ -137,28 +152,29 @@
         app:layout_constraintTop_toBottomOf="@id/titolone"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toStartOf="@id/buttonForTheSchedulePersonalTrainerDid"
-        app:layout_constraintHorizontal_weight="1" />
+        app:layout_constraintHorizontal_weight="1"
+        android:paddingVertical="24dp"/>
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/buttonForTheSchedulePersonalTrainerDid"
         style="@style/MyRightRoundedButton"
         android:layout_width="0dp"
-        android:layout_height="200dp"
+        android:layout_height="150dp"
         android:layout_marginTop="16dp"
         android:layout_marginEnd="20dp"
         app:strokeWidth="0.6dp"
         app:strokeColor="@color/green"
-        android:text="quella fatta dal mio pt "
+        android:text="quella fatta dal mio pt"
         app:layout_constraintTop_toBottomOf="@id/titolone"
         app:layout_constraintStart_toEndOf="@id/buttonForTheScheduleIDid"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_weight="1" />
+        app:layout_constraintHorizontal_weight="1"
+        android:paddingVertical="24dp"/>
 
-    <!-- Bottone grande sotto -->
     <com.google.android.material.button.MaterialButton
         android:id="@+id/buttonForPersonalTrainer"
         android:layout_width="0dp"
-        android:layout_height="200dp"
+        android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
         android:layout_marginStart="20dp"
         android:layout_marginEnd="20dp"
@@ -171,13 +187,13 @@
         android:textColor="@color/white"
         app:layout_constraintTop_toBottomOf="@id/buttonForTheScheduleIDid"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintEnd_toEndOf="parent"
+        android:paddingVertical="24dp"/>
 
-    <!-- Bottone invisibile per riempire lo spazio -->
     <com.google.android.material.button.MaterialButton
         android:id="@+id/buttonInutile"
         android:layout_width="0dp"
-        android:layout_height="200dp"
+        android:layout_height="wrap_content"
         android:layout_marginTop="2dp"
         android:layout_marginStart="20dp"
         android:layout_marginEnd="20dp"
@@ -187,12 +203,10 @@
         app:strokeColor="@color/dark_gray"
         app:cornerRadius="20dp"
         android:text="Questo è per non lasciare lo spazio vuoto"
-        android:textSize="20sp"
+        android:textSize="18sp"
         android:textColor="@color/white"
-        android:textAllCaps="false"
         android:textStyle="italic"
         app:layout_constraintTop_toBottomOf="@id/buttonForPersonalTrainer"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
-
+        app:layout_constraintEnd_toEndOf="parent"/>
 </androidx.constraintlayout.widget.ConstraintLayout>
