@@ -1,5 +1,10 @@
 package com.example.progetto_tosa.ui.home
 
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.content.Context
+import android.content.pm.PackageManager
+import android.os.Build
 import android.graphics.Typeface
 import android.os.Bundle
 import android.util.Log
@@ -15,6 +20,9 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
 import androidx.cardview.widget.CardView
+import androidx.core.app.ActivityCompat
+import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
@@ -33,14 +41,15 @@ class MyAutoScheduleFragment : Fragment() {
 
     private val db = FirebaseFirestore.getInstance()
     private val activeListeners = mutableListOf<ListenerRegistration>()
-
     private lateinit var selectedDateId: String
 
-    // recupera il nome e cognome utente loggato
     private val currentUserName: String?
         get() = requireActivity()
-            .getSharedPreferences("user_data", android.content.Context.MODE_PRIVATE)
+            .getSharedPreferences("user_data", Context.MODE_PRIVATE)
             .getString("saved_display_name", null)
+
+    private val CHANNEL_ID = "completion_channel"
+    private val notificationId = 1001
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -48,6 +57,7 @@ class MyAutoScheduleFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentMyAutoScheduleBinding.inflate(inflater, container, false)
+        createNotificationChannel()
         return binding.root
     }
 
@@ -79,11 +89,8 @@ class MyAutoScheduleFragment : Fragment() {
         }
 
         binding.chrono.setOnClickListener {
-            findNavController().navigate(
-                R.id.action_fragment_my_auto_schedule_to_navigation_cronotimer,
-            )
+            findNavController().navigate(R.id.action_fragment_my_auto_schedule_to_navigation_cronotimer)
         }
-        // bottone per aggiungere esercizi
         binding.btnFillSchedule.apply {
             visibility = VISIBLE
             setOnClickListener {
@@ -94,8 +101,49 @@ class MyAutoScheduleFragment : Fragment() {
             }
         }
 
-        // chiama nuova funzione unificata
         populateUnifiedExerciseList()
+    }
+
+    private fun createNotificationChannel() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val name = "Completion"
+            val descriptionText = "Canale per notifica fine scheda"
+            val importance = NotificationManager.IMPORTANCE_HIGH
+            val channel = NotificationChannel(CHANNEL_ID, name, importance).apply {
+                description = descriptionText
+            }
+            val notificationManager = requireContext().getSystemService(
+                Context.NOTIFICATION_SERVICE
+            ) as NotificationManager
+            notificationManager.createNotificationChannel(channel)
+        }
+    }
+
+    private fun sendCompletionNotification() {
+        // Controllo permessi su Android 13+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ContextCompat.checkSelfPermission(
+                    requireContext(),
+                    android.Manifest.permission.POST_NOTIFICATIONS
+                ) != PackageManager.PERMISSION_GRANTED
+            ) {
+                // Chiedi permesso se non già garantito
+                ActivityCompat.requestPermissions(
+                    requireActivity(),
+                    arrayOf(android.Manifest.permission.POST_NOTIFICATIONS),
+                    0
+                )
+                return
+            }
+        }
+        val builder = NotificationCompat.Builder(requireContext(), CHANNEL_ID)
+            .setSmallIcon(R.drawable.ic_notification)
+            .setContentTitle("Bravo!")
+            .setContentText("Hai terminato la scheda di oggi!")
+            .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .setAutoCancel(true)
+        NotificationManagerCompat.from(requireContext())
+            .notify(notificationId, builder.build())
     }
 
     private fun populateUnifiedExerciseList() {
@@ -104,7 +152,7 @@ class MyAutoScheduleFragment : Fragment() {
         container.removeAllViews()
 
         val categories = listOf("bodybuilding", "cardio", "corpo_libero", "stretching")
-        val unifiedList = mutableListOf<Triple<String, String, String>>() // nome, categoria, id
+        val unifiedList = mutableListOf<Triple<String, String, String>>()
         var completedFetches = 0
 
         for (category in categories) {
@@ -123,6 +171,7 @@ class MyAutoScheduleFragment : Fragment() {
                     completedFetches++
                     if (completedFetches == categories.size) {
                         showUnifiedList(container, unifiedList)
+                        if (unifiedList.isEmpty()) sendCompletionNotification()
                     }
                 }
                 .addOnFailureListener {
@@ -144,7 +193,7 @@ class MyAutoScheduleFragment : Fragment() {
             }
 
             val text = TextView(requireContext()).apply {
-                text = "○ $nome" // solo il nome visibile fuori dalla card
+                text = "○ $nome"
                 setTextColor(ContextCompat.getColor(requireContext(), android.R.color.white))
                 layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
             }
@@ -157,7 +206,7 @@ class MyAutoScheduleFragment : Fragment() {
 
             val cardView = LayoutInflater.from(requireContext())
                 .inflate(R.layout.exercise_info_card, container, false) as CardView
-            cardView.visibility = View.GONE
+            cardView.visibility = GONE
 
             val titleText = cardView.findViewById<TextView>(R.id.cardExerciseTitle)
             val setsRepsText = cardView.findViewById<TextView>(R.id.cardSetsReps)
@@ -166,7 +215,6 @@ class MyAutoScheduleFragment : Fragment() {
 
             titleText.text = nome
 
-            // 🔥 Recupera set, rep, peso dalla categoria corretta
             db.collection("schede_giornaliere")
                 .document(user)
                 .collection(selectedDateId)
@@ -179,22 +227,42 @@ class MyAutoScheduleFragment : Fragment() {
                     val rip = doc.getLong("numeroRipetizioni")?.toString() ?: "-"
                     val peso = doc.getDouble("peso")
                     setsRepsText.text = "Serie: $serie  |  Ripetizioni: $rip"
+
+                    setsRepsText.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.tick, 0)
+                    setsRepsText.compoundDrawablePadding = 16
+                    setsRepsText.setOnClickListener {
+                        db.collection("schede_giornaliere")
+                            .document(user)
+                            .collection(selectedDateId)
+                            .document(categoria)
+                            .collection("esercizi")
+                            .document(docId)
+                            .delete()
+                            .addOnSuccessListener {
+                                Toast.makeText(requireContext(), "Esercizio eliminato", Toast.LENGTH_SHORT).show()
+                                container.removeView(itemLayout)
+                                container.removeView(cardView)
+                                if (container.childCount == 0) sendCompletionNotification()
+                            }
+                            .addOnFailureListener {
+                                Toast.makeText(requireContext(), "Errore eliminazione", Toast.LENGTH_SHORT).show()
+                            }
+                    }
+
                     if (peso != null) pesoInput.setText(peso.toString())
                 }
 
             infoButton.setOnClickListener {
-                cardView.visibility = if (cardView.visibility == View.GONE) View.VISIBLE else View.GONE
+                cardView.visibility = if (cardView.visibility == GONE) VISIBLE else GONE
             }
 
             saveButton.setOnClickListener {
-                val peso = pesoInput.text.toString().toFloatOrNull()
-                if (peso == null) {
+                val pesoVal = pesoInput.text.toString().toFloatOrNull()
+                if (pesoVal == null) {
                     Toast.makeText(requireContext(), "Inserisci un peso valido", Toast.LENGTH_SHORT).show()
                     return@setOnClickListener
                 }
-
-                val data = mapOf("peso" to peso)
-
+                val data = mapOf("peso" to pesoVal)
                 db.collection("schede_giornaliere")
                     .document(user)
                     .collection(selectedDateId)
@@ -215,72 +283,6 @@ class MyAutoScheduleFragment : Fragment() {
 
             container.addView(itemLayout)
             container.addView(cardView)
-        }
-    }
-
-
-    private fun toggleAndPopulate(
-        category: String,
-        container: LinearLayout
-    ) {
-        val user = currentUserName ?: return
-        if (container.visibility == GONE) {
-            container.visibility = VISIBLE
-            container.removeAllViews()
-
-            db.collection("schede_giornaliere")
-                .document(user)
-                .collection(selectedDateId)
-                .document(category)
-                .collection("esercizi")
-                .get()
-                .addOnSuccessListener { snap ->
-                    if (snap.isEmpty) return@addOnSuccessListener
-
-                    val byMuscle = snap.documents.groupBy {
-                        it.getString("muscoloPrincipale") ?: "Altro"
-                    }
-                    byMuscle.forEach { (muscle, exercises) ->
-                        val header = TextView(requireContext()).apply {
-                            text = muscle.uppercase()
-                            typeface = Typeface.DEFAULT_BOLD
-                            setTextColor(ContextCompat.getColor(requireContext(), R.color.sky))
-                            setPadding(40, 30, 0, 0)
-                        }
-                        container.addView(header)
-
-                        container.addView(View(requireContext()).apply {
-                            layoutParams = LinearLayout.LayoutParams(
-                                LinearLayout.LayoutParams.MATCH_PARENT, 3
-                            ).apply { setMargins(40, 16, 40, 16) }
-                            setBackgroundColor(
-                                ContextCompat.getColor(requireContext(), R.color.dark_gray)
-                            )
-                        })
-
-                        exercises.forEach { doc ->
-                            val nome = doc.getString("nomeEsercizio") ?: doc.id
-                            val serie = doc.getLong("numeroSerie")?.toString() ?: "0"
-                            val rep = doc.getLong("numeroRipetizioni")?.toString() ?: "0"
-                            val item = TextView(requireContext()).apply {
-                                text = "○ $nome  |  Serie: $serie  •  Rep: $rep"
-                                setTextColor(ContextCompat.getColor(requireContext(), android.R.color.white))
-                                setPadding(36, 4, 8, 16)
-                            }
-                            container.addView(item)
-                        }
-                    }
-                }
-                .addOnFailureListener {
-                    Toast.makeText(
-                        requireContext(),
-                        "Errore nel caricamento degli esercizi",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                }
-
-        } else {
-            container.visibility = GONE
         }
     }
 

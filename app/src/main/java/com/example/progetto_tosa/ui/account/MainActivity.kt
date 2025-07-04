@@ -1,19 +1,12 @@
 package com.example.progetto_tosa.ui.account
 
 import android.Manifest
-import android.app.NotificationChannel
-import android.app.NotificationManager
-import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
-import androidx.core.app.ActivityCompat
-import androidx.core.app.NotificationCompat
-import androidx.core.app.NotificationManagerCompat
+import androidx.core.content.ContextCompat
 import androidx.core.view.WindowCompat
 import com.example.progetto_tosa.R
 import com.example.progetto_tosa.databinding.ActivityMainBinding
@@ -22,6 +15,13 @@ import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
+import android.content.Context
+import android.content.res.ColorStateList
+import androidx.core.app.ActivityCompat
+import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationManagerCompat
+import android.app.NotificationChannel
+import android.app.NotificationManager
 
 class MainActivity : AppCompatActivity() {
 
@@ -56,19 +56,43 @@ class MainActivity : AppCompatActivity() {
         )
         setupActionBarWithNavController(navController, appBarConfiguration)
         navView.setupWithNavController(navController)
-        navView.itemIconTintList = null
+
+        // Gestione colori icone programmatica
+        val states = arrayOf(
+            intArrayOf(android.R.attr.state_checked),
+            intArrayOf(-android.R.attr.state_checked)
+        )
+        val colors = intArrayOf(
+            ContextCompat.getColor(this, R.color.sky), // selezionato
+            ContextCompat.getColor(this, R.color.white)      // non selezionato
+        )
+        val colorStateList = ColorStateList(states, colors)
+        navView.itemIconTintList = colorStateList
+        navView.itemTextColor = colorStateList
+
         navView.setOnItemSelectedListener { item ->
             when (item.itemId) {
-                R.id.navigation_home -> { navController.navigate(R.id.navigation_home); true }
-                R.id.navigation_workout -> { navController.navigate(R.id.fragment_workout); true }
-                R.id.navigation_cronotimer -> { navController.navigate(R.id.navigation_cronotimer); true }
-                R.id.navigation_account -> { navController.navigate(R.id.navigation_account); true }
+                R.id.navigation_home -> {
+                    navController.navigate(R.id.navigation_home)
+                    true
+                }
+                R.id.navigation_workout -> {
+                    navController.navigate(R.id.fragment_workout)
+                    true
+                }
+                R.id.navigation_cronotimer -> {
+                    navController.navigate(R.id.navigation_cronotimer)
+                    true
+                }
+                R.id.navigation_account -> {
+                    navController.navigate(R.id.navigation_account)
+                    true
+                }
                 else -> false
             }
         }
-        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
 
-        // 🔔 notifiche
+        // notifiche
         createNotificationChannel()
         requestNotificationPermission()
         sendNotification()
@@ -88,7 +112,7 @@ class MainActivity : AppCompatActivity() {
                 description = descriptionText
             }
             val notificationManager: NotificationManager =
-                getSystemService(NOTIFICATION_SERVICE) as NotificationManager
+                getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
             notificationManager.createNotificationChannel(channel)
         }
     }

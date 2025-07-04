@@ -3,22 +3,22 @@
 
     <item
         android:id="@+id/navigation_home"
-        android:icon="@drawable/ic_home_black_24dp"
-        android:title="@string/title_home" />
+        android:icon="@drawable/baseline_auto_awesome_mosaic_24"
+        android:title="" />
 
     <item
         android:id="@+id/navigation_workout"
-        android:icon="@drawable/workout"
-        android:title="@string/title_workout" />
+        android:icon="@drawable/icons8_workout_50"
+        android:title="" />
 
     <item
         android:id="@+id/navigation_cronotimer"
-        android:icon="@drawable/ic_tools"
-        android:title="Timer" />
+        android:icon="@drawable/cronometro"
+        android:title="" />
 
     <item
         android:id="@+id/navigation_account"
-        android:icon="@drawable/account"
-        android:title="@string/title_account" />
+        android:icon="@drawable/baseline_account_circle_24"
+        android:title="" />
 
 </menu>
