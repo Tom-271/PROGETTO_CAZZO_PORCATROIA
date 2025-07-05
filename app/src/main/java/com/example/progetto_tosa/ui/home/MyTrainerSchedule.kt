@@ -121,11 +121,11 @@ class MyTrainerSchedule : Fragment(R.layout.fragment_my_trainer_schedule) {
 
     private fun populateUnifiedExerciseList() {
         val user = selectedUserId
-        // Trovo il LinearLayout interno al CardView dove mettere gli esercizi
         val cardInner = binding.exerciseTitle.parent as LinearLayout
 
-        val unifiedList = mutableListOf<Triple<String, String, String>>()  // nome, categoria, docId
-        val categories = listOf("bodybuilding", "cardio", "corpo_libero", "stretching")
+        val unifiedList = mutableListOf<Triple<String, String, String>>()
+        // usa il trattino, non il underscore
+        val categories = listOf("bodybuilding", "cardio", "corpo-libero", "stretching")
         var completedFetches = 0
 
         for (cat in categories) {
@@ -134,13 +134,14 @@ class MyTrainerSchedule : Fragment(R.layout.fragment_my_trainer_schedule) {
                 .collection(dateId)
                 .document(cat)
                 .collection("esercizi")
-                .orderBy("createdAt")
                 .get()
                 .addOnSuccessListener { snap ->
                     for (doc in snap.documents) {
                         val nome = doc.getString("nomeEsercizio") ?: doc.id
                         unifiedList.add(Triple(nome, cat, doc.id))
                     }
+                }
+                .addOnCompleteListener {
                     completedFetches++
                     if (completedFetches == categories.size) {
                         showUnifiedList(cardInner, unifiedList)
@@ -152,9 +153,14 @@ class MyTrainerSchedule : Fragment(R.layout.fragment_my_trainer_schedule) {
                         "Errore caricamento categoria $cat",
                         Toast.LENGTH_SHORT
                     ).show()
+                    completedFetches++
+                    if (completedFetches == categories.size) {
+                        showUnifiedList(cardInner, unifiedList)
+                    }
                 }
         }
     }
+
 
     private fun showUnifiedList(
         container: LinearLayout,
