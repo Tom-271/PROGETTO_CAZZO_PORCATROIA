@@ -3,47 +3,55 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:layout_marginTop="70dp"
     android:fillViewport="true"
     android:clipToPadding="false"
-    android:paddingBottom="16dp">
+    android:padding="16dp">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:paddingStart="16dp"
-        android:paddingEnd="16dp">
+        android:layout_height="wrap_content">
 
+        <!-- Titolo -->
         <TextView
             android:id="@+id/titoloMain"
             android:layout_width="0dp"
-            android:layout_height="100dp"
+            android:layout_height="wrap_content"
             android:gravity="center"
             android:text="SELEZIONA L'ALLENAMENTO!"
+            android:layout_marginTop="30dp"
             android:textColor="@color/sky"
             android:textSize="20sp"
             android:textStyle="bold"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.0"
+            android:paddingTop="16dp"
+            android:paddingBottom="16dp"
+            app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintEnd_toEndOf="parent"/>
 
-        <!-- BTN4 (Stretching) in alto a sinistra -->
+        <!-- Flow: dispone le 4 card in 2 colonne×2 righe con gap omogenei -->
+        <androidx.constraintlayout.helper.widget.Flow
+            android:id="@+id/flow"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            app:constraint_referenced_ids="btnItem4,btnItem3,btnItem1,btnItem2"
+            app:flow_wrapMode="chain"
+            app:flow_maxElementsWrap="2"
+            app:flow_horizontalGap="8dp"
+            app:flow_verticalGap="8dp"
+            app:layout_constraintTop_toBottomOf="@id/titoloMain"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <!-- CARD: STRETCHING -->
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/btnItem4"
             android:layout_width="0dp"
             android:layout_height="250dp"
-            android:layout_marginTop="16dp"
             android:clickable="true"
             android:focusable="true"
-            android:elevation="8dp"
             app:cardCornerRadius="20dp"
             app:strokeWidth="1dp"
             app:strokeColor="@color/dark_gray"
-            app:layout_constraintTop_toBottomOf="@id/titoloMain"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toStartOf="@id/btnItem3"
-            app:layout_constraintHorizontal_weight="1"
             app:cardBackgroundColor="@android:color/transparent">
 
             <ImageButton
@@ -59,47 +67,39 @@
                 android:layout_width="match_parent"
                 android:layout_height="100dp"
                 android:alpha="0.6"
-                android:background="@color/dark_gray"
-                android:layout_gravity="center_vertical">
+                android:layout_gravity="center_vertical"
+                android:background="@color/dark_gray">
 
                 <View
                     android:id="@+id/separatorStretching"
                     android:layout_width="120dp"
                     android:layout_height="2dp"
-                    android:layout_marginTop="80dp"
                     android:layout_gravity="top|center_horizontal"
+                    android:layout_marginTop="80dp"
                     android:background="@color/light_gray" />
             </FrameLayout>
 
             <TextView
                 android:layout_width="match_parent"
-                android:layout_height="125dp"
+                android:layout_height="match_parent"
                 android:gravity="center"
                 android:text="STRETCHING"
                 android:textColor="@android:color/white"
                 android:letterSpacing="0.1"
                 android:textSize="18sp"
-                android:textStyle="bold"
-                android:layout_gravity="center_vertical" />
-
+                android:textStyle="bold" />
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- BTN3 (Cardio) in alto a destra -->
+        <!-- CARD: CARDIO -->
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/btnItem3"
             android:layout_width="0dp"
             android:layout_height="250dp"
-            android:layout_marginTop="16dp"
             android:clickable="true"
             android:focusable="true"
-            android:elevation="8dp"
             app:cardCornerRadius="20dp"
             app:strokeWidth="1dp"
             app:strokeColor="@color/dark_gray"
-            app:layout_constraintTop_toBottomOf="@id/titoloMain"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@id/btnItem4"
-            app:layout_constraintHorizontal_weight="1"
             app:cardBackgroundColor="@android:color/transparent">
 
             <ImageButton
@@ -115,47 +115,39 @@
                 android:layout_width="match_parent"
                 android:layout_height="100dp"
                 android:alpha="0.6"
-                android:background="@color/dark_gray"
-                android:layout_gravity="center_vertical">
+                android:layout_gravity="center_vertical"
+                android:background="@color/dark_gray">
 
                 <View
                     android:id="@+id/separatorCardio"
                     android:layout_width="120dp"
                     android:layout_height="2dp"
-                    android:layout_marginTop="80dp"
                     android:layout_gravity="top|center_horizontal"
+                    android:layout_marginTop="80dp"
                     android:background="@color/light_gray" />
             </FrameLayout>
 
             <TextView
                 android:layout_width="match_parent"
-                android:layout_height="125dp"
+                android:layout_height="match_parent"
                 android:gravity="center"
                 android:text="CARDIO"
                 android:letterSpacing="0.1"
                 android:textColor="@android:color/white"
                 android:textSize="18sp"
-                android:textStyle="bold"
-                android:layout_gravity="center_vertical" />
-
+                android:textStyle="bold" />
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- BTN1 (Pesi) in basso a sinistra -->
+        <!-- CARD: PESI -->
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/btnItem1"
             android:layout_width="0dp"
             android:layout_height="250dp"
-            android:layout_marginTop="16dp"
             android:clickable="true"
             android:focusable="true"
-            android:elevation="8dp"
             app:cardCornerRadius="20dp"
             app:strokeWidth="1dp"
             app:strokeColor="@color/dark_gray"
-            app:layout_constraintTop_toBottomOf="@id/btnItem4"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toStartOf="@id/btnItem2"
-            app:layout_constraintHorizontal_weight="1"
             app:cardBackgroundColor="@android:color/transparent">
 
             <ImageButton
@@ -171,47 +163,39 @@
                 android:layout_width="match_parent"
                 android:layout_height="100dp"
                 android:alpha="0.6"
-                android:background="@color/dark_gray"
-                android:layout_gravity="center_vertical">
+                android:layout_gravity="center_vertical"
+                android:background="@color/dark_gray">
 
                 <View
                     android:id="@+id/separatorPesi"
                     android:layout_width="120dp"
                     android:layout_height="2dp"
-                    android:layout_marginTop="80dp"
                     android:layout_gravity="top|center_horizontal"
+                    android:layout_marginTop="80dp"
                     android:background="@color/light_gray" />
             </FrameLayout>
 
             <TextView
                 android:layout_width="match_parent"
-                android:layout_height="100dp"
+                android:layout_height="match_parent"
                 android:gravity="center"
                 android:text="PESI"
                 android:letterSpacing="0.1"
                 android:textColor="@android:color/white"
                 android:textSize="18sp"
-                android:textStyle="bold"
-                android:layout_gravity="center_vertical" />
-
+                android:textStyle="bold" />
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- BTN2 (Corpo Libero) in basso a destra -->
+        <!-- CARD: CORPO LIBERO -->
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/btnItem2"
             android:layout_width="0dp"
             android:layout_height="250dp"
-            android:layout_marginTop="16dp"
             android:clickable="true"
             android:focusable="true"
-            android:elevation="8dp"
+            app:cardCornerRadius="20dp"
             app:strokeWidth="1dp"
             app:strokeColor="@color/dark_gray"
-            app:cardCornerRadius="20dp"
-            app:layout_constraintTop_toBottomOf="@id/btnItem3"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@id/btnItem1"
-            app:layout_constraintHorizontal_weight="1"
             app:cardBackgroundColor="@android:color/transparent">
 
             <ImageButton
@@ -227,65 +211,46 @@
                 android:layout_width="match_parent"
                 android:layout_height="100dp"
                 android:alpha="0.6"
-                android:background="@color/dark_gray"
-                android:layout_gravity="center_vertical">
+                android:layout_gravity="center_vertical"
+                android:background="@color/dark_gray">
 
                 <View
                     android:id="@+id/separatorCorpo"
                     android:layout_width="120dp"
                     android:layout_height="2dp"
-                    android:layout_marginTop="80dp"
                     android:layout_gravity="top|center_horizontal"
+                    android:layout_marginTop="80dp"
                     android:background="@color/light_gray" />
             </FrameLayout>
 
             <TextView
                 android:layout_width="match_parent"
-                android:layout_height="125dp"
+                android:layout_height="match_parent"
                 android:gravity="center"
                 android:text="CORPO LIBERO"
                 android:letterSpacing="0.1"
                 android:textColor="@android:color/white"
                 android:textSize="18sp"
-                android:textStyle="bold"
-                android:layout_gravity="center_vertical" />
+                android:textStyle="bold" />
         </com.google.android.material.card.MaterialCardView>
 
+        <!-- Suggerimenti -->
         <TextView
             android:id="@+id/suggerimenti"
             android:layout_width="0dp"
-            android:layout_height="125dp"
-            android:layout_marginTop="8dp"
+            android:layout_height="wrap_content"
             android:alpha="0.7"
             android:gravity="center_horizontal"
             android:letterSpacing="0.1"
             android:padding="10dp"
-            android:text="Suggerimenti: "
+            android:text="Suggerimenti:"
             android:textColor="@color/white"
             android:textSize="18sp"
             android:textStyle="bold"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.0"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/btnItem1" />
-
-        <ViewFlipper
-            android:id="@+id/vfTips"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textColor="@color/dark_gray"
-            android:textSize="12dp"
-            android:alpha="0.7"
-            android:layout_marginTop="60dp"
-            android:gravity="center_horizontal"
-            android:padding="2dp"
-            app:layout_constraintTop_toBottomOf="@id/btnItem1"
+            app:layout_constraintTop_toBottomOf="@id/flow"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            android:flipInterval="4000"
-            android:autoStart="true"
-            android:inAnimation="@android:anim/slide_in_left"
-            android:outAnimation="@android:anim/slide_out_right" />
+            android:layout_marginTop="8dp"/>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </ScrollView>

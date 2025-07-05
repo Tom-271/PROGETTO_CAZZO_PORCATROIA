@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:padding="16dp">
@@ -54,174 +53,78 @@
                 android:text="Avanti ⟶" />
         </LinearLayout>
 
-        <!-- Container giorni -->
-        <LinearLayout
-            android:id="@+id/daysContainer"
+        <!-- Qui sostituiamo daysContainer con un ToggleGroup verticale -->
+        <com.google.android.material.button.MaterialButtonToggleGroup
+            android:id="@+id/daysToggleGroup"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:layout_marginTop="16dp"
             android:layout_marginLeft="20dp"
             android:layout_marginRight="20dp"
+            app:singleSelection="true"
+            app:selectionRequired="true"
             app:layout_constraintTop_toBottomOf="@id/weekNavButtons"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent">
 
-            <!-- Ripeti per ogni giorno -->
-            <com.google.android.material.card.MaterialCardView
-                android:id="@+id/cardMonday"
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnMonday"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="12dp"
-                android:backgroundTint="@color/light_gray"
-                app:cardCornerRadius="16dp"
-                app:strokeWidth="1dp"
-                app:strokeColor="@color/navy_blue">
+                android:text="LUNEDÌ" />
 
-                <TextView
-                    android:id="@+id/textMonday"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:padding="16dp"
-                    android:text="LUNEDÌ"
-                    android:textAlignment="center"
-                    android:textColor="@color/black"
-                    android:textSize="16sp"
-                    android:textStyle="bold" />
-            </com.google.android.material.card.MaterialCardView>
-
-            <com.google.android.material.card.MaterialCardView
-                android:id="@+id/cardTuesday"
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnTuesday"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="12dp"
-                android:backgroundTint="@color/light_gray"
-                app:cardCornerRadius="16dp"
-                app:strokeWidth="1dp"
-                app:strokeColor="@color/navy_blue">
+                android:text="MARTEDÌ" />
 
-                <TextView
-                    android:id="@+id/textTuesday"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:padding="16dp"
-                    android:text="MARTEDÌ"
-                    android:textAlignment="center"
-                    android:textColor="@color/black"
-                    android:textSize="16sp"
-                    android:textStyle="bold" />
-            </com.google.android.material.card.MaterialCardView>
-
-            <com.google.android.material.card.MaterialCardView
-                android:id="@+id/cardWednesday"
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnWednesday"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="12dp"
-                android:backgroundTint="@color/light_gray"
-                app:cardCornerRadius="16dp"
-                app:strokeWidth="1dp"
-                app:strokeColor="@color/navy_blue">
+                android:text="MERCOLEDÌ" />
 
-                <TextView
-                    android:id="@+id/textWednesday"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:padding="16dp"
-                    android:text="MERCOLEDÌ"
-                    android:textAlignment="center"
-                    android:textColor="@color/black"
-                    android:textSize="16sp"
-                    android:textStyle="bold" />
-            </com.google.android.material.card.MaterialCardView>
-
-            <com.google.android.material.card.MaterialCardView
-                android:id="@+id/cardThursday"
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnThursday"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="12dp"
-                android:backgroundTint="@color/light_gray"
-                app:cardCornerRadius="16dp"
-                app:strokeWidth="1dp"
-                app:strokeColor="@color/navy_blue">
+                android:text="GIOVEDÌ" />
 
-                <TextView
-                    android:id="@+id/textThursday"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:padding="16dp"
-                    android:text="GIOVEDÌ"
-                    android:textAlignment="center"
-                    android:textColor="@color/black"
-                    android:textSize="16sp"
-                    android:textStyle="bold" />
-            </com.google.android.material.card.MaterialCardView>
-
-            <com.google.android.material.card.MaterialCardView
-                android:id="@+id/cardFriday"
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnFriday"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="12dp"
-                android:backgroundTint="@color/light_gray"
-                app:cardCornerRadius="16dp"
-                app:strokeWidth="1dp"
-                app:strokeColor="@color/navy_blue">
+                android:text="VENERDÌ" />
 
-                <TextView
-                    android:id="@+id/textFriday"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:padding="16dp"
-                    android:text="VENERDÌ"
-                    android:textAlignment="center"
-                    android:textColor="@color/black"
-                    android:textSize="16sp"
-                    android:textStyle="bold" />
-            </com.google.android.material.card.MaterialCardView>
-
-            <com.google.android.material.card.MaterialCardView
-                android:id="@+id/cardSaturday"
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnSaturday"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="12dp"
-                android:backgroundTint="@color/light_gray"
-                app:cardCornerRadius="16dp"
-                app:strokeWidth="1dp"
-                app:strokeColor="@color/navy_blue">
+                android:text="SABATO" />
 
-                <TextView
-                    android:id="@+id/textSaturday"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:padding="16dp"
-                    android:text="SABATO"
-                    android:textAlignment="center"
-                    android:textColor="@color/black"
-                    android:textSize="16sp"
-                    android:textStyle="bold" />
-            </com.google.android.material.card.MaterialCardView>
-
-            <com.google.android.material.card.MaterialCardView
-                android:id="@+id/cardSunday"
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnSunday"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="12dp"
-                android:backgroundTint="@color/light_gray"
-                app:cardCornerRadius="16dp"
-                app:strokeWidth="1dp"
-                app:strokeColor="@color/navy_blue">
+                android:text="DOMENICA" />
 
-                <TextView
-                    android:id="@+id/textSunday"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:padding="16dp"
-                    android:text="DOMENICA"
-                    android:textAlignment="center"
-                    android:textColor="@color/black"
-                    android:textSize="16sp"
-                    android:textStyle="bold" />
-            </com.google.android.material.card.MaterialCardView>
-        </LinearLayout>
+        </com.google.android.material.button.MaterialButtonToggleGroup>
 
         <!-- Bottone finale -->
         <com.google.android.material.button.MaterialButton
@@ -238,7 +141,7 @@
             app:strokeWidth="0.6dp"
             android:textColor="@color/white"
             app:cornerRadius="16dp"
-            app:layout_constraintTop_toBottomOf="@id/daysContainer"
+            app:layout_constraintTop_toBottomOf="@id/daysToggleGroup"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent" />
 

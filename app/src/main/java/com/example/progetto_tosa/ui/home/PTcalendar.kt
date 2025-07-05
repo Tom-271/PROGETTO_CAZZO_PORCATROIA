@@ -5,15 +5,13 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
 import android.widget.Toast
-import androidx.core.content.ContextCompat
 import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import com.example.progetto_tosa.R
 import com.example.progetto_tosa.databinding.FragmentPtCalendarBinding
-import com.google.android.material.card.MaterialCardView
+import com.google.android.material.button.MaterialButtonToggleGroup
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -27,13 +25,11 @@ class PTcalendar : Fragment() {
     private var dateId: String? = null
     private var isPT: Boolean = false
 
-    // tengono traccia della selezione corrente
-    private var selectedCard: MaterialCardView? = null
-    private var selectedText: TextView? = null
+    // Mappa buttonId → dayOffset
+    private val buttonInfo = mutableMapOf<Int, Int>()
 
     override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
+        inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentPtCalendarBinding.inflate(inflater, container, false)
@@ -42,46 +38,37 @@ class PTcalendar : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        // 1) recupera l’utente selezionato
+        // setup utente e ruolo
         selectedUser = arguments?.getString("selectedUser")
-        // 2) recupera il ruolo
         val prefs = requireActivity()
             .getSharedPreferences("user_data", Context.MODE_PRIVATE)
         isPT = prefs.getBoolean("is_trainer", false)
 
-        // 3) imposta il titolo
         binding.textUserTitle.text = selectedUser ?: getString(R.string.app_name)
-
-        // 4) stato iniziale
-        dateId = null
         binding.btnFancy.visibility = View.INVISIBLE
         binding.btnFancy.text = if (isPT)
             "Compila la scheda al tuo allievo!"
         else
             "Visualizza la scheda che il PT ha fatto per te!"
 
-        // 5) popola i giorni
         setupDays()
+        setupNavButtons()
+    }
 
-        // 6) prev/next settimana
+    private fun setupNavButtons() {
         binding.btnPrevWeek.setOnClickListener {
             weekOffset--
             resetSelection()
+            setupDays()
         }
         binding.btnNextWeek.setOnClickListener {
             weekOffset++
             resetSelection()
+            setupDays()
         }
-
-        // 7) click sul bottone
         binding.btnFancy.setOnClickListener {
             if (dateId == null) {
-                Toast.makeText(
-                    requireContext(),
-                    "Seleziona prima una data",
-                    Toast.LENGTH_SHORT
-                ).show()
+                Toast.makeText(requireContext(), "Seleziona prima una data", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
             findNavController().navigate(
@@ -95,22 +82,6 @@ class PTcalendar : Fragment() {
         }
     }
 
-    private fun resetSelection() {
-        // deseleziona visivamente
-        selectedCard?.setCardBackgroundColor(
-            ContextCompat.getColor(requireContext(), R.color.light_gray)
-        )
-        selectedText?.setTextColor(
-            ContextCompat.getColor(requireContext(), R.color.black)
-        )
-        selectedCard = null
-        selectedText = null
-
-        dateId = null
-        binding.btnFancy.visibility = View.INVISIBLE
-        setupDays()
-    }
-
     private fun setupDays() {
         val cal = Calendar.getInstance().apply {
             set(Calendar.DAY_OF_WEEK, Calendar.MONDAY)
@@ -119,50 +90,49 @@ class PTcalendar : Fragment() {
         val labelFmt = SimpleDateFormat("EEEE d MMMM", Locale("it", "IT"))
         val idFmt    = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
 
-        // colori
-        val defaultBg = ContextCompat.getColor(requireContext(), R.color.light_gray)
-        val defaultText = ContextCompat.getColor(requireContext(), R.color.black)
-        val selBg = ContextCompat.getColor(requireContext(), R.color.navy_blue)
-        val selText = ContextCompat.getColor(requireContext(), R.color.sky)
+        // I 7 MaterialButton all'interno del ToggleGroup
+        val buttons = listOf(
+            binding.btnMonday,
+            binding.btnTuesday,
+            binding.btnWednesday,
+            binding.btnThursday,
+            binding.btnFriday,
+            binding.btnSaturday,
+            binding.btnSunday
+        )
 
-        listOf(
-            Triple(binding.cardMonday,    binding.textMonday,    0),
-            Triple(binding.cardTuesday,   binding.textTuesday,   1),
-            Triple(binding.cardWednesday, binding.textWednesday, 2),
-            Triple(binding.cardThursday,  binding.textThursday,  3),
-            Triple(binding.cardFriday,    binding.textFriday,    4),
-            Triple(binding.cardSaturday,  binding.textSaturday,  5),
-            Triple(binding.cardSunday,    binding.textSunday,    6)
-        ).forEach { (card, text, offset) ->
-            // calcolo data
-            val d = (cal.clone() as Calendar).apply { add(Calendar.DAY_OF_YEAR, offset) }
-            text.text = labelFmt.format(d.time).replaceFirstChar { it.uppercase() }
+        buttonInfo.clear()
+        buttons.forEachIndexed { idx, btn ->
+            val d = (cal.clone() as Calendar).apply { add(Calendar.DAY_OF_YEAR, idx) }
+            btn.text = labelFmt.format(d.time).replaceFirstChar { it.uppercase() }
+            buttonInfo[btn.id] = idx
+        }
 
-            card.setOnClickListener {
-                // deseleziona precedente
-                selectedCard?.setCardBackgroundColor(defaultBg)
-                selectedText?.setTextColor(defaultText)
-
-                // seleziona questo
-                card.setCardBackgroundColor(selBg)
-                text.setTextColor(selText)
-                selectedCard = card
-                selectedText = text
-
-                // salva ID e mostra bottone
+        // Listener sul ToggleGroup
+        binding.daysToggleGroup.clearOnButtonCheckedListeners()
+        binding.daysToggleGroup.addOnButtonCheckedListener { group, checkedId, isChecked ->
+            if (isChecked) {
+                // calcola dataId dal dayOffset
+                val offset = buttonInfo[checkedId]!!
+                val d = (cal.clone() as Calendar).apply { add(Calendar.DAY_OF_YEAR, offset) }
                 dateId = idFmt.format(d.time)
                 binding.btnFancy.visibility = View.VISIBLE
+            } else if (group.checkedButtonId == View.NO_ID) {
+                // nessuna selezione
+                dateId = null
+                binding.btnFancy.visibility = View.INVISIBLE
             }
         }
+    }
+
+    private fun resetSelection() {
+        binding.daysToggleGroup.clearChecked()
+        dateId = null
+        binding.btnFancy.visibility = View.INVISIBLE
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
-    }
-
-    override fun onResume() {
-        super.onResume()
-        resetSelection()
     }
 }
