@@ -50,13 +50,11 @@ class MyTrainerSchedule : Fragment(R.layout.fragment_my_trainer_schedule) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // 1) Leggo argomenti
         selectedUserId = requireArguments().getString("selectedUser")
             ?: error("selectedUser mancante")
         dateId = requireArguments().getString("selectedDate")
             ?: error("selectedDate mancante")
 
-        // 2) Titolo con data
         val inFmt = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
         val outFmt = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
         val dispDate = outFmt.format(inFmt.parse(dateId)!!)
@@ -68,25 +66,23 @@ class MyTrainerSchedule : Fragment(R.layout.fragment_my_trainer_schedule) {
                 "La scheda che mi ha preparato il PT del: $dispDate"
             visibility = VISIBLE
         }
-        binding.chrono.setOnClickListener {
 
-        findNavController().navigate(
-            R.id.action_fragment_my_trainer_schedule_to_navigation_cronotimer,
-        )
+        binding.chrono.setOnClickListener {
+            findNavController().navigate(
+                R.id.action_fragment_my_trainer_schedule_to_navigation_cronotimer,
+            )
         }
-        // 3) Mostro btnFillSchedule solo se l'utente è PT
+
         binding.btnFillSchedule.visibility = GONE
         auth.currentUser?.uid?.let { uid ->
             db.collection("users").document(uid)
                 .get()
                 .addOnSuccessListener { doc ->
                     val isPT = doc.getBoolean("isPersonalTrainer") == true
-                    if (isPT)
-                    {
+                    if (isPT) {
                         showFillButton()
                         binding.chrono.visibility = GONE
-                    }
-                    else {
+                    } else {
                         db.collection("personal_trainers").document(uid)
                             .get()
                             .addOnSuccessListener { ptDoc ->
@@ -95,12 +91,10 @@ class MyTrainerSchedule : Fragment(R.layout.fragment_my_trainer_schedule) {
                                 }
                             }
                         binding.chrono.visibility = VISIBLE
-
                     }
                 }
         }
 
-        // 4) Popolo **automaticamente** tutti gli esercizi del PT
         populateUnifiedExerciseList()
     }
 
@@ -124,7 +118,6 @@ class MyTrainerSchedule : Fragment(R.layout.fragment_my_trainer_schedule) {
         val cardInner = binding.exerciseTitle.parent as LinearLayout
 
         val unifiedList = mutableListOf<Triple<String, String, String>>()
-        // usa il trattino, non il underscore
         val categories = listOf("bodybuilding", "cardio", "corpo-libero", "stretching")
         var completedFetches = 0
 
@@ -161,7 +154,6 @@ class MyTrainerSchedule : Fragment(R.layout.fragment_my_trainer_schedule) {
         }
     }
 
-
     private fun showUnifiedList(
         container: LinearLayout,
         esercizi: List<Triple<String, String, String>>
@@ -169,83 +161,109 @@ class MyTrainerSchedule : Fragment(R.layout.fragment_my_trainer_schedule) {
         val user = selectedUserId
         container.removeAllViews()
 
-        for ((nome, categoria, docId) in esercizi) {
-            // Riga principale
-            val row = LinearLayout(requireContext()).apply {
-                orientation = LinearLayout.HORIZONTAL
-                setPadding(36, 4, 8, 16)
+        // Raggruppa gli esercizi per categoria
+        val eserciziPerCategoria = esercizi.groupBy { it.second }
+
+        // Ordina le categorie nell'ordine desiderato
+        val categorieOrdinate = listOf("bodybuilding", "cardio", "corpo-libero", "stretching")
+
+        for (categoria in categorieOrdinate) {
+            val eserciziCategoria = eserciziPerCategoria[categoria] ?: continue
+
+            // Aggiungi titolo della categoria
+            val titoloCategoria = TextView(requireContext()).apply {
+                text = when (categoria) {
+                    "bodybuilding" -> "BODYBUILDING"
+                    "cardio" -> "CARDIO"
+                    "corpo-libero" -> "CORPO LIBERO"
+                    "stretching" -> "STRETCHING"
+                    else -> categoria.uppercase()
+                }
+                setTextColor(ContextCompat.getColor(requireContext(), R.color.orange))
+                textSize = 18f
+                setTypeface(typeface, Typeface.BOLD)
+                setPadding(36, 24, 8, 8)
             }
-            val text = TextView(requireContext()).apply {
-                text = "○ $nome"
-                setTextColor(ContextCompat.getColor(requireContext(), android.R.color.white))
-                layoutParams = LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f)
-            }
-            val infoBtn = ImageButton(requireContext()).apply {
-                setImageResource(R.drawable.info)
-                background = null
-                layoutParams = LinearLayout.LayoutParams(100, 100)
-            }
+            container.addView(titoloCategoria)
 
-            // Card di dettaglio nascosta
-            val detailCard = LayoutInflater.from(requireContext())
-                .inflate(R.layout.exercise_info_card, container, false) as CardView
-            detailCard.visibility = GONE
-
-            val titleTv = detailCard.findViewById<TextView>(R.id.cardExerciseTitle)
-            val setsRepsTv = detailCard.findViewById<TextView>(R.id.cardSetsReps)
-            val weightInput = detailCard.findViewById<EditText>(R.id.cardWeightInput)
-            val saveBtn = detailCard.findViewById<Button>(R.id.cardSaveButton)
-
-            titleTv.text = nome
-
-            // Carico serie/rip e peso
-            db.collection("schede_del_pt")
-                .document(user)
-                .collection(dateId)
-                .document(categoria)
-                .collection("esercizi")
-                .document(docId)
-                .get()
-                .addOnSuccessListener { d ->
-                    val serie = d.getLong("numeroSerie")?.toString() ?: "-"
-                    val rip = d.getLong("numeroRipetizioni")?.toString() ?: "-"
-                    setsRepsTv.text = "Serie: $serie  |  Ripetizioni: $rip"
-                    d.getDouble("peso")?.let { weightInput.setText(it.toString()) }
+            for ((nome, _, docId) in eserciziCategoria) {
+                // Riga principale
+                val row = LinearLayout(requireContext()).apply {
+                    orientation = LinearLayout.HORIZONTAL
+                    setPadding(36, 4, 8, 16)
+                }
+                val text = TextView(requireContext()).apply {
+                    text = "○ $nome"
+                    setTextColor(ContextCompat.getColor(requireContext(), android.R.color.white))
+                    layoutParams = LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f)
+                }
+                val infoBtn = ImageButton(requireContext()).apply {
+                    setImageResource(R.drawable.info)
+                    background = null
+                    layoutParams = LinearLayout.LayoutParams(100, 100)
                 }
 
-            // Toggle visibilità del dettaglio
-            infoBtn.setOnClickListener {
-                detailCard.visibility = if (detailCard.visibility == GONE) VISIBLE else GONE
-            }
+                // Card di dettaglio nascosta
+                val detailCard = LayoutInflater.from(requireContext())
+                    .inflate(R.layout.exercise_info_card, container, false) as CardView
+                detailCard.visibility = GONE
 
-            // Salvataggio peso
-            saveBtn.setOnClickListener {
-                val peso = weightInput.text.toString().toFloatOrNull()
-                if (peso == null) {
-                    Toast.makeText(requireContext(), "Inserisci un peso valido", Toast.LENGTH_SHORT)
-                        .show()
-                    return@setOnClickListener
-                }
+                val titleTv = detailCard.findViewById<TextView>(R.id.cardExerciseTitle)
+                val setsRepsTv = detailCard.findViewById<TextView>(R.id.cardSetsReps)
+                val weightInput = detailCard.findViewById<EditText>(R.id.cardWeightInput)
+                val saveBtn = detailCard.findViewById<Button>(R.id.cardSaveButton)
+
+                titleTv.text = nome
+
+                // Carico serie/rip e peso
                 db.collection("schede_del_pt")
                     .document(user)
                     .collection(dateId)
                     .document(categoria)
                     .collection("esercizi")
                     .document(docId)
-                    .set(mapOf("peso" to peso), SetOptions.merge())
-                    .addOnSuccessListener {
-                        Toast.makeText(requireContext(), "Peso salvato", Toast.LENGTH_SHORT).show()
+                    .get()
+                    .addOnSuccessListener { d ->
+                        val serie = d.getLong("numeroSerie")?.toString() ?: "-"
+                        val rip = d.getLong("numeroRipetizioni")?.toString() ?: "-"
+                        setsRepsTv.text = "Serie: $serie  |  Ripetizioni: $rip"
+                        d.getDouble("peso")?.let { weightInput.setText(it.toString()) }
                     }
-                    .addOnFailureListener {
-                        Toast.makeText(requireContext(), "Errore salvataggio", Toast.LENGTH_SHORT)
-                            .show()
-                    }
-            }
 
-            row.addView(text)
-            row.addView(infoBtn)
-            container.addView(row)
-            container.addView(detailCard)
+                // Toggle visibilità del dettaglio
+                infoBtn.setOnClickListener {
+                    detailCard.visibility = if (detailCard.visibility == GONE) VISIBLE else GONE
+                }
+
+                // Salvataggio peso
+                saveBtn.setOnClickListener {
+                    val peso = weightInput.text.toString().toFloatOrNull()
+                    if (peso == null) {
+                        Toast.makeText(requireContext(), "Inserisci un peso valido", Toast.LENGTH_SHORT)
+                            .show()
+                        return@setOnClickListener
+                    }
+                    db.collection("schede_del_pt")
+                        .document(user)
+                        .collection(dateId)
+                        .document(categoria)
+                        .collection("esercizi")
+                        .document(docId)
+                        .set(mapOf("peso" to peso), SetOptions.merge())
+                        .addOnSuccessListener {
+                            Toast.makeText(requireContext(), "Peso salvato", Toast.LENGTH_SHORT).show()
+                        }
+                        .addOnFailureListener {
+                            Toast.makeText(requireContext(), "Errore salvataggio", Toast.LENGTH_SHORT)
+                                .show()
+                        }
+                }
+
+                row.addView(text)
+                row.addView(infoBtn)
+                container.addView(row)
+                container.addView(detailCard)
+            }
         }
     }
 
