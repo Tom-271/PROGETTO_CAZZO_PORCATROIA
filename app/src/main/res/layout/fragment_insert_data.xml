@@ -58,18 +58,6 @@
             android:hint="gg/mm/aaaa"
             android:focusable="false" />
 
-        <!-- Età -->
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Età" />
-        <EditText
-            android:id="@+id/editTextAge"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Es. 30"
-            android:inputType="number" />
-
         <!-- Peso -->
         <TextView
             android:layout_width="wrap_content"

@@ -218,7 +218,6 @@ class AccountFragment : Fragment() {
             binding.tvFirstLast,
             binding.tvEmail,
             binding.tvBirthday,
-            binding.tvAge,
             binding.tvWeight,
             binding.tvHeight
         ).forEach { it.visibility = View.GONE }

@@ -57,13 +57,11 @@ class InsertData : Fragment() {
             val birth = try {
                 sdf.parse(binding.editTextBirthDate.text.toString())
             } catch (e: Exception) { null }
-            val age    = binding.editTextAge.text.toString().toIntOrNull()
             val weight = binding.editTextWeight.text.toString().toDoubleOrNull()
             val height = binding.editTextHeight.text.toString().toIntOrNull()
             val bf     = binding.editTextBF.text.toString().toDoubleOrNull()
 
             if (fn.isEmpty() || ln.isEmpty() || em.isEmpty()
-                || birth == null || age == null
                 || weight == null || height == null || bf == null
             ) {
                 Toast.makeText(requireContext(),
@@ -77,7 +75,6 @@ class InsertData : Fragment() {
                 "lastName"  to ln,
                 "email"     to em,
                 "birthday"  to birth,
-                "age"       to age,
                 "weight"    to weight,
                 "height"    to height,
                 "bodyFat"   to bf
@@ -133,9 +130,6 @@ class InsertData : Fragment() {
                 doc.getTimestamp("birthday")?.toDate()?.let {
                     binding.editTextBirthDate.setText(sdf.format(it))
                 }
-                doc.getLong("age")?.toInt()?.let {
-                    binding.editTextAge.setText(it.toString())
-                }
                 doc.getDouble("weight")?.let {
                     binding.editTextWeight.setText(it.toString())
                 }
@@ -162,7 +156,6 @@ class InsertData : Fragment() {
         binding.editTextLastName .isEnabled = enabled
         binding.editTextEmail    .isEnabled = enabled
         binding.editTextBirthDate.isEnabled = enabled
-        binding.editTextAge      .isEnabled = enabled
         binding.editTextWeight   .isEnabled = enabled
         binding.editTextHeight   .isEnabled = enabled
         binding.editTextBF       .isEnabled = enabled
