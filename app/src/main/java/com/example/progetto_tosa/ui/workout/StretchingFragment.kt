@@ -1,77 +1,104 @@
 package com.example.progetto_tosa.ui.workout
 
+import android.content.Context
+import android.content.res.ColorStateList
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.progetto_tosa.R
+import com.google.android.material.button.MaterialButton
 import com.google.android.material.card.MaterialCardView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
-import com.google.android.material.button.MaterialButton
+import com.google.firebase.firestore.FirebaseFirestore
 
 class StretchingFragment : Fragment(R.layout.fragment_stretching) {
 
     data class Stretch(
+        val category: String = "stretching",
         val type: String,
         val imageRes: Int,
         val title: String,
-        val description: String
+        val description: String,
+        var setsCount: Int = 0,
+        var repsCount: Int = 0,
+        var isSetsMode: Boolean = true
     )
 
-    private val neckStretches = listOf(
-        Stretch("neck_side",    R.drawable.stretch_pols,    "Side Neck Stretch",   "Inclina la testa verso una spalla, mantieni 20s."),
-        Stretch("neck_forward", R.drawable.stretch_pols,    "Forward Neck Stretch", "Porta il mento verso il petto, mantieni 20s.")
+    private val db = FirebaseFirestore.getInstance()
+    private val selectedUser: String? by lazy { arguments?.getString("selectedUser") }
+    private val selectedDate: String? by lazy { arguments?.getString("selectedDate") }
+
+    private val neckList = mutableListOf(
+        Stretch(type="neck_side",    imageRes=R.drawable.stretch_pols,    title="Side Neck Stretch",    description="Inclina la testa verso una spalla, mantieni 20s."),
+        Stretch(type="neck_forward", imageRes=R.drawable.stretch_pols,    title="Forward Neck Stretch", description="Porta il mento verso il petto, mantieni 20s.")
     )
-    private val shoulderStretches = listOf(
-        Stretch("shoulder_cross",   R.drawable.stretch_schoulders, "Cross-Body Shoulder", "Porta un braccio al petto, tieni 20s."),
-        Stretch("shoulder_tricep",   R.drawable.stretch_arms,       "Tricep Stretch",      "Piega il gomito dietro la testa, mantieni 20s.")
+    private val shoulderList = mutableListOf(
+        Stretch(type="shoulder_cross", imageRes=R.drawable.stretch_schoulders, title="Cross-Body Shoulder", description="Porta un braccio al petto, mantieni 20s."),
+        Stretch(type="shoulder_tricep",imageRes=R.drawable.stretch_arms,       title="Tricep Stretch",      description="Piega il gomito dietro la testa, mantieni 20s.")
     )
-    private val backStretches = listOf(
-        Stretch("cat_cow",    R.drawable.stretch_back,  "Cat-Cow",    "Alterna schiena a gobba e inarcata per 8 ripetizioni."),
-        Stretch("child_pose", R.drawable.stretch_back,  "Child’s Pose","Seduto sui talloni, braccia in avanti, mantieni 30s.")
+    private val backList = mutableListOf(
+        Stretch(type="cat_cow",    imageRes=R.drawable.stretch_back, title="Cat-Cow",      description="Alterna gobba e inarcata, 8 ripetizioni."),
+        Stretch(type="child_pose", imageRes=R.drawable.stretch_back, title="Child’s Pose", description="Seduto sui talloni, braccia in avanti, mantieni 30s.")
     )
-    private val legStretches = listOf(
-        Stretch("hamstring", R.drawable.stretch_legs, "Hamstring Stretch", "Gamba distesa, piega il busto in avanti, 20s ciascuna."),
-        Stretch("quad",      R.drawable.stretch_legs, "Quad Stretch",      "Tira un piede al gluteo, mantieni 20s.")
+    private val legsList = mutableListOf(
+        Stretch(type="hamstring", imageRes=R.drawable.stretch_legs, title="Hamstring Stretch", description="Gamba distesa, busto in avanti, mantiene 20s."),
+        Stretch(type="quad",      imageRes=R.drawable.stretch_legs, title="Quad Stretch",      description="Tira un piede al gluteo, mantieni 20s.")
     )
-    private val armStretches = listOf(
-        Stretch("wrist",      R.drawable.stretch_arms, "Wrist Stretch",      "Mano a palmo, tira indietro le dita, 20s."),
-        Stretch("bicep_wall", R.drawable.stretch_arms, "Bicep Wall Stretch", "Mano su muro ruotata, mantieni 20s.")
+    private val armsList = mutableListOf(
+        Stretch(type="wrist",      imageRes=R.drawable.stretch_arms, title="Wrist Stretch",      description="Tira indietro le dita, 20s."),
+        Stretch(type="bicep_wall", imageRes=R.drawable.stretch_arms, title="Bicep Wall Stretch", description="Mano al muro, mantieni 20s.")
     )
+
+    private lateinit var neckAdapter: StretchAdapter
+    private lateinit var shoulderAdapter: StretchAdapter
+    private lateinit var backAdapter: StretchAdapter
+    private lateinit var legsAdapter: StretchAdapter
+    private lateinit var armsAdapter: StretchAdapter
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        setupSection(R.id.cardStretchNeck,      R.id.rvStretchNeck,      neckStretches)
-        setupSection(R.id.cardStretchShoulders, R.id.rvStretchShoulders, shoulderStretches)
-        setupSection(R.id.cardStretchBack,      R.id.rvStretchBack,      backStretches)
-        setupSection(R.id.cardStretchLegs,      R.id.rvStretchLegs,      legStretches)
-        setupSection(R.id.cardStretchArms,      R.id.rvStretchArms,      armStretches)
+        neckAdapter     = setupSection(view, R.id.cardStretchNeck,      R.id.rvStretchNeck,      neckList)
+        shoulderAdapter = setupSection(view, R.id.cardStretchShoulders, R.id.rvStretchShoulders, shoulderList)
+        backAdapter     = setupSection(view, R.id.cardStretchBack,      R.id.rvStretchBack,      backList)
+        legsAdapter     = setupSection(view, R.id.cardStretchLegs,      R.id.rvStretchLegs,      legsList)
+        armsAdapter     = setupSection(view, R.id.cardStretchArms,      R.id.rvStretchArms,      armsList)
+        loadSavedStretches()
     }
 
-    private fun setupSection(headerId: Int, recyclerId: Int, data: List<Stretch>) {
-        val headerCard   = requireView().findViewById<MaterialCardView>(headerId)
-        val recyclerView = requireView().findViewById<RecyclerView>(recyclerId).apply {
-            layoutManager = GridLayoutManager(requireContext(), 2)
-            adapter       = StretchAdapter(data) { openDetail(it) }
-            visibility    = View.GONE
-        }
+    private fun setupSection(
+        root: View,
+        headerId: Int,
+        recyclerId: Int,
+        data: MutableList<Stretch>
+    ): StretchAdapter {
+        val headerCard = root.findViewById<MaterialCardView>(headerId)
+        val rv         = root.findViewById<RecyclerView>(recyclerId)
+        val adapter    = StretchAdapter(data, ::openDetail, ::saveStretch)
 
+        rv.apply {
+            layoutManager = GridLayoutManager(requireContext(), 2)
+            this.adapter = adapter
+            visibility = View.GONE
+        }
         headerCard.strokeColor = ContextCompat.getColor(requireContext(), R.color.black)
         headerCard.setOnClickListener {
-            recyclerView.visibility =
-                if (recyclerView.visibility == View.VISIBLE) View.GONE else View.VISIBLE
+            rv.visibility = if (rv.visibility == View.VISIBLE) View.GONE else View.VISIBLE
         }
+        return adapter
     }
 
     private inner class StretchAdapter(
-        private val items: List<Stretch>,
-        private val onClick: (Stretch) -> Unit
+        private val items: MutableList<Stretch>,
+        private val onItemClick: (Stretch) -> Unit,
+        private val onConfirmClick: (Stretch) -> Unit
     ) : RecyclerView.Adapter<StretchAdapter.VH>() {
 
         inner class VH(view: View) : RecyclerView.ViewHolder(view) {
@@ -83,19 +110,55 @@ class StretchingFragment : Fragment(R.layout.fragment_stretching) {
             private val btnPlus     = view.findViewById<FloatingActionButton>(R.id.buttonPlus)
             private val btnMinus    = view.findViewById<FloatingActionButton>(R.id.buttonMinus)
             private val btnConfirm  = view.findViewById<MaterialButton>(R.id.buttonConfirm)
+            private val green       = ContextCompat.getColor(view.context, R.color.green)
+            private val black       = ContextCompat.getColor(view.context, R.color.black)
 
             init {
-                view.setOnClickListener {
-                    adapterPosition.takeIf { it != RecyclerView.NO_POSITION }
-                        ?.let { onClick(items[it]) }
+                btnSets.setOnClickListener  { toggleMode(true)  }
+                btnReps.setOnClickListener  { toggleMode(false) }
+                btnPlus.setOnClickListener  { adjustCount(+1)   }
+                btnMinus.setOnClickListener { adjustCount(-1)   }
+                btnConfirm.setOnClickListener {
+                    val pos = adapterPosition
+                    if (pos != RecyclerView.NO_POSITION) onConfirmClick(items[pos])
+                }
+                itemView.setOnClickListener {
+                    val pos = adapterPosition
+                    if (pos != RecyclerView.NO_POSITION && selectedDate.isNullOrBlank()) {
+                        onItemClick(items[pos])
+                    }
                 }
             }
 
+            private fun toggleMode(isSets: Boolean) {
+                val pos = adapterPosition.takeIf { it != RecyclerView.NO_POSITION } ?: return
+                items[pos].isSetsMode = isSets
+                notifyItemChanged(pos)
+            }
+
+            private fun adjustCount(delta: Int) {
+                val pos = adapterPosition.takeIf { it != RecyclerView.NO_POSITION } ?: return
+                val ex = items[pos]
+                if (ex.isSetsMode) ex.setsCount = maxOf(0, ex.setsCount + delta)
+                else               ex.repsCount = maxOf(0, ex.repsCount + delta)
+                notifyItemChanged(pos)
+            }
+
             fun bind(s: Stretch) {
-                titleTv.text = s.title
-                // Nascondi i controlli non necessari
-                listOf(btnSets, btnReps, counterSets, counterReps, btnPlus, btnMinus, btnConfirm)
-                    .forEach { it.visibility = View.GONE }
+                titleTv.text        = s.title
+                counterSets.text    = s.setsCount.toString()
+                counterReps.text    = s.repsCount.toString()
+                btnSets.isChecked   = s.isSetsMode
+                btnReps.isChecked   = !s.isSetsMode
+                btnSets.backgroundTintList = ColorStateList.valueOf(if (s.isSetsMode) green else black)
+                btnReps.backgroundTintList = ColorStateList.valueOf(if (s.isSetsMode) black else green)
+
+                val isTracking = !selectedDate.isNullOrBlank()
+                listOf(btnSets, btnReps, btnPlus, btnMinus, btnConfirm).forEach {
+                    it.visibility = if (isTracking) View.VISIBLE else View.GONE
+                }
+                counterSets.visibility = if (isTracking && s.isSetsMode) View.VISIBLE else View.GONE
+                counterReps.visibility = if (isTracking && !s.isSetsMode) View.VISIBLE else View.GONE
             }
         }
 
@@ -115,14 +178,85 @@ class StretchingFragment : Fragment(R.layout.fragment_stretching) {
     private fun openDetail(s: Stretch) {
         ExerciseDetailFragment.newInstance(
             s.title,
-            "",              // niente video
+            "", // no video
             s.description,
-            "", "",          // sottotitoli secondari vuoti
+            "", "", // no secondary subtitles
             s.imageRes,
             s.imageRes,
             s.imageRes,
             s.description
-        ).show((requireActivity() as FragmentActivity).supportFragmentManager,
-            "stretch_detail")
+        ).show((requireActivity() as FragmentActivity).supportFragmentManager, "stretch_detail")
+    }
+
+    private fun saveStretch(s: Stretch) {
+        val date = selectedDate ?: run {
+            Toast.makeText(requireContext(), "Seleziona prima una data", Toast.LENGTH_SHORT).show()
+            return
+        }
+        if (s.setsCount == 0 || s.repsCount == 0) {
+            Toast.makeText(requireContext(), "Imposta almeno 1 serie e 1 ripetizione", Toast.LENGTH_SHORT).show()
+            return
+        }
+        val user = requireActivity()
+            .getSharedPreferences("user_data", Context.MODE_PRIVATE)
+            .getString("saved_display_name", null) ?: selectedUser
+        if (user.isNullOrBlank()) {
+            Toast.makeText(requireContext(), "Utente non identificato", Toast.LENGTH_SHORT).show()
+            return
+        }
+        val data = mapOf(
+            "category"          to s.category,
+            "nomeStretch"       to s.title,
+            "numeroSerie"       to s.setsCount,
+            "numeroRipetizioni" to s.repsCount,
+            "type"              to s.type
+        )
+        db.collection("schede_giornaliere")
+            .document(user)
+            .collection(selectedDate!!)
+            .document("stretching")
+            .collection("esercizi")
+            .document(s.type)
+            .set(data)
+            .addOnSuccessListener {
+                Toast.makeText(requireContext(), "Salvato ${s.title}", Toast.LENGTH_SHORT).show()
+            }
+            .addOnFailureListener {
+                Toast.makeText(requireContext(), "Errore salvataggio", Toast.LENGTH_SHORT).show()
+            }
+    }
+
+    private fun loadSavedStretches() {
+        val date = selectedDate ?: return
+        val user = requireActivity()
+            .getSharedPreferences("user_data", Context.MODE_PRIVATE)
+            .getString("saved_display_name", null) ?: selectedUser
+        if (user.isNullOrBlank()) return
+
+        val pairs = listOf(
+            neckList     to neckAdapter,
+            shoulderList to shoulderAdapter,
+            backList     to backAdapter,
+            legsList     to legsAdapter,
+            armsList     to armsAdapter
+        )
+        pairs.forEach { (list, adapter) ->
+            list.forEach { s ->
+                db.collection("schede_giornaliere")
+                    .document(user)
+                    .collection(date)
+                    .document("stretching")
+                    .collection("esercizi")
+                    .document(s.type)
+                    .get()
+                    .addOnSuccessListener { doc ->
+                        if (doc.exists()) {
+                            s.setsCount = doc.getLong("numeroSerie")?.toInt() ?: 0
+                            s.repsCount = doc.getLong("numeroRipetizioni")?.toInt() ?: 0
+                        }
+                        adapter.notifyDataSetChanged()
+                    }
+            }
+        }
     }
 }
