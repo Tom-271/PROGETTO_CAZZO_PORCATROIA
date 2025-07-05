@@ -80,13 +80,6 @@ class WorkoutFragment : Fragment() {
         }
     }
 
-    private fun getDayNameFromDate(dateString: String): String {
-        val inputFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-        val outputFormat = SimpleDateFormat("EEEE", Locale("it", "IT"))
-        val date = inputFormat.parse(dateString)
-        return outputFormat.format(date!!).replaceFirstChar { it.uppercase() }
-    }
-
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null

@@ -1,9 +1,7 @@
 package com.example.progetto_tosa.ui.workout
 
-import android.content.Intent
-import android.content.res.Configuration
+import android.content.Context
 import android.graphics.Color
-import android.widget.ImageButton
 import android.graphics.drawable.ShapeDrawable
 import android.graphics.drawable.shapes.OvalShape
 import android.net.Uri
@@ -15,10 +13,13 @@ import android.view.ViewGroup
 import android.webkit.WebChromeClient
 import android.webkit.WebView
 import android.webkit.WebViewClient
+import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.TextView
+import android.content.Intent
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.DialogFragment
+import androidx.fragment.app.FragmentActivity
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
 import com.example.progetto_tosa.R
@@ -65,31 +66,32 @@ class ExerciseDetailFragment : DialogFragment() {
         val buttonMore       = view.findViewById<MaterialButton>(R.id.buttonMore)
         viewPager            = view.findViewById(R.id.viewPagerImages)
         tabLayout            = view.findViewById(R.id.tabLayoutIndicator)
-        val buttonExit = view.findViewById<ImageButton>(R.id.buttonExit)
+        val buttonExit       = view.findViewById<ImageButton>(R.id.buttonExit)
 
-        val title       = requireArguments().getString(ARG_TITLE)!!
-        val video       = requireArguments().getString(ARG_VIDEO)!!
-        val desc        = requireArguments().getString(ARG_DESC)!!
-        val sub2        = requireArguments().getString(ARG_SUB2)!!
-        val desc2       = requireArguments().getString(ARG_DESC2)!!
-        val img1Res     = requireArguments().getInt(ARG_IMG1)
-        val img2Res     = requireArguments().getInt(ARG_IMG2)
-        val descrTotStr = requireArguments().getString(ARG_DESCRIZIONE_TOTALE)
+        val title           = requireArguments().getString(ARG_TITLE)!!
+        val video           = requireArguments().getString(ARG_VIDEO)!!
+        val desc            = requireArguments().getString(ARG_DESC)!!
+        val sub2            = requireArguments().getString(ARG_SUB2)!!
+        val desc2           = requireArguments().getString(ARG_DESC2)!!
+        val img1Res         = requireArguments().getInt(ARG_IMG1)
+        val img2Res         = requireArguments().getInt(ARG_IMG2)
+        val descriptionImgRes = requireArguments().getInt(ARG_DESCRIPTION_IMAGE)
+        val descrTotStr     = requireArguments().getString(ARG_DESCRIZIONE_TOTALE)
 
-
-        titleView.text        = title
-        descView.text         = desc
-        descriptionImage.setImageResource(requireArguments().getInt(ARG_DESCRIPTION_IMAGE))
-        descrTotView.text     = descrTotStr
+        titleView.text            = title
+        descView.text             = desc
+        descriptionImage.setImageResource(descriptionImgRes)
+        descrTotView.text         = descrTotStr
 
         webView.settings.apply {
-            javaScriptEnabled = true
-            domStorageEnabled  = true
+            javaScriptEnabled               = true
+            domStorageEnabled               = true
             mediaPlaybackRequiresUserGesture = false
         }
         webView.webViewClient   = WebViewClient()
         webView.webChromeClient = WebChromeClient()
-        val videoId = Uri.parse(video).getQueryParameter("v") ?: video.substringAfterLast("/")
+        val videoId = Uri.parse(video).getQueryParameter("v")
+            ?: video.substringAfterLast("/")
         webView.loadUrl(
             "https://www.youtube.com/embed/$videoId?autoplay=1&modestbranding=1&playsinline=1"
         )
@@ -123,17 +125,17 @@ class ExerciseDetailFragment : DialogFragment() {
             }
         }
 
-        ChangeTheme(view)
+        applyDarkTheme(view)
 
         buttonExit.setOnClickListener {
-            dismiss() // Chiude il dialogo, utilissimo!!! è proprio una feature dei dialog fragment, una cosa velocissima rispetto all'eliminare tutti i dati dalla recycle ecc
+            dismiss()
         }
     }
 
     private fun setInitialVisibility(root: View) {
         root.findViewById<View>(R.id.headerImageContainer).visibility    = View.VISIBLE
         root.findViewById<View>(R.id.videoContainer).visibility          = View.VISIBLE
-        root.findViewById<WebView>(R.id.webViewDetail).visibility        = View.VISIBLE
+        root.findViewById<View>(R.id.webViewDetail).visibility           = View.VISIBLE
         root.findViewById<View>(R.id.videoOverlay).visibility            = View.VISIBLE
         root.findViewById<TextView>(R.id.tvDetailDescription).visibility = View.VISIBLE
         root.findViewById<TextView>(R.id.subtitle2).visibility           = View.GONE
@@ -159,25 +161,27 @@ class ExerciseDetailFragment : DialogFragment() {
         haiPremuto = false
     }
 
-    private fun ChangeTheme(root: View) {
-        val night       = resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK
-        val bgColorId   = if (night == Configuration.UI_MODE_NIGHT_YES) R.color.black else R.color.white
-        val textColorId = if (night == Configuration.UI_MODE_NIGHT_YES) R.color.white else R.color.black
-        val bgColor     = ContextCompat.getColor(requireContext(), bgColorId)
-        val txtColor    = ContextCompat.getColor(requireContext(), textColorId)
+    private fun applyDarkTheme(root: View) {
+        // Sfondo nero, testo bianco, indicatori bianchi
+        val blackColor = Color.BLACK
+        val whiteColor = Color.WHITE
 
         root.findViewById<MaterialCardView>(R.id.detailCardInner)
-            .setCardBackgroundColor(bgColor)
-        root.findViewById<TextView>(R.id.tvDetailDescription)
-            ?.setTextColor(txtColor)
-        root.findViewById<TextView>(R.id.description2)
-            ?.setTextColor(txtColor)
-        root.findViewById<TextView>(R.id.descrizioneTotale)
-            ?.setTextColor(txtColor)
+            .setCardBackgroundColor(blackColor)
 
-        // background dei dots: bianco in light, nero in dark
-        root.findViewById<TabLayout>(R.id.tabLayoutIndicator)
-            ?.setBackgroundColor(bgColor)
+        root.findViewById<TextView>(R.id.tvDetailTitle)
+            .setTextColor(whiteColor)
+        root.findViewById<TextView>(R.id.tvDetailDescription)
+            .setTextColor(whiteColor)
+        root.findViewById<TextView>(R.id.subtitle2)
+            .setTextColor(whiteColor)
+        root.findViewById<TextView>(R.id.description2)
+            .setTextColor(whiteColor)
+        root.findViewById<TextView>(R.id.descrizioneTotale)
+            .setTextColor(whiteColor)
+
+        // TabLayout dots background transparent, icons will be white/gray
+        tabLayout.setBackgroundColor(blackColor)
     }
 
     private fun setupCarousel(imgs: List<Int>) {
@@ -209,9 +213,8 @@ class ExerciseDetailFragment : DialogFragment() {
             paint.color = colorInt
         }
 
-        // pallino blu per il selezionato, bianco per gli altri
-        val selectedColor   = ContextCompat.getColor(requireContext(), R.color.sky)
-        val unselectedColor = Color.WHITE
+        val selectedColor   = Color.WHITE
+        val unselectedColor = Color.GRAY
 
         val sel   = dot(selectedColor)
         val unsel = dot(unselectedColor)
@@ -281,5 +284,4 @@ class ExerciseDetailFragment : DialogFragment() {
             }
         }
     }
-
 }

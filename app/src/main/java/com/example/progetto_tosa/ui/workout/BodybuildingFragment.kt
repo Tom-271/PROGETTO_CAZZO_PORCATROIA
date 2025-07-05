@@ -670,7 +670,7 @@ class BodybuildingFragment : Fragment(R.layout.fragment_bodybuilding) {
 
     private fun applyStrokeColor(root: View) {
         val night = resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK
-        val colorRes = if (night == Configuration.UI_MODE_NIGHT_YES) R.color.white else R.color.black
+        val colorRes = if (night == Configuration.UI_MODE_NIGHT_YES) R.color.dark_gray else R.color.black
         root.findViewById<MaterialCardView>(R.id.cardSection1).strokeColor =
             ContextCompat.getColor(requireContext(), colorRes)
     }
@@ -685,7 +685,7 @@ class BodybuildingFragment : Fragment(R.layout.fragment_bodybuilding) {
         // Colore stroke dinamico
         val night = resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK
         val strokeColor = ContextCompat.getColor(
-            requireContext(), if (night == Configuration.UI_MODE_NIGHT_YES) R.color.white else R.color.black
+            requireContext(), if (night == Configuration.UI_MODE_NIGHT_YES) R.color.black else R.color.black
         )
         headerCard.strokeColor = strokeColor
 

@@ -15,19 +15,20 @@
         android:orientation="vertical"
         android:paddingTop="25dp">
 
-        <!-- SEZIONE CARDIO -->
+        <!-- SEZIONE CARDIO: CORSA -->
         <com.google.android.material.card.MaterialCardView
-            android:id="@+id/cardioCard"
+            android:id="@+id/cardioCard1"
             android:layout_width="match_parent"
-            android:layout_height="180dp"
-            android:layout_margin="15dp"
+            android:layout_height="160dp"
+            android:layout_margin="12dp"
             android:clickable="true"
             android:focusable="true"
-            app:cardCornerRadius="15dp"
-            app:cardElevation="8dp"
+            android:onClick="toggleSection"
+            app:cardCornerRadius="12dp"
+            app:cardElevation="6dp"
             app:cardUseCompatPadding="true"
             app:cardPreventCornerOverlap="false"
-            app:strokeColor="@color/black"
+            app:strokeColor="@android:color/white"
             app:strokeWidth="1dp"
             app:cardBackgroundColor="@android:color/transparent">
 
@@ -35,38 +36,100 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent">
 
-                <!-- Immagine di sfondo cardio (es. tapis roulant) -->
+                <!-- Immagine di sfondo per corsa -->
                 <ImageView
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:scaleType="centerCrop"
-                    android:src="@drawable/cardio"/>
+                    android:src="@drawable/corsa"/>
 
-                <!-- Velo semi-trasparente -->
+                <!-- Overlay semi-trasparente -->
                 <View
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:background="#80000000"/>
 
-                <!-- Titolo “CARDIO” -->
+                <!-- Titolo “CORSA” -->
                 <TextView
-                    android:id="@+id/tvCardio"
+                    android:id="@+id/tvCardio1"
                     style="@style/SectionTitle"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
-                    android:text="C   A   R   D   I   O"
+                    android:text="C   O   R   S   A"
                     android:textColor="@android:color/white"
                     android:shadowColor="@color/sky"
                     android:shadowDx="0"
                     android:shadowDy="0"
-                    android:shadowRadius="25"/>
+                    android:shadowRadius="20"/>
             </FrameLayout>
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- RecyclerView per gli esercizi cardio -->
         <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/rvCardio"
+            android:id="@+id/rvCardio1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:nestedScrollingEnabled="false"
+            android:visibility="gone"/>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginHorizontal="40dp"
+            android:background="@color/steel"/>
+
+        <!-- SEZIONE CARDIO: SALTO ALLA CORDA -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cardioCard2"
+            android:layout_width="match_parent"
+            android:layout_height="160dp"
+            android:layout_margin="12dp"
+            android:clickable="true"
+            android:focusable="true"
+            android:onClick="toggleSection"
+            app:cardCornerRadius="12dp"
+            app:cardElevation="6dp"
+            app:cardUseCompatPadding="true"
+            app:cardPreventCornerOverlap="false"
+            app:strokeColor="@android:color/white"
+            app:strokeWidth="1dp"
+            app:cardBackgroundColor="@android:color/transparent">
+
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <!-- Immagine di sfondo per salto alla corda -->
+                <ImageView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:scaleType="centerCrop"
+                    android:src="@drawable/salto_corda"/>
+
+                <!-- Overlay semi-trasparente -->
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="#80000000"/>
+
+                <!-- Titolo “CORDA” -->
+                <TextView
+                    android:id="@+id/tvCardio2"
+                    style="@style/SectionTitle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:text="C   O   R   D   A"
+                    android:textColor="@android:color/white"
+                    android:shadowColor="@color/sky"
+                    android:shadowDx="0"
+                    android:shadowDy="0"
+                    android:shadowRadius="20"/>
+            </FrameLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvCardio2"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:nestedScrollingEnabled="false"

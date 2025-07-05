@@ -44,68 +44,94 @@ class CardioFragment : Fragment(R.layout.fragment_cardio) {
     private val selectedUser: String? by lazy { arguments?.getString("selectedUser") }
     private val selectedDate: String? by lazy { arguments?.getString("selectedDate") }
 
-    // Esempio di lista cardio (puoi personalizzarla)
+    // 4 esercizi, poi li distribuiremo 2 e 2
     private val cardioExercises = listOf(
         Exercise(
             type = "treadmill",
-            imageRes = R.drawable.cardio,
-            descriptionImage = R.drawable.cardio,
+            imageRes = R.drawable.corsa,
+            descriptionImage = R.drawable.corsa,
             title = "TREADMILL",
             videoUrl = "https://youtu.be/…",
             description = "Corsa sul tapis roulant per resistenza aerobica.",
             subtitle2 = "BENEFICI",
             description2 = "- Migliora capacità cardiovascolare\n- Brucia calorie",
-            detailImage1Res = R.drawable.cardio,
-            detailImage2Res = R.drawable.cardio,
+            detailImage1Res = R.drawable.corsa,
+            detailImage2Res = R.drawable.corsa,
             descrizioneTotale = "15–30 minuti a intensità moderata"
         ),
         Exercise(
-            type = "stationary_bike",
-            imageRes = R.drawable.cardio,
-            descriptionImage = R.drawable.cardio,
-            title = "CYCLING (BIKE)",
+            type = "outdoor_running",
+            imageRes = R.drawable.corsa,
+            descriptionImage = R.drawable.corsa,
+            title = "RUNNING OUTDOORS",
             videoUrl = "https://youtu.be/…",
-            description = "Pedalata su cyclette per allenamento cardio.",
+            description = "Corsa all’aperto per variare terreno e pendenza.",
             subtitle2 = "BENEFICI",
-            description2 = "- Stimola gambe e glutei\n- Ottimo per cuore",
-            detailImage1Res = R.drawable.cardio,
-            detailImage2Res = R.drawable.cardio,
-            descrizioneTotale = "20–40 minuti a resistenza variabile"
+            description2 = "- Rafforza articolazioni\n- Stimola mente e corpo",
+            detailImage1Res = R.drawable.corsa,
+            detailImage2Res = R.drawable.corsa,
+            descrizioneTotale = "10–20 km a ritmo costante"
+        ),
+        Exercise(
+            type = "jump_rope",
+            imageRes = R.drawable.salto_corda,
+            descriptionImage = R.drawable.salto_corda,
+            title = "JUMP ROPE",
+            videoUrl = "https://youtu.be/…",
+            description = "Salto con la corda per coordinazione e cardio veloce.",
+            subtitle2 = "BENEFICI",
+            description2 = "- Migliora agilità\n- Alto dispendio calorico",
+            detailImage1Res = R.drawable.salto_corda,
+            detailImage2Res = R.drawable.salto_corda,
+            descrizioneTotale = "5–10 minuti di round da 1 minuto"
+        ),
+        Exercise(
+            type = "high_knees",
+            imageRes = R.drawable.salto_corda,
+            descriptionImage = R.drawable.salto_corda,
+            title = "HIGH KNEES",
+            videoUrl = "https://youtu.be/…",
+            description = "Corsa sul posto portando le ginocchia alte.",
+            subtitle2 = "BENEFICI",
+            description2 = "- Aumenta frequenza cardiaca\n- Attiva core e gambe",
+            detailImage1Res = R.drawable.salto_corda,
+            detailImage2Res = R.drawable.salto_corda,
+            descrizioneTotale = "30–60 secondi x 3 set"
         )
-        // … aggiungi altri esercizi cardio …
     )
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         initUI(view)
-    }
-
-    private fun initUI(root: View) {
-        applyStrokeColor(root)
-        setupSection(R.id.cardioCard, R.id.rvCardio, cardioExercises)
         loadSavedExercises()
     }
 
-    private fun applyStrokeColor(root: View) {
-        val night = resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK
-        val colorRes = if (night == Configuration.UI_MODE_NIGHT_YES) R.color.white else R.color.black
-        root.findViewById<MaterialCardView>(R.id.cardioCard).strokeColor =
-            ContextCompat.getColor(requireContext(), colorRes)
+    private fun initUI(root: View) {
+        // prima sezione (Corsa): primi 2 esercizi
+        setupSection(
+            headerId   = R.id.cardioCard1,
+            recyclerId = R.id.rvCardio1,
+            data       = cardioExercises.subList(0, 2)
+        )
+        // seconda sezione (Corda): ultimi 2 esercizi
+        setupSection(
+            headerId   = R.id.cardioCard2,
+            recyclerId = R.id.rvCardio2,
+            data       = cardioExercises.subList(2, 4)
+        )
     }
 
     private fun setupSection(headerId: Int, recyclerId: Int, data: List<Exercise>) {
         val headerCard = requireView().findViewById<MaterialCardView>(headerId)
         val recyclerView = requireView().findViewById<RecyclerView>(recyclerId).apply {
             layoutManager = GridLayoutManager(requireContext(), 2)
-            adapter = ExerciseAdapter(data, ::openDetail, ::saveExercise)
+            adapter       = ExerciseAdapter(data, ::openDetail, ::saveExercise)
+            visibility    = View.GONE
         }
 
-        val night = resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK
-        val strokeColor = ContextCompat.getColor(
-            requireContext(),
-            if (night == Configuration.UI_MODE_NIGHT_YES) R.color.white else R.color.black
+        headerCard.strokeColor = ContextCompat.getColor(
+            requireContext(), R.color.black
         )
-        headerCard.strokeColor = strokeColor
 
         headerCard.setOnClickListener {
             recyclerView.visibility =
@@ -120,21 +146,22 @@ class CardioFragment : Fragment(R.layout.fragment_cardio) {
     ) : RecyclerView.Adapter<ExerciseAdapter.VH>() {
 
         inner class VH(view: View) : RecyclerView.ViewHolder(view) {
-            private val titleTv: TextView = view.findViewById(R.id.textViewTitleTop)
-            private val btnSets: MaterialButton = view.findViewById(R.id.toggleSets)
-            private val btnReps: MaterialButton = view.findViewById(R.id.toggleReps)
-            private val counterSets: TextView = view.findViewById(R.id.counterSets)
-            private val counterReps: TextView = view.findViewById(R.id.counterReps)
-            private val btnMinus: FloatingActionButton = view.findViewById(R.id.buttonMinus)
-            private val btnPlus: FloatingActionButton = view.findViewById(R.id.buttonPlus)
-            private val btnConfirm: MaterialButton = view.findViewById(R.id.buttonConfirm)
-            private val green = ContextCompat.getColor(view.context, R.color.green)
-            private val black = ContextCompat.getColor(view.context, R.color.black)
+            private val titleTv     = view.findViewById<TextView>(R.id.textViewTitleTop)
+            private val btnSets     = view.findViewById<MaterialButton>(R.id.toggleSets)
+            private val btnReps     = view.findViewById<MaterialButton>(R.id.toggleReps)
+            private val counterSets = view.findViewById<TextView>(R.id.counterSets)
+            private val counterReps = view.findViewById<TextView>(R.id.counterReps)
+            private val btnMinus    = view.findViewById<FloatingActionButton>(R.id.buttonMinus)
+            private val btnPlus     = view.findViewById<FloatingActionButton>(R.id.buttonPlus)
+            private val btnConfirm  = view.findViewById<MaterialButton>(R.id.buttonConfirm)
+            private val green       = ContextCompat.getColor(view.context, R.color.green)
+            private val black       = ContextCompat.getColor(view.context, R.color.black)
 
             init {
                 btnConfirm.setOnClickListener {
-                    val pos = adapterPosition.takeIf { it != RecyclerView.NO_POSITION } ?: return@setOnClickListener
-                    onConfirmClick(items[pos])
+                    adapterPosition.takeIf { it != RecyclerView.NO_POSITION }?.let {
+                        onConfirmClick(items[it])
+                    }
                 }
                 btnSets.setOnClickListener { toggleMode(true) }
                 btnReps.setOnClickListener { toggleMode(false) }
@@ -143,25 +170,27 @@ class CardioFragment : Fragment(R.layout.fragment_cardio) {
             }
 
             private fun toggleMode(isSets: Boolean) {
-                val pos = adapterPosition.takeIf { it != RecyclerView.NO_POSITION } ?: return
-                items[pos].isSetsMode = isSets
-                notifyItemChanged(pos)
+                adapterPosition.takeIf { it != RecyclerView.NO_POSITION }?.let { pos ->
+                    items[pos].isSetsMode = isSets
+                    notifyItemChanged(pos)
+                }
             }
 
             private fun adjustCount(delta: Int) {
-                val pos = adapterPosition.takeIf { it != RecyclerView.NO_POSITION } ?: return
-                val ex = items[pos]
-                if (ex.isSetsMode) ex.setsCount = maxOf(0, ex.setsCount + delta)
-                else ex.repsCount = maxOf(0, ex.repsCount + delta)
-                notifyItemChanged(pos)
+                adapterPosition.takeIf { it != RecyclerView.NO_POSITION }?.let { pos ->
+                    val ex = items[pos]
+                    if (ex.isSetsMode) ex.setsCount = maxOf(0, ex.setsCount + delta)
+                    else               ex.repsCount = maxOf(0, ex.repsCount + delta)
+                    notifyItemChanged(pos)
+                }
             }
 
             fun bind(ex: Exercise) {
-                titleTv.text = ex.title
-                counterSets.text = ex.setsCount.toString()
-                counterReps.text = ex.repsCount.toString()
-                btnSets.isChecked = ex.isSetsMode
-                btnReps.isChecked = !ex.isSetsMode
+                titleTv.text              = ex.title
+                counterSets.text          = ex.setsCount.toString()
+                counterReps.text          = ex.repsCount.toString()
+                btnSets.isChecked         = ex.isSetsMode
+                btnReps.isChecked         = !ex.isSetsMode
                 btnSets.backgroundTintList = ColorStateList.valueOf(if (ex.isSetsMode) green else black)
                 btnReps.backgroundTintList = ColorStateList.valueOf(if (ex.isSetsMode) black else green)
 
@@ -178,12 +207,17 @@ class CardioFragment : Fragment(R.layout.fragment_cardio) {
             }
         }
 
-        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) = VH(
-            LayoutInflater.from(parent.context).inflate(R.layout.cards_exercise, parent, false)
-        )
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VH {
+            val view = LayoutInflater.from(parent.context)
+                .inflate(R.layout.cards_exercise, parent, false)
+            return VH(view)
+        }
 
-        override fun onBindViewHolder(holder: VH, position: Int) = holder.bind(items[position])
-        override fun getItemCount() = items.size
+        override fun onBindViewHolder(holder: VH, position: Int) {
+            holder.bind(items[position])
+        }
+
+        override fun getItemCount(): Int = items.size
     }
 
     private fun openDetail(ex: Exercise) {
@@ -202,11 +236,15 @@ class CardioFragment : Fragment(R.layout.fragment_cardio) {
 
     private fun saveExercise(ex: Exercise) {
         if (selectedDate.isNullOrBlank()) {
-            Toast.makeText(requireContext(), "Seleziona prima una data per aggiungere l'esercizio", Toast.LENGTH_SHORT).show()
+            Toast.makeText(requireContext(),
+                "Seleziona prima una data per aggiungere l'esercizio",
+                Toast.LENGTH_SHORT).show()
             return
         }
         if (ex.setsCount <= 0 || ex.repsCount <= 0) {
-            Toast.makeText(requireContext(), "Imposta almeno 1 serie e 1 ripetizione", Toast.LENGTH_SHORT).show()
+            Toast.makeText(requireContext(),
+                "Imposta almeno 1 serie e 1 ripetizione",
+                Toast.LENGTH_SHORT).show()
             return
         }
         val data = hashMapOf(
@@ -216,8 +254,8 @@ class CardioFragment : Fragment(R.layout.fragment_cardio) {
             "numeroRipetizioni" to ex.repsCount,
             "type" to ex.type
         )
-        val successMessage = "Esercizio \"${ex.title}\" aggiunto con successo"
-        val prefs = requireActivity().getSharedPreferences("user_data", Context.MODE_PRIVATE)
+        val prefs = requireActivity()
+            .getSharedPreferences("user_data", Context.MODE_PRIVATE)
         val currentUserName = prefs.getString("saved_display_name", null)
 
         val collectionRef = when {
@@ -234,55 +272,63 @@ class CardioFragment : Fragment(R.layout.fragment_cardio) {
                     .document("cardio")
                     .collection("esercizi")
             else -> {
-                Toast.makeText(requireContext(), "Impossibile identificare l'utente", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(),
+                    "Impossibile identificare l'utente",
+                    Toast.LENGTH_SHORT).show()
                 return
             }
         }
 
         collectionRef.document(ex.title)
             .set(data)
-            .addOnSuccessListener { Toast.makeText(requireContext(), successMessage, Toast.LENGTH_SHORT).show() }
-            .addOnFailureListener { Toast.makeText(requireContext(), "Errore durante il salvataggio", Toast.LENGTH_SHORT).show() }
+            .addOnSuccessListener {
+                Toast.makeText(requireContext(),
+                    "Esercizio \"${ex.title}\" aggiunto con successo",
+                    Toast.LENGTH_SHORT).show()
+            }
+            .addOnFailureListener {
+                Toast.makeText(requireContext(),
+                    "Errore durante il salvataggio",
+                    Toast.LENGTH_SHORT).show()
+            }
     }
 
     private fun loadSavedExercises() {
         if (selectedDate.isNullOrBlank()) return
-        val types = cardioExercises.map { it.type }.distinct()
-        val loaded = mutableListOf<Pair<String, List<Map<String, Any>>>>()
 
-        types.forEach { t ->
+        // Ricarica dati per tutti e 4 gli esercizi
+        cardioExercises.forEachIndexed { idx, exercise ->
+            val headerId   = if (idx < 2) R.id.cardioCard1 else R.id.cardioCard2
+            val recyclerId = if (idx < 2) R.id.rvCardio1   else R.id.rvCardio2
+
             db.collection("schede_giornaliere")
                 .document(selectedDate!!)
                 .collection("cardio")
-                .document(t)
+                .document(exercise.type)
                 .collection("esercizi")
                 .get()
                 .addOnSuccessListener { snap ->
-                    val list = snap.documents.mapNotNull { doc ->
-                        mapOf(
-                            "title" to doc.id,
-                            "sets" to (doc.getLong("numeroSerie")?.toInt() ?: 0),
-                            "reps" to (doc.getLong("numeroRipetizioni")?.toInt() ?: 0)
-                        )
-                    }
-                    loaded.add(t to list)
-                    if (loaded.size == types.size) {
-                        loaded.forEach { (_, listE) ->
-                            listE.forEach { entry ->
-                                val title = entry["title"] as? String ?: return@forEach
-                                val sets = entry["sets"] as? Int ?: return@forEach
-                                val reps = entry["reps"] as? Int ?: return@forEach
-                                cardioExercises.find { it.title == title }?.apply {
-                                    setsCount = sets
-                                    repsCount = reps
-                                }
-                            }
+                    snap.documents.forEach { doc ->
+                        val title = doc.id
+                        val sets  = doc.getLong("numeroSerie")?.toInt() ?: 0
+                        val reps  = doc.getLong("numeroRipetizioni")?.toInt() ?: 0
+                        if (exercise.title == title) {
+                            exercise.setsCount = sets
+                            exercise.repsCount = reps
                         }
-                        setupSection(R.id.cardioCard, R.id.rvCardio, cardioExercises)
                     }
+                    // Reinizializza la sezione coinvolta
+                    setupSection(headerId, recyclerId,
+                        cardioExercises.subList(
+                            if (idx < 2) 0 else 2,
+                            if (idx < 2) 2 else 4
+                        )
+                    )
                 }
                 .addOnFailureListener {
-                    Toast.makeText(requireContext(), "Errore caricamento $t", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(requireContext(),
+                        "Errore caricamento esercizi",
+                        Toast.LENGTH_SHORT).show()
                 }
         }
     }

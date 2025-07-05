@@ -1,324 +1,305 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.core.widget.NestedScrollView
+<androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/account_container"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fillViewport="true"
     android:layout_marginTop="60dp"
-    android:clipToPadding="false"
-    android:paddingBottom="80dp">
+    android:paddingBottom="80dp"
+    tools:context="com.example.progetto_tosa.ui.workout.CorpoliberoFragment">
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:paddingTop="25dp">
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/scroll_corpolibero"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:fillViewport="true"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
 
-        <!-- PETTORALE -->
-        <com.google.android.material.card.MaterialCardView
-            android:id="@+id/cardSection1"
-            android:layout_width="match_parent"
-            android:layout_height="180dp"
-            android:layout_margin="15dp"
-            android:clickable="true"
-            android:focusable="true"
-            android:onClick="toggleSection"
-            app:cardCornerRadius="15dp"
-            app:cardElevation="8dp"
-            app:cardUseCompatPadding="true"
-            app:cardPreventCornerOverlap="false"
-            app:strokeColor="@color/black"
-            app:strokeWidth="1dp"
-            app:cardBackgroundColor="@android:color/transparent">
-
-            <FrameLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent">
-
-                <!-- Immagine di sfondo -->
-                <ImageView
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:scaleType="centerCrop"
-                    android:src="@drawable/petto"/>
-
-                <!-- Velo semi-trasparente nero -->
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:background="#80000000"/>
-
-                <!-- Titolo con shadow arancione -->
-                <TextView
-                    android:id="@+id/tvSection1"
-                    style="@style/SectionTitle"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:text="P   E   T   T   O   R   A   L   E"
-                    android:textColor="@android:color/white"
-                    android:shadowColor="@color/sky"
-                    android:shadowDx="0"
-                    android:shadowDy="0"
-                    android:shadowRadius="25"/>
-            </FrameLayout>
-        </com.google.android.material.card.MaterialCardView>
-
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/rvSection1"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:nestedScrollingEnabled="false"
-            android:visibility="gone"/>
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="2dp"
-            android:layout_marginHorizontal="50dp"
-            android:background="@color/steel"/>
+            android:orientation="vertical"
+            android:paddingTop="25dp">
 
-        <!-- SEZIONE SPALLE -->
-        <com.google.android.material.card.MaterialCardView
-            android:id="@+id/cardSection2"
-            android:layout_width="match_parent"
-            android:layout_height="180dp"
-            android:layout_margin="15dp"
-            android:clickable="true"
-            android:focusable="true"
-            android:onClick="toggleSection"
-            app:cardCornerRadius="15dp"
-            app:cardElevation="8dp"
-            app:cardUseCompatPadding="true"
-            app:cardPreventCornerOverlap="false"
-            app:strokeColor="@color/black"
-            app:strokeWidth="1dp"
-            app:cardBackgroundColor="@android:color/transparent">
-
-            <FrameLayout
+            <!-- SEZIONE PETTO -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/cardSection1"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent">
+                android:layout_height="160dp"
+                android:layout_margin="12dp"
+                android:clickable="true"
+                android:focusable="true"
+                android:onClick="toggleSection"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="6dp"
+                app:strokeColor="@color/black"
+                app:strokeWidth="1dp"
+                app:cardBackgroundColor="@android:color/transparent">
 
-                <ImageView
+                <FrameLayout
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:scaleType="centerCrop"
-                    android:src="@drawable/spalle"/>
+                    android:layout_height="match_parent">
 
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:background="#80000000"/>
+                    <ImageView
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:scaleType="centerCrop"
+                        android:src="@drawable/petto"/>
 
-                <TextView
-                    android:id="@+id/tvSection2"
-                    style="@style/SectionTitle"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:text="D   E   L   T   O   I   D   E"
-                    android:textColor="@android:color/white"
-                    android:shadowColor="@color/sky"
-                    android:shadowDx="0"
-                    android:shadowDy="0"
-                    android:shadowRadius="25"/>
-            </FrameLayout>
-        </com.google.android.material.card.MaterialCardView>
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:background="#80000000"/>
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/rvSection2"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:nestedScrollingEnabled="false"
-            android:visibility="gone"/>
+                    <TextView
+                        android:id="@+id/tvSection1"
+                        style="@style/SectionTitle"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:text="P   E   T   T   O"
+                        android:textColor="@android:color/white"
+                        android:shadowColor="@color/sky"
+                        android:shadowRadius="20"/>
+                </FrameLayout>
+            </com.google.android.material.card.MaterialCardView>
 
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="2dp"
-            android:layout_marginHorizontal="50dp"
-            android:background="@color/steel"/>
-
-        <!-- SEZIONE SCHIENA -->
-        <com.google.android.material.card.MaterialCardView
-            android:id="@+id/cardSection3"
-            android:layout_width="match_parent"
-            android:layout_height="180dp"
-            android:layout_margin="15dp"
-            android:clickable="true"
-            android:focusable="true"
-            android:onClick="toggleSection"
-            app:cardCornerRadius="15dp"
-            app:cardElevation="8dp"
-            app:cardUseCompatPadding="true"
-            app:cardPreventCornerOverlap="false"
-            app:strokeColor="@color/black"
-            app:strokeWidth="1dp"
-            app:cardBackgroundColor="@android:color/transparent">
-
-            <FrameLayout
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvSection1"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent">
+                android:layout_height="wrap_content"
+                android:nestedScrollingEnabled="false"
+                android:visibility="gone"/>
 
-                <ImageView
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:scaleType="centerCrop"
-                    android:src="@drawable/schiena"/>
-
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:background="#80000000"/>
-
-                <TextView
-                    android:id="@+id/tvSection3"
-                    style="@style/SectionTitle"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:text="S   C   H   I   E   N  A"
-                    android:textColor="@android:color/white"
-                    android:shadowColor="@color/sky"
-                    android:shadowDx="0"
-                    android:shadowDy="0"
-                    android:shadowRadius="25"/>
-            </FrameLayout>
-        </com.google.android.material.card.MaterialCardView>
-
-
-
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/rvSection3"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:nestedScrollingEnabled="false"
-            android:visibility="gone"/>
-
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="2dp"
-            android:layout_marginHorizontal="50dp"
-            android:background="@color/steel"/>
-
-        <!-- SEZIONE GAMBE -->
-        <com.google.android.material.card.MaterialCardView
-            android:id="@+id/cardSection4"
-            android:layout_width="match_parent"
-            android:layout_height="180dp"
-            android:layout_margin="15dp"
-            android:clickable="true"
-            android:focusable="true"
-            android:onClick="toggleSection"
-            app:cardCornerRadius="15dp"
-            app:cardElevation="8dp"
-            app:cardUseCompatPadding="true"
-            app:cardPreventCornerOverlap="false"
-            app:strokeColor="@color/black"
-            app:strokeWidth="1dp"
-            app:cardBackgroundColor="@android:color/transparent">
-
-            <FrameLayout
+            <View
                 android:layout_width="match_parent"
-                android:layout_height="match_parent">
+                android:layout_height="1dp"
+                android:layout_marginHorizontal="40dp"
+                android:background="@color/steel"/>
 
-                <ImageView
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:scaleType="centerCrop"
-                    android:src="@drawable/gambe"/>
-
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:background="#80000000"/>
-
-                <TextView
-                    android:id="@+id/tvSection4"
-                    style="@style/SectionTitle"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:text="G   A   M   B   E"
-                    android:textColor="@android:color/white"
-                    android:shadowColor="@color/sky"
-                    android:shadowDx="0"
-                    android:shadowDy="0"
-                    android:shadowRadius="25"/>
-            </FrameLayout>
-        </com.google.android.material.card.MaterialCardView>
-
-
-
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/rvSection4"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:nestedScrollingEnabled="false"
-            android:visibility="gone"/>
-
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="2dp"
-            android:layout_marginHorizontal="50dp"
-            android:background="@color/steel"/>
-        <!-- SEZIONE BICIPITI -->
-        <com.google.android.material.card.MaterialCardView
-            android:id="@+id/cardSection5"
-            android:layout_width="match_parent"
-            android:layout_height="180dp"
-            android:layout_margin="15dp"
-            android:clickable="true"
-            android:focusable="true"
-            android:onClick="toggleSection"
-            app:cardCornerRadius="15dp"
-            app:cardElevation="8dp"
-            app:cardUseCompatPadding="true"
-            app:cardPreventCornerOverlap="false"
-            app:strokeColor="@color/black"
-            app:strokeWidth="1dp"
-            app:cardBackgroundColor="@android:color/transparent">
-
-            <FrameLayout
+            <!-- SEZIONE SPALLE -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/cardSection2"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent">
+                android:layout_height="160dp"
+                android:layout_margin="12dp"
+                android:clickable="true"
+                android:focusable="true"
+                android:onClick="toggleSection"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="6dp"
+                app:strokeColor="@color/black"
+                app:strokeWidth="1dp"
+                app:cardBackgroundColor="@android:color/transparent">
 
-                <ImageView
+                <FrameLayout
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:scaleType="centerCrop"
-                    android:src="@drawable/petto"/>
+                    android:layout_height="match_parent">
 
-                <View
+                    <ImageView
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:scaleType="centerCrop"
+                        android:src="@drawable/spalle"/>
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:background="#80000000"/>
+
+                    <TextView
+                        android:id="@+id/tvSection2"
+                        style="@style/SectionTitle"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:text="S   P   A   L   L   E"
+                        android:textColor="@android:color/white"
+                        android:shadowColor="@color/sky"
+                        android:shadowRadius="20"/>
+                </FrameLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvSection2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:nestedScrollingEnabled="false"
+                android:visibility="gone"/>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginHorizontal="40dp"
+                android:background="@color/steel"/>
+
+            <!-- SEZIONE SCHIENA -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/cardSection3"
+                android:layout_width="match_parent"
+                android:layout_height="160dp"
+                android:layout_margin="12dp"
+                android:clickable="true"
+                android:focusable="true"
+                android:onClick="toggleSection"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="6dp"
+                app:strokeColor="@color/black"
+                app:strokeWidth="1dp"
+                app:cardBackgroundColor="@android:color/transparent">
+
+                <FrameLayout
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:background="#80000000"/>
+                    android:layout_height="match_parent">
 
-                <TextView
-                    android:id="@+id/tvSection5"
-                    style="@style/SectionTitle"
+                    <ImageView
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:scaleType="centerCrop"
+                        android:src="@drawable/schiena"/>
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:background="#80000000"/>
+
+                    <TextView
+                        android:id="@+id/tvSection3"
+                        style="@style/SectionTitle"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:text="S   C   H   I   E   N   A"
+                        android:textColor="@android:color/white"
+                        android:shadowColor="@color/sky"
+                        android:shadowRadius="20"/>
+                </FrameLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvSection3"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:nestedScrollingEnabled="false"
+                android:visibility="gone"/>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginHorizontal="40dp"
+                android:background="@color/steel"/>
+
+            <!-- SEZIONE GAMBE -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/cardSection4"
+                android:layout_width="match_parent"
+                android:layout_height="160dp"
+                android:layout_margin="12dp"
+                android:clickable="true"
+                android:focusable="true"
+                android:onClick="toggleSection"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="6dp"
+                app:strokeColor="@color/black"
+                app:strokeWidth="1dp"
+                app:cardBackgroundColor="@android:color/transparent">
+
+                <FrameLayout
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:text="B   I   C   I   P   I   T   I"
-                    android:textColor="@android:color/white"
-                    android:shadowColor="@color/sky"
-                    android:shadowDx="0"
-                    android:shadowDy="0"
-                    android:shadowRadius="25"/>
-            </FrameLayout>
-        </com.google.android.material.card.MaterialCardView>
+                    android:layout_height="match_parent">
 
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="2dp"
-            android:layout_marginHorizontal="50dp"
-            android:background="@color/steel"/>
+                    <ImageView
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:scaleType="centerCrop"
+                        android:src="@drawable/gambe"/>
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/rvSection5"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:nestedScrollingEnabled="false"
-            android:visibility="gone"/>
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:background="#80000000"/>
 
-    </LinearLayout>
-</androidx.core.widget.NestedScrollView>
+                    <TextView
+                        android:id="@+id/tvSection4"
+                        style="@style/SectionTitle"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:text="G   A   M   B   E"
+                        android:textColor="@android:color/white"
+                        android:shadowColor="@color/sky"
+                        android:shadowRadius="20"/>
+                </FrameLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvSection4"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:nestedScrollingEnabled="false"
+                android:visibility="gone"/>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginHorizontal="40dp"
+                android:background="@color/steel"/>
+
+            <!-- SEZIONE BICIPITI -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/cardSection5"
+                android:layout_width="match_parent"
+                android:layout_height="160dp"
+                android:layout_margin="12dp"
+                android:clickable="true"
+                android:focusable="true"
+                android:onClick="toggleSection"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="6dp"
+                app:strokeColor="@color/black"
+                app:strokeWidth="1dp"
+                app:cardBackgroundColor="@android:color/transparent">
+
+                <FrameLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
+
+                    <ImageView
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:scaleType="centerCrop"
+                        android:src="@drawable/petto"/>
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:background="#80000000"/>
+
+                    <TextView
+                        android:id="@+id/tvSection5"
+                        style="@style/SectionTitle"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:text="B   I   C   I   P   I   T   I"
+                        android:textColor="@android:color/white"
+                        android:shadowColor="@color/sky"
+                        android:shadowRadius="20"/>
+                </FrameLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvSection5"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:nestedScrollingEnabled="false"
+                android:visibility="gone"/>
+
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+</androidx.constraintlayout.widget.ConstraintLayout>
