@@ -32,10 +32,10 @@ class MainActivity : AppCompatActivity() {
     private val notificationId = 1
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        // permettere al layout di disegnare sotto status/navigation bar
+        //permette al layout di disegnare sotto status/navigation bar
         WindowCompat.setDecorFitsSystemWindows(window, false)
 
-        // tema scuro/chiaro
+        //imposta tema scuro o chiaro
         val prefs = getSharedPreferences("settings", MODE_PRIVATE)
         val isDarkMode = prefs.getBoolean("darkMode", true)
         AppCompatDelegate.setDefaultNightMode(
@@ -47,10 +47,10 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        // nascondi subito status & nav bar
+        //nasconde subito status & nav bar
         hideSystemUI()
 
-        // navigazione
+        //setup BottomNavigationView e NavController
         val navView: BottomNavigationView = binding.navView
         val navController = findNavController(R.id.nav_host_fragment_activity_main)
         val appBarConfiguration = AppBarConfiguration(
@@ -64,37 +64,26 @@ class MainActivity : AppCompatActivity() {
         setupActionBarWithNavController(navController, appBarConfiguration)
         navView.setupWithNavController(navController)
 
-        // colori icone
-        val states = arrayOf(
-            intArrayOf(android.R.attr.state_checked),
-            intArrayOf(-android.R.attr.state_checked)
-        )
-        val colors = intArrayOf(
-            ContextCompat.getColor(this, R.color.sky),
-            ContextCompat.getColor(this, R.color.white)
-        )
-        navView.itemIconTintList = android.content.res.ColorStateList(states, colors)
-        navView.itemTextColor = android.content.res.ColorStateList(states, colors)
-
+        //gestisce selezione manuale
         navView.setOnItemSelectedListener { item ->
             when (item.itemId) {
-                R.id.navigation_home -> {
-                    navController.navigate(R.id.navigation_home); true
-                }
-                R.id.navigation_workout -> {
-                    navController.navigate(R.id.fragment_workout); true
-                }
-                R.id.navigation_cronotimer -> {
-                    navController.navigate(R.id.navigation_cronotimer); true
-                }
-                R.id.navigation_account -> {
-                    navController.navigate(R.id.navigation_account); true
-                }
-                else -> false
+                R.id.navigation_home      -> { navController.navigate(R.id.navigation_home); true }
+                R.id.navigation_workout   -> { navController.navigate(R.id.fragment_workout); true }
+                R.id.navigation_cronotimer-> { navController.navigate(R.id.navigation_cronotimer); true }
+                R.id.navigation_account   -> { navController.navigate(R.id.navigation_account); true }
+                else                      -> false
             }
         }
 
-        // notifiche
+        //se l'Intent contiene "navigateTo" = "account", seleziona Account
+        intent.getStringExtra("navigateTo")?.let { dest ->
+            if (dest == "account") {
+                //imposta il bottom nav sulla voce Account
+                navView.selectedItemId = R.id.navigation_account
+            }
+        }
+
+        //notifiche
         createNotificationChannel()
         requestNotificationPermission()
         sendNotification()

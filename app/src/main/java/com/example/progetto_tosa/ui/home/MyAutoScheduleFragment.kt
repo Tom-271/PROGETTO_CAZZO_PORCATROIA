@@ -24,7 +24,6 @@ import androidx.navigation.fragment.findNavController
 import com.example.progetto_tosa.R
 import com.example.progetto_tosa.databinding.FragmentMyAutoScheduleBinding
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.SetOptions
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -32,6 +31,9 @@ class MyAutoScheduleFragment : Fragment() {
 
     private var _binding: FragmentMyAutoScheduleBinding? = null
     private val binding get() = _binding!!
+
+    private var isInitialLoad = true
+    private var remainingExercises = 0
 
     private val db = FirebaseFirestore.getInstance()
     private lateinit var selectedDateId: String
@@ -43,12 +45,14 @@ class MyAutoScheduleFragment : Fragment() {
 
     private val CHANNEL_ID = "completion_channel"
     private val notificationId = 1001
+    private val NOTIF_PERMISSION_REQUEST = 100
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+        //init binding e crea canale notifiche
         _binding = FragmentMyAutoScheduleBinding.inflate(inflater, container, false)
         createNotificationChannel()
         return binding.root
@@ -56,17 +60,17 @@ class MyAutoScheduleFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
+        //recupera selectedDateId dagli argomenti
         selectedDateId = requireArguments().getString("selectedDate")
             ?: error("selectedDate mancante")
         Log.d("MyAutoSchedule", "selectedDateId = $selectedDateId")
-
+        //mostra giorno della settimana
         displayDayOfWeek()
-
+        //navigazione al cronotimer
         binding.chrono.setOnClickListener {
-            findNavController()
-                .navigate(R.id.action_fragment_my_auto_schedule_to_navigation_cronotimer)
+            findNavController().navigate(R.id.action_fragment_my_auto_schedule_to_navigation_cronotimer)
         }
+        //navigazione a workout se vuoto
         binding.btnFillSchedule.apply {
             visibility = VISIBLE
             setOnClickListener {
@@ -76,16 +80,23 @@ class MyAutoScheduleFragment : Fragment() {
                 )
             }
         }
-
+        //carica esercizi
         populateUnifiedExerciseList()
     }
 
+    override fun onDestroyView() {
+        //pulisci binding
+        _binding = null
+        super.onDestroyView()
+    }
+
     private fun displayDayOfWeek() {
+        //parsa la data e calcola il giorno
         val parsedDate = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
             .parse(selectedDateId)!!
-        val dayOfWeek = Calendar.getInstance().apply { time = parsedDate }
-            .get(Calendar.DAY_OF_WEEK)
-        val dayDisplayName = when (dayOfWeek) {
+        val calendar = Calendar.getInstance().apply { time = parsedDate }
+        val dayOfWeek = calendar.get(Calendar.DAY_OF_WEEK)
+        val dayName = when (dayOfWeek) {
             Calendar.MONDAY    -> "LUNEDÌ"
             Calendar.TUESDAY   -> "MARTEDÌ"
             Calendar.WEDNESDAY -> "MERCOLEDÌ"
@@ -95,13 +106,15 @@ class MyAutoScheduleFragment : Fragment() {
             Calendar.SUNDAY    -> "DOMENICA"
             else               -> ""
         }
+        //imposta testo subtitle
         binding.subtitleAllExercises.apply {
             visibility = VISIBLE
-            text = "SCHEDA DI $dayDisplayName"
+            text = "SCHEDA DI $dayName"
         }
     }
 
     private fun createNotificationChannel() {
+        //crea NotificationChannel per Android O+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val name = "Completion"
             val descriptionText = "Canale per notifica fine scheda"
@@ -109,13 +122,14 @@ class MyAutoScheduleFragment : Fragment() {
             val channel = NotificationChannel(CHANNEL_ID, name, importance).apply {
                 description = descriptionText
             }
-            val manager =
-                requireContext().getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            val manager = requireContext()
+                .getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
             manager.createNotificationChannel(channel)
         }
     }
 
     private fun sendCompletionNotification() {
+        //verifica e richiedi permission su Android 13+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
             ContextCompat.checkSelfPermission(
                 requireContext(),
@@ -125,11 +139,11 @@ class MyAutoScheduleFragment : Fragment() {
             ActivityCompat.requestPermissions(
                 requireActivity(),
                 arrayOf(android.Manifest.permission.POST_NOTIFICATIONS),
-                0
+                NOTIF_PERMISSION_REQUEST
             )
             return
         }
-
+        //costruisci e mostra notifica
         val builder = NotificationCompat.Builder(requireContext(), CHANNEL_ID)
             .setSmallIcon(R.drawable.ic_notification)
             .setContentTitle("Bravo!")
@@ -140,7 +154,20 @@ class MyAutoScheduleFragment : Fragment() {
             .notify(notificationId, builder.build())
     }
 
+    override fun onRequestPermissionsResult(
+        requestCode: Int, permissions: Array<out String>, grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == NOTIF_PERMISSION_REQUEST &&
+            grantResults.firstOrNull() == PackageManager.PERMISSION_GRANTED
+        ) {
+            //ritenta la notifica
+            sendCompletionNotification()
+        }
+    }
+
     private fun populateUnifiedExerciseList() {
+        //recupera utente e container
         val user = currentUserName ?: return
         val container = binding.allExercisesContainer
         container.removeAllViews()
@@ -149,6 +176,7 @@ class MyAutoScheduleFragment : Fragment() {
         val unifiedList = mutableListOf<Triple<String, String, String>>()
         var completedFetches = 0
 
+        //per ogni categoria fetch da Firestore
         for (category in categories) {
             db.collection("schede_giornaliere")
                 .document(user)
@@ -165,21 +193,20 @@ class MyAutoScheduleFragment : Fragment() {
                 .addOnCompleteListener {
                     completedFetches++
                     if (completedFetches == categories.size) {
-                        showUnifiedList(container, unifiedList)
-                        if (unifiedList.isEmpty()) sendCompletionNotification()
+                        showUnifiedList(container, unifiedList, user)
+                        isInitialLoad = false
                     }
                 }
                 .addOnFailureListener {
                     Toast.makeText(
                         requireContext(),
-                        "Errore nel caricamento degli esercizi di $category",
+                        "Errore caricamento esercizi di $category",
                         Toast.LENGTH_SHORT
                     ).show()
-                    // contiamo comunque il fetch fallito per non bloccare l’UI
                     completedFetches++
                     if (completedFetches == categories.size) {
-                        showUnifiedList(container, unifiedList)
-                        if (unifiedList.isEmpty()) sendCompletionNotification()
+                        showUnifiedList(container, unifiedList, user)
+                        isInitialLoad = false
                     }
                 }
         }
@@ -187,29 +214,21 @@ class MyAutoScheduleFragment : Fragment() {
 
     private fun showUnifiedList(
         container: LinearLayout,
-        esercizi: List<Triple<String, String, String>>
+        esercizi: List<Triple<String, String, String>>,
+        user: String
     ) {
-        val user = currentUserName ?: return
+        //reset UI e init contatore
         container.removeAllViews()
+        remainingExercises = esercizi.size
 
-        // Raggruppa gli esercizi per categoria
         val eserciziPerCategoria = esercizi.groupBy { it.second }
-
-        // Ordina le categorie nell'ordine desiderato
         val categorieOrdinate = listOf("bodybuilding", "cardio", "corpo-libero", "stretching")
 
         for (categoria in categorieOrdinate) {
-            val eserciziCategoria = eserciziPerCategoria[categoria] ?: continue
-
-            // Aggiungi titolo della categoria
+            val listCategoria = eserciziPerCategoria[categoria] ?: continue
+            //titolo categoria
             val titoloCategoria = TextView(requireContext()).apply {
-                text = when (categoria) {
-                    "bodybuilding" -> "BODYBUILDING"
-                    "cardio" -> "CARDIO"
-                    "corpo-libero" -> "CORPO LIBERO"
-                    "stretching" -> "STRETCHING"
-                    else -> categoria.uppercase()
-                }
+                text = categoria.uppercase()
                 setTextColor(ContextCompat.getColor(requireContext(), R.color.orange))
                 textSize = 18f
                 setTypeface(typeface, Typeface.BOLD)
@@ -217,8 +236,8 @@ class MyAutoScheduleFragment : Fragment() {
             }
             container.addView(titoloCategoria)
 
-            for ((nome, _, docId) in eserciziCategoria) {
-                // riga principale
+            for ((nome, _, docId) in listCategoria) {
+                //crea riga esercizio e bottone info
                 val itemLayout = LinearLayout(requireContext()).apply {
                     orientation = LinearLayout.HORIZONTAL
                     setPadding(36, 4, 8, 16)
@@ -227,7 +246,9 @@ class MyAutoScheduleFragment : Fragment() {
                     this.text = "○ $nome"
                     setTextColor(ContextCompat.getColor(requireContext(), android.R.color.white))
                     layoutParams = LinearLayout.LayoutParams(
-                        0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f
+                        0,
+                        LinearLayout.LayoutParams.WRAP_CONTENT,
+                        1f
                     )
                 }
                 val infoButton = ImageButton(requireContext()).apply {
@@ -235,8 +256,7 @@ class MyAutoScheduleFragment : Fragment() {
                     background = null
                     layoutParams = LinearLayout.LayoutParams(100, 100)
                 }
-
-                // card espandibile
+                //influisce card dettagli
                 val cardView = LayoutInflater.from(requireContext())
                     .inflate(R.layout.exercise_info_card, container, false) as CardView
                 cardView.visibility = GONE
@@ -248,7 +268,7 @@ class MyAutoScheduleFragment : Fragment() {
 
                 titleText.text = nome
 
-                // carica set/rip/peso
+                //popola serie, ripetizioni e peso
                 db.collection("schede_giornaliere")
                     .document(user)
                     .collection(selectedDateId)
@@ -264,8 +284,8 @@ class MyAutoScheduleFragment : Fragment() {
                         setsRepsText.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.tick, 0)
                         setsRepsText.compoundDrawablePadding = 16
 
+                        //elimino esercizio al tap
                         setsRepsText.setOnClickListener {
-                            // elimina esercizio
                             db.collection("schede_giornaliere")
                                 .document(user)
                                 .collection(selectedDateId)
@@ -276,12 +296,15 @@ class MyAutoScheduleFragment : Fragment() {
                                 .addOnSuccessListener {
                                     Toast.makeText(
                                         requireContext(),
-                                        "Esercizio eliminato",
+                                        "Esercizio terminato!",
                                         Toast.LENGTH_SHORT
                                     ).show()
                                     container.removeView(itemLayout)
                                     container.removeView(cardView)
-                                    if (container.childCount == 0) sendCompletionNotification()
+                                    remainingExercises--
+                                    if (remainingExercises == 0 && !isInitialLoad) {
+                                        sendCompletionNotification()
+                                    }
                                 }
                                 .addOnFailureListener {
                                     Toast.makeText(
@@ -291,17 +314,23 @@ class MyAutoScheduleFragment : Fragment() {
                                     ).show()
                                 }
                         }
-                        if (peso != null) pesoInput.setText(peso.toString())
+                        peso?.let { pesoInput.setText(it.toString()) }
                     }
 
+                //mostra/nascondi card
                 infoButton.setOnClickListener {
                     cardView.visibility = if (cardView.visibility == GONE) VISIBLE else GONE
                 }
+
+                //salva peso su Firestore
                 saveButton.setOnClickListener {
                     val pesoVal = pesoInput.text.toString().toFloatOrNull()
                     if (pesoVal == null) {
-                        Toast.makeText(requireContext(), "Inserisci un peso valido", Toast.LENGTH_SHORT)
-                            .show()
+                        Toast.makeText(
+                            requireContext(),
+                            "Inserisci un peso valido",
+                            Toast.LENGTH_SHORT
+                        ).show()
                         return@setOnClickListener
                     }
                     db.collection("schede_giornaliere")
@@ -310,26 +339,29 @@ class MyAutoScheduleFragment : Fragment() {
                         .document(categoria)
                         .collection("esercizi")
                         .document(docId)
-                        .set(mapOf("peso" to pesoVal), SetOptions.merge())
+                        .set(mapOf("peso" to pesoVal), com.google.firebase.firestore.SetOptions.merge())
                         .addOnSuccessListener {
-                            Toast.makeText(requireContext(), "Peso salvato", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(
+                                requireContext(),
+                                "Peso salvato",
+                                Toast.LENGTH_SHORT
+                            ).show()
                         }
                         .addOnFailureListener {
-                            Toast.makeText(requireContext(), "Errore salvataggio", Toast.LENGTH_SHORT)
-                                .show()
+                            Toast.makeText(
+                                requireContext(),
+                                "Errore salvataggio",
+                                Toast.LENGTH_SHORT
+                            ).show()
                         }
                 }
 
+                //aggiungi view al container
                 itemLayout.addView(text)
                 itemLayout.addView(infoButton)
                 container.addView(itemLayout)
                 container.addView(cardView)
             }
         }
-    }
-
-    override fun onDestroyView() {
-        _binding = null
-        super.onDestroyView()
     }
 }

@@ -140,7 +140,6 @@ class InsertData : Fragment() {
                     binding.editTextBF.setText(it.toString())
                 }
 
-                // Una volta caricati, blocca la modifica
                 toggleEditing(false)
             }
             .addOnFailureListener { e ->

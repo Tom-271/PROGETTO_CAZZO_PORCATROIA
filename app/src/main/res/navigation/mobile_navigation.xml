@@ -155,7 +155,11 @@
         android:id="@+id/navigation_login"
         android:name="com.example.progetto_tosa.ui.account.LoginFragment"
         android:label="Login"
-        tools:layout="@layout/fragment_login"/>
+        tools:layout="@layout/fragment_login">
+        <action
+            android:id="@+id/action_navigation_login_to_navigation_account"
+            app:destination="@id/navigation_account" />
+    </fragment>
 
     <fragment
         android:id="@+id/navigation_UserData"
