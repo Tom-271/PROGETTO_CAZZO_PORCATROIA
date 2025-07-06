@@ -62,7 +62,11 @@ class CorpoliberoFragment : Fragment(R.layout.fragment_corpolibero) {
         absAdapter   = setupSection(view, R.id.cardAbs,      R.id.rvAbs,      absExercises)
         chestAdapter = setupSection(view, R.id.cardSection1, R.id.rvSection1, chestExercises)
         backAdapter  = setupSection(view, R.id.cardSection3, R.id.rvSection3, backExercises)
-        loadSavedExercises()
+
+        // SOLO se ho una data valida, carico gli esercizi salvati
+        if (!selectedDate.isNullOrBlank()) {
+            loadSavedExercises()
+        }
     }
 
     private fun setupSection(
@@ -217,6 +221,8 @@ class CorpoliberoFragment : Fragment(R.layout.fragment_corpolibero) {
     }
 
     private fun loadSavedExercises() {
+        val date = selectedDate
+        if (date.isNullOrBlank()) return
         getExercisesRef().get()
             .addOnSuccessListener { snap ->
                 // update counts in all lists

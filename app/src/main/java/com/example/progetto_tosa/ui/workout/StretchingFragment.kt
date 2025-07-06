@@ -73,7 +73,10 @@ class StretchingFragment : Fragment(R.layout.fragment_stretching) {
         legsAdapter     = setupSection(view, R.id.cardStretchLegs,      R.id.rvStretchLegs,      legsList)
         armsAdapter     = setupSection(view, R.id.cardStretchArms,      R.id.rvStretchArms,      armsList)
 
-        loadSavedStretches()
+        // Carica solo se ho una data valida, per evitare IllegalStateException
+        if (!selectedDate.isNullOrBlank()) {
+            loadSavedStretches()
+        }
     }
 
     private fun setupSection(
@@ -179,9 +182,9 @@ class StretchingFragment : Fragment(R.layout.fragment_stretching) {
         ).show((requireActivity() as FragmentActivity).supportFragmentManager, "stretch_detail")
     }
 
-    // Decides PT vs user path
     private fun getStretchRef(): CollectionReference {
-        val date = selectedDate ?: throw IllegalStateException("Data mancante")
+        val date = selectedDate
+            ?: throw IllegalStateException("Data mancante")
         return if (selectedUser != null) {
             db.collection("schede_del_pt")
                 .document(selectedUser!!)
@@ -212,11 +215,11 @@ class StretchingFragment : Fragment(R.layout.fragment_stretching) {
         }
         getStretchRef().document(s.type)
             .set(mapOf(
-                "category"            to s.category,
-                "nomeEsercizio"       to s.title,
-                "numeroSerie"         to s.setsCount,
-                "numeroRipetizioni"   to s.repsCount,
-                "type"                to s.type
+                "category"          to s.category,
+                "nomeEsercizio"     to s.title,
+                "numeroSerie"       to s.setsCount,
+                "numeroRipetizioni" to s.repsCount,
+                "type"              to s.type
             ))
             .addOnSuccessListener {
                 Toast.makeText(requireContext(), "Salvato ${s.title}", Toast.LENGTH_SHORT).show()
@@ -227,23 +230,31 @@ class StretchingFragment : Fragment(R.layout.fragment_stretching) {
     }
 
     private fun loadSavedStretches() {
+        // se non c’è data, esco subito senza crash
+        val date = selectedDate
+        if (date.isNullOrBlank()) return
+
         getStretchRef().get()
             .addOnSuccessListener { snap ->
                 snap.documents.forEach { doc ->
                     val type = doc.id
                     val sets = doc.getLong("numeroSerie")?.toInt() ?: 0
                     val reps = doc.getLong("numeroRipetizioni")?.toInt() ?: 0
-                    neckList.find     { it.type == type }?.apply { setsCount=sets; repsCount=reps }
-                    shoulderList.find { it.type == type }?.apply { setsCount=sets; repsCount=reps }
-                    backList.find     { it.type == type }?.apply { setsCount=sets; repsCount=reps }
-                    legsList.find     { it.type == type }?.apply { setsCount=sets; repsCount=reps }
-                    armsList.find     { it.type == type }?.apply { setsCount=sets; repsCount=reps }
+                    neckList.find     { it.type == type }?.apply { setsCount = sets; repsCount = reps }
+                    shoulderList.find { it.type == type }?.apply { setsCount = sets; repsCount = reps }
+                    backList.find     { it.type == type }?.apply { setsCount = sets; repsCount = reps }
+                    legsList.find     { it.type == type }?.apply { setsCount = sets; repsCount = reps }
+                    armsList.find     { it.type == type }?.apply { setsCount = sets; repsCount = reps }
                 }
                 neckAdapter.notifyDataSetChanged()
                 shoulderAdapter.notifyDataSetChanged()
                 backAdapter.notifyDataSetChanged()
                 legsAdapter.notifyDataSetChanged()
                 armsAdapter.notifyDataSetChanged()
+            }
+            .addOnFailureListener {
+                Toast.makeText(requireContext(),
+                    "Errore durante il caricamento degli esercizi", Toast.LENGTH_SHORT).show()
             }
     }
 }
