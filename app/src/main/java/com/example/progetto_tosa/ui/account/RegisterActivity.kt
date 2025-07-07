@@ -18,6 +18,7 @@ import java.util.*
 
 class RegisterActivity : AppCompatActivity() {
 
+    //dichiarazione delle view utilizzate nell'activity
     private lateinit var etFirstName: EditText
     private lateinit var etLastName: EditText
     private lateinit var etEmail: EditText
@@ -35,6 +36,7 @@ class RegisterActivity : AppCompatActivity() {
     private val auth by lazy { FirebaseAuth.getInstance() }
     private val db   by lazy { FirebaseFirestore.getInstance() }
 
+    //variabili per la gestione della data
     private val calendar = Calendar.getInstance()
     private val dateFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
 
@@ -57,11 +59,12 @@ class RegisterActivity : AppCompatActivity() {
         btnSubmit        = findViewById(R.id.btnRegisterSubmit)
 
         etBirthDate.apply {
-            isFocusable = false
-            isClickable = true
-            setOnClickListener { showDatePicker() }
+            isFocusable = false  //impedisce l'inserimento manuale
+            isClickable = true  //permette il click
+            setOnClickListener { showDatePicker() }  //mostra il date picker al click
         }
 
+        //gestione della visibilità del campo codice verifica in base alla scelta radio
         etCodiceVerifica.visibility = View.GONE
         rgChoices.setOnCheckedChangeListener { _, checkedId ->
             etCodiceVerifica.visibility =
@@ -69,6 +72,7 @@ class RegisterActivity : AppCompatActivity() {
         }
 
         btnSubmit.setOnClickListener {
+            //recupero dei valori dai campi di input
             val fn       = etFirstName.text.toString().trim()
             val ln       = etLastName.text.toString().trim()
             val em       = etEmail.text.toString().trim()
@@ -79,15 +83,15 @@ class RegisterActivity : AppCompatActivity() {
             val bf       = etBodyFat.text.toString().trim()
             val verifica = etCodiceVerifica.text.toString().trim()
             val isPT     = btnSi.isChecked
-            val codiceUff = "00000"
+            val codiceUff = "00000"  //codice ufficiale hardcato (fantasia!!)
 
-            // 1) Salvo sincrono
+            //salvataggio nelle SharedPreferences. mi serve un sacco per usarlòo nelle altre classi
             getSharedPreferences("myAppPrefs", Context.MODE_PRIVATE)
                 .edit()
                 .putBoolean("IS_PT", isPT)
-                .commit()
+                .commit()  //commit() invece di apply() per salvataggio sincrono
 
-            // validazione base
+            //validazione di base dei campi
             if (fn.isEmpty() || ln.isEmpty() || em.isEmpty() ||
                 pw.length < 6 || bd.isEmpty() ||
                 wt.isEmpty() || ht.isEmpty() || bf.isEmpty()
@@ -98,7 +102,7 @@ class RegisterActivity : AppCompatActivity() {
                 return@setOnClickListener
             }
 
-            // controllo complessità password: almeno 1 maiuscola, 1 numero, 1 carattere speciale
+            //validazione complessità password (regex)
             val passwordRegex = Regex("^(?=.*[A-Z])(?=.*\\d)(?=.*[^A-Za-z0-9]).{6,}\$")
             if (!passwordRegex.matches(pw)) {
                 Toast.makeText(
@@ -109,7 +113,7 @@ class RegisterActivity : AppCompatActivity() {
                 return@setOnClickListener
             }
 
-            // verifica codice PT
+            //validazione codice personal trainer
             if (isPT) {
                 if (verifica.isEmpty()) {
                     Toast.makeText(this,
@@ -125,22 +129,26 @@ class RegisterActivity : AppCompatActivity() {
                 }
             }
 
-            // 2) Creazione utente
+            //creazione utente su Firebase Auth
             auth.createUserWithEmailAndPassword(em, pw)
                 .addOnSuccessListener { res ->
                     val uid = res.user?.uid ?: return@addOnSuccessListener
+
+                    //scelta della collection in base al tipo di utente
                     val collectionName = if (isPT) "personal_trainers" else "users"
+
+                    //parsing della data di nascita
                     val parts = bd.split("/")
                     calendar.set(parts[2].toInt(),
-                        parts[1].toInt() - 1,
+                        parts[1].toInt() - 1,  //I mesi partono da 0
                         parts[0].toInt())
-                    val age = calculateAge(calendar)
+
+                    //preparazione dati per Firestore
                     val data = hashMapOf(
                         "firstName"         to fn,
                         "lastName"          to ln,
                         "email"             to em,
                         "birthday"          to calendar.time,
-                        "age"               to age,
                         "weight"            to wt.toDouble(),
                         "height"            to ht.toInt(),
                         "bodyFat"           to bf.toDouble(),
@@ -154,7 +162,7 @@ class RegisterActivity : AppCompatActivity() {
                             Toast.makeText(this,
                                 "Registrazione avvenuta con successo!",
                                 Toast.LENGTH_SHORT).show()
-                            finish()
+                            finish()  //Chiude l'activity dopo il successo
                         }
                         .addOnFailureListener { e ->
                             Toast.makeText(this,
@@ -168,9 +176,9 @@ class RegisterActivity : AppCompatActivity() {
                         Toast.LENGTH_LONG).show()
                 }
         }
-
     }
 
+    //mostra il date picker per selezionare la data di nascita
     private fun showDatePicker() {
         val y = calendar.get(Calendar.YEAR)
         val m = calendar.get(Calendar.MONTH)
@@ -181,11 +189,5 @@ class RegisterActivity : AppCompatActivity() {
         }, y, m, d).show()
     }
 
-    private fun calculateAge(birthDate: Calendar): Int {
-        val today = Calendar.getInstance()
-        var age = today.get(Calendar.YEAR) - birthDate.get(Calendar.YEAR)
-        if (today.get(Calendar.DAY_OF_YEAR) < birthDate.get(Calendar.DAY_OF_YEAR))
-            age--
-        return age
-    }
+
 }

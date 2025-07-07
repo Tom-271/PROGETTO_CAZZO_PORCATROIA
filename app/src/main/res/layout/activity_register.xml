@@ -3,254 +3,279 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:layout_marginTop="10dp"
-    android:padding="30dp"
+    android:padding="24dp"
     android:fillViewport="true"
     android:scrollbars="none">
 
     <LinearLayout
-        android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="center_horizontal">
+        android:orientation="vertical">
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Crea il tuo account"
-            android:textSize="24sp"
-            android:layout_marginBottom="16dp"/>
-
-        <!-- Nome -->
-        <com.google.android.material.textfield.TextInputLayout
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
+        <!-- Card Blu con tutti i campi -->
+        <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginVertical="8dp"
-            app:boxBackgroundMode="outline"
-            app:boxStrokeColor="@color/sky"
-            app:boxStrokeWidthFocused="2dp">
+            android:layout_marginTop="100dp"
+            app:cardCornerRadius="20dp"
+            app:cardElevation="12dp"
+            app:cardBackgroundColor="@color/navy_blue"
+            app:cardUseCompatPadding="true"
+            app:cardPreventCornerOverlap="false">
 
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/etFirstName"
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Nome"
-                android:inputType="textPersonName"/>
+                android:orientation="vertical"
+                android:padding="24dp">
 
-        </com.google.android.material.textfield.TextInputLayout>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Crea il tuo account"
+                    android:textSize="22sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/white"
+                    android:layout_gravity="center"
+                    android:layout_marginBottom="24dp"/>
 
-        <!-- Cognome -->
-        <com.google.android.material.textfield.TextInputLayout
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginVertical="8dp"
-            app:boxBackgroundMode="outline"
-            app:boxStrokeColor="@color/sky"
-            app:boxStrokeWidthFocused="2dp">
+                <!-- Nome -->
+                <com.google.android.material.textfield.TextInputLayout
+                    style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.Dense"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="16dp"
+                    app:boxBackgroundMode="filled"
+                    app:boxBackgroundColor="@color/dark_gray"
+                    app:boxStrokeColor="@color/navy_blue">
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/etFirstName"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="Nome"
+                        android:inputType="textPersonName"
+                        android:textColor="@android:color/white"/>
+                </com.google.android.material.textfield.TextInputLayout>
 
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/etLastName"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="Cognome"
-                android:inputType="textPersonName"/>
+                <!-- Cognome -->
+                <com.google.android.material.textfield.TextInputLayout
+                    style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.Dense"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="16dp"
+                    app:boxBackgroundMode="filled"
+                    app:boxBackgroundColor="@color/dark_gray"
+                    app:boxStrokeColor="@color/navy_blue">
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/etLastName"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="Cognome"
+                        android:inputType="textPersonName"
+                        android:textColor="@android:color/white"/>
+                </com.google.android.material.textfield.TextInputLayout>
 
-        </com.google.android.material.textfield.TextInputLayout>
+                <!-- Email -->
+                <com.google.android.material.textfield.TextInputLayout
+                    style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.Dense"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="16dp"
+                    app:boxBackgroundMode="filled"
+                    app:boxBackgroundColor="@color/dark_gray"
+                    app:boxStrokeColor="@color/navy_blue">
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/etEmailReg"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="Email"
+                        android:inputType="textEmailAddress"
+                        android:textColor="@android:color/white"/>
+                </com.google.android.material.textfield.TextInputLayout>
 
-        <!-- Email -->
-        <com.google.android.material.textfield.TextInputLayout
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginVertical="8dp"
-            app:boxBackgroundMode="outline"
-            app:boxStrokeColor="@color/sky"
-            app:boxStrokeWidthFocused="2dp">
+                <!-- Password -->
+                <com.google.android.material.textfield.TextInputLayout
+                    style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.Dense"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="16dp"
+                    app:boxBackgroundMode="filled"
+                    app:boxBackgroundColor="@color/dark_gray"
+                    app:boxStrokeColor="@color/navy_blue">
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/etPasswordReg"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="Password (min. 6)"
+                        android:inputType="textPassword"
+                        android:textColor="@android:color/white"/>
+                </com.google.android.material.textfield.TextInputLayout>
 
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/etEmailReg"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="Email"
-                android:inputType="textEmailAddress"/>
+                <!-- Data di nascita -->
+                <com.google.android.material.textfield.TextInputLayout
+                    style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.Dense"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="24dp"
+                    app:boxBackgroundMode="filled"
+                    app:boxBackgroundColor="@color/dark_gray"
+                    app:boxStrokeColor="@color/navy_blue">
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/etBirthDate"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="Data di nascita"
+                        android:focusable="false"
+                        android:clickable="true"
+                        android:drawableEnd="@drawable/ic_calendar"
+                        android:drawablePadding="12dp"
+                        android:textColor="@android:color/white"/>
+                </com.google.android.material.textfield.TextInputLayout>
 
-        </com.google.android.material.textfield.TextInputLayout>
+                <TextView
+                    android:id="@+id/Titoletto"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Informazioni Aggiuntive"
+                    android:textSize="16sp"
+                    android:textColor="@color/white"
+                    android:layout_marginBottom="8dp"/>
 
-        <!-- Password -->
-        <com.google.android.material.textfield.TextInputLayout
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginVertical="8dp"
-            app:boxBackgroundMode="outline"
-            app:boxStrokeColor="@color/sky"
-            app:boxStrokeWidthFocused="2dp">
+                <TextView
+                    android:id="@+id/Descrizionetta"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Punto di partenza per monitorare i tuoi progressi."
+                    android:textSize="14sp"
+                    android:textColor="#CCCCCC"
+                    android:layout_marginBottom="16dp"/>
 
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/etPasswordReg"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="Password (minimo 6)"
-                android:inputType="textPassword"/>
+                <!-- Peso, Altezza, Body Fat in orizzontale -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:weightSum="3"
+                    android:layout_marginBottom="24dp">
 
-        </com.google.android.material.textfield.TextInputLayout>
+                    <com.google.android.material.textfield.TextInputLayout
+                        style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.Dense"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="8dp"
+                        app:boxBackgroundMode="filled"
+                        app:boxBackgroundColor="@color/dark_gray"
+                        app:boxStrokeColor="@color/navy_blue">
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/etWeight"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:hint="Peso"
+                            android:inputType="numberDecimal"
+                            android:textColor="@android:color/white"/>
+                    </com.google.android.material.textfield.TextInputLayout>
 
+                    <com.google.android.material.textfield.TextInputLayout
+                        style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.Dense"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="8dp"
+                        app:boxBackgroundMode="filled"
+                        app:boxBackgroundColor="@color/dark_gray"
+                        app:boxStrokeColor="@color/navy_blue">
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/etHeight"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:hint="Altezza"
+                            android:inputType="number"
+                            android:textColor="@android:color/white"/>
+                    </com.google.android.material.textfield.TextInputLayout>
 
-        <!-- Data di nascita -->
-        <com.google.android.material.textfield.TextInputLayout
-            style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.Dense"
-            android:layout_width="match_parent"
-            android:layout_height="105dp"
-            android:layout_marginVertical="8dp"
-            app:boxBackgroundMode="filled"
-            app:boxStrokeColor="@color/sky"
-            app:boxStrokeWidthFocused="2dp">
+                    <com.google.android.material.textfield.TextInputLayout
+                        style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.Dense"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="wrap_content"
+                        app:boxBackgroundMode="filled"
+                        app:boxBackgroundColor="@color/dark_gray"
+                        app:boxStrokeColor="@color/navy_blue">
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/etBodyFat"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:hint="BF(%)"
+                            android:inputType="numberDecimal"
+                            android:textColor="@android:color/white"/>
+                    </com.google.android.material.textfield.TextInputLayout>
+                </LinearLayout>
 
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/etBirthDate"
-                android:layout_width="match_parent"
-                android:layout_height="100dp"
-                android:hint="Data di nascita"
-                android:focusable="false"
-                android:clickable="true"
-                android:drawableEnd="@drawable/ic_calendar"
-                android:drawablePadding="15dp"/>
-        </com.google.android.material.textfield.TextInputLayout>
+                <TextView
+                    android:id="@+id/TitolettoPerButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Sei un Personal Trainer?"
+                    android:textSize="16sp"
+                    android:textColor="@color/white"
+                    android:layout_marginBottom="8dp"/>
 
-        <TextView
-            android:id="@+id/Titoletto"
-            android:layout_width="match_parent"
-            android:layout_height="30dp"
-            android:textColor="@color/sky"
-            android:textSize="20dp"
-            android:text="Informazioni Aggiuntive:"/>
+                <RadioGroup
+                    android:id="@+id/rgChoices"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginBottom="24dp">
+                    <RadioButton
+                        android:id="@+id/rbSI"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Sì"
+                        android:buttonTint="@color/orange"
+                        android:textColor="@color/white"
+                        android:layout_marginEnd="24dp"/>
+                    <RadioButton
+                        android:id="@+id/rbNO"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="No"
+                        android:buttonTint="@color/orange"
+                        android:textColor="@color/white"/>
+                </RadioGroup>
 
-        <TextView
-            android:id="@+id/Descrizionetta"
-            android:layout_width="match_parent"
-            android:layout_height="40dp"
-            android:textColor="#9C9C9C"
-            android:textSize="15dp"
-            android:text="Ti saranno utili come punto di partenza per monitorare i tuoi progressi: "/>
-        <!-- Peso -->
-        <com.google.android.material.textfield.TextInputLayout
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginVertical="8dp"
-            app:boxBackgroundMode="outline"
-            app:boxStrokeColor="@color/sky"
-            app:boxStrokeWidthFocused="2dp">
+                <!-- Codice di Verifica -->
+                <com.google.android.material.textfield.TextInputLayout
+                    style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.Dense"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="0dp"
+                    app:boxBackgroundMode="filled"
+                    app:boxBackgroundColor="@color/dark_gray"
+                    app:boxStrokeColor="@color/navy_blue">
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/etCodiceVerifica"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="Codice di Verifica"
+                        android:textColor="@android:color/white"/>
+                </com.google.android.material.textfield.TextInputLayout>
 
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/etWeight"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="Peso (kg)"
-                android:inputType="numberDecimal"/>
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
 
-        </com.google.android.material.textfield.TextInputLayout>
-
-        <!-- Altezza -->
-        <com.google.android.material.textfield.TextInputLayout
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginVertical="8dp"
-            app:boxBackgroundMode="outline"
-            app:boxStrokeColor="@color/sky"
-            app:boxStrokeWidthFocused="2dp">
-
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/etHeight"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="Altezza (cm)"
-                android:inputType="number"/>
-
-        </com.google.android.material.textfield.TextInputLayout>
-
-        <!-- Body Fat -->
-        <com.google.android.material.textfield.TextInputLayout
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginVertical="8dp"
-            app:boxBackgroundMode="outline"
-            app:boxStrokeColor="@color/sky"
-            app:boxStrokeWidthFocused="2dp">
-
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/etBodyFat"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="Body Fat (%)"
-                android:inputType="numberDecimal"/>
-
-        </com.google.android.material.textfield.TextInputLayout>
-
-        <TextView
-            android:id="@+id/TitolettoPerButton"
-            android:layout_width="match_parent"
-            android:layout_height="30dp"
-            android:textColor="@color/sky"
-            android:textSize="20dp"
-            android:text="Sei un personal Trainer? "/>
-
-        <!-- l'utilità del radiogroup è che rende mutua eslcusiva la possibilità di scelta tra i button che ci poni dentro-->
-        <RadioGroup
-            android:id="@+id/rgChoices"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:checkedButton="@id/rbNO">
-
-            <RadioButton
-                android:id="@+id/rbSI"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textColor="#9C9C9C"
-
-                android:layout_marginEnd="20dp"
-                android:text="Sì, lo sono"/>
-
-            <RadioButton
-                android:id="@+id/rbNO"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textColor="#9C9C9C"
-                android:layout_marginStart="20dp"
-                android:text="No, non lo sono"/>
-        </RadioGroup>
-
-        <com.google.android.material.textfield.TextInputLayout
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginVertical="8dp"
-            app:boxBackgroundMode="outline"
-            app:boxStrokeColor="@color/sky"
-            app:boxStrokeWidthFocused="2dp">
-
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/etCodiceVerifica"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="Codice Di Verifica" />
-
-        </com.google.android.material.textfield.TextInputLayout>
-        <!-- Pulsante Registrati -->
+        <!-- Pulsante Registrati fuori dalla Card -->
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnRegisterSubmit"
             style="@style/Widget.MaterialComponents.Button"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
             android:text="Registrati"
-            android:textColor="@android:color/white"
-            app:backgroundTint="@color/sky"/>
-
+            android:textAllCaps="false"
+            android:paddingVertical="14dp"
+            android:layout_marginTop="24dp"
+            app:cornerRadius="28dp"
+            app:backgroundTint="@color/orange"
+            android:textColor="@android:color/white"/>
     </LinearLayout>
 </ScrollView>
