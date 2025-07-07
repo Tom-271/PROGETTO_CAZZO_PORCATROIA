@@ -148,6 +148,9 @@ class HomeFragment : Fragment() {
         binding.buttonForTheScheduleIDid.visibility               = View.VISIBLE //mostra pulsante visualizza scheda
         binding.buttonForTheSchedulePersonalTrainerDid.visibility = View.VISIBLE //mostra pulsante calendario pt
 
+        binding.buttonForTheScheduleIDid.setOnClickListener {
+            findNavController().navigate(R.id.action_navigation_home_to_navigation_myautocalendar)
+        } //naviga a calendario personale
         binding.buttonForTheSchedulePersonalTrainerDid.setOnClickListener {
             if (fullName.isBlank()) {
                 Toast.makeText(requireContext(), "Nome utente non disponibile", Toast.LENGTH_SHORT).show()

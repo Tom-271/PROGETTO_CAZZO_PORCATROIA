@@ -2,7 +2,7 @@
     <string name="app_name">IngeFIT</string>
     <string name="title_home">Home</string>
     <string name="title_stepwatch">Cronometro</string>
-    <string name="title_bodybuilding">Bodybuilding</string>">
+    <string name="title_bodybuilding">Bodybuilding</string>
     <string name="title_cardio">Cardio</string>
     <string name="title_stretching">Stretching</string>
     <string name="title_corpolibero">Corpo Libero</string>
@@ -40,5 +40,4 @@
     <string name="invalid_password">Password must be >5 characters</string>
     <string name="login_failed">"Login failed"</string>
     <string name="title_activity_login_with_google">LoginWithGoogle</string>
-    <string name="default_web_client_id">1041503427752-3eff7fjg9cmji1b8m4rtvsle30di8bn8.apps.googleusercontent.com</string>
 </resources>

@@ -14,7 +14,15 @@
       },
       "oauth_client": [
         {
-          "client_id": "1041503427752-3eff7fjg9cmji1b8m4rtvsle30di8bn8.apps.googleusercontent.com",
+          "client_id": "1041503427752-ardnadtmm55decnp43ucb7p7kq1832jk.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.progetto_tosa",
+            "certificate_hash": "253a8d1b8368f6d41622e5a0d26d34dc19d5513c"
+          }
+        },
+        {
+          "client_id": "1041503427752-unarpmsntin25unjter1n3v3iqmutogv.apps.googleusercontent.com",
           "client_type": 3
         }
       ],

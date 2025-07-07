@@ -56,10 +56,8 @@ class MainActivity : AppCompatActivity() {
         val appBarConfiguration = AppBarConfiguration(
             setOf(
                 R.id.navigation_home,
-                R.id.navigation_workout,
-                R.id.navigation_cronotimer,
-                R.id.navigation_account
-            )
+                R.id.navigation_workout     //in questa sezione sto praticamnete selezionando i framgnet "permanentni", coloro che nella toolbar non hanno la freccia per tornare indietro al precedente
+            )                               //per esempio qui prima c'era cronofragment ma non aveva senso perche se ero nella scheda giornaliera e aprivo il cronometro dovevo fare il giro largo per tornare alla shceda
         )
         setupActionBarWithNavController(navController, appBarConfiguration)
         navView.setupWithNavController(navController)
