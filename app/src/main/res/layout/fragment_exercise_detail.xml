@@ -10,7 +10,7 @@
         android:layout_width="wrap_content"
         android:layout_height="650dp"
         android:layout_gravity="center"
-        app:cardCornerRadius="16dp"
+        app:cardCornerRadius="28dp"
         app:cardElevation="30dp">
 
         <com.google.android.material.card.MaterialCardView
@@ -19,8 +19,8 @@
             android:layout_height="match_parent"
             app:cardBackgroundColor="?attr/colorSurface"
             app:strokeColor="?attr/colorOnSurface"
-            app:strokeWidth="2.5dp"
-            app:cardCornerRadius="16dp">
+            app:strokeWidth="0.6dp"
+            app:cardCornerRadius="28dp">
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
@@ -38,6 +38,7 @@
 
                     <ImageView
                         android:id="@+id/descriptionImage"
+                        android:alpha="0.4"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:scaleType="centerCrop" />
@@ -46,7 +47,8 @@
                         android:id="@+id/fadeOverlay"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:background="@drawable/pancadescrizione" />
+                        android:alpha="0"
+                        android:background="@drawable/invictus" />
 
                     <TextView
                         android:id="@+id/tvDetailTitle"
@@ -54,7 +56,7 @@
                         android:layout_height="wrap_content"
                         android:layout_gravity="bottom|center_horizontal"
                         android:padding="12dp"
-                        android:textColor="@color/sky"
+                        android:textColor="@color/purple_200"
                         android:textSize="40sp"
                         android:textStyle="bold"
                         android:gravity="center"
@@ -180,6 +182,7 @@
                     android:layout_width="0dp"
                     android:layout_height="40dp"
                     android:layout_margin="10dp"
+
                     android:text="Di più..."
                     android:textColor="?attr/colorOnSurface"
                     android:fontFamily="sans-serif"
@@ -192,13 +195,13 @@
             </androidx.constraintlayout.widget.ConstraintLayout>
             <ImageButton
                 android:id="@+id/buttonExit"
-                android:layout_width="20dp"
-                android:layout_height="20dp"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
                 android:src="@drawable/chiusura"
                 android:layout_marginTop="10dp"
                 android:layout_marginLeft="10dp"
                 android:background="@color/transparent"
-                android:alpha="0.8"
+                android:alpha="1"
                 android:contentDescription="@null" />
 
 

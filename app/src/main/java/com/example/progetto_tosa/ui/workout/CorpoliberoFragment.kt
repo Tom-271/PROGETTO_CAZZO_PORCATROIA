@@ -30,29 +30,92 @@ class CorpoliberoFragment : Fragment(R.layout.fragment_corpolibero) {
         val videoUrl: String,
         val description: String,
         val benefit: String,
+        val detailImage1Res: Int,
+        val detailImage2Res: Int,
+        val descrizioneTotale: String,
         var setsCount: Int = 0,
         var repsCount: Int = 0,
         var isSetsMode: Boolean = true
     )
 
     private val db = FirebaseFirestore.getInstance()
-    // If this fragment was invoked for a PT, selectedUser holds PT's uid
     private val selectedUser: String? by lazy { arguments?.getString("selectedUser") }
     private val selectedDate: String?  by lazy { arguments?.getString("selectedDate")  }
 
-    private val absExercises   = mutableListOf(
-        Exercise(type="plank",  imageRes=R.drawable.libero_addome, title="PLANK",  videoUrl="", description="Mantieni il corpo dritto…", benefit="Attiva core"),
-        Exercise(type="crunch", imageRes=R.drawable.libero_addome, title="CRUNCH", videoUrl="", description="Sollevamento busto…", benefit="Rafforza addominali")
-    )
-    private val chestExercises = mutableListOf(
-        Exercise(type="push_up",   imageRes=R.drawable.libero_petto, title="PUSH-UP",         videoUrl="", description="Flessione bodyweight…",   benefit="Petto & tricipiti"),
-        Exercise(type="diamond",   imageRes=R.drawable.libero_petto, title="DIAMOND PUSH-UP", videoUrl="", description="Mani a diamante…",        benefit="Focalizza tricipiti")
-    )
-    private val backExercises  = mutableListOf(
-        Exercise(type="superman",  imageRes=R.drawable.libero_schiena, title="SUPERMAN",         videoUrl="", description="Solleva braccia e gambe…", benefit="Schiena & glutei"),
-        Exercise(type="reverse",   imageRes=R.drawable.libero_schiena, title="REVERSE SNOW ANGEL",videoUrl="", description="Apri/chiudi le braccia…", benefit="Dorsali")
+    private val absExercises = mutableListOf(
+        Exercise(
+            type               = "plank",
+            imageRes           = R.drawable.plankdue,
+            title              = "PLANK",
+            videoUrl           = "https://www.youtube.com/watch?v=Is-7PPaBcsM",
+            description        = "Mantieni il corpo dritto, appoggiato su gomiti e punte dei piedi, 30s.",
+            benefit            = "Attiva core",
+            detailImage1Res    = R.drawable.plankdue,
+            detailImage2Res    = R.drawable.plank3,
+            descrizioneTotale  = "3 serie da 30s"
+        ),
+        Exercise(
+            type               = "crunch",
+            imageRes           = R.drawable.crunchesroll,
+            title              = "CRUNCH",
+            videoUrl           = "https://www.youtube.com/watch?v=LHM2lZBi8Rg",
+            description        = "Sollevamento busto da terra, contrai addominali, 15 rip.",
+            benefit            = "Rafforza addominali",
+            detailImage1Res    = R.drawable.crunches,
+            detailImage2Res    = R.drawable.crunches3,
+            descrizioneTotale  = "3 serie da 15 ripetizioni"
+        )
     )
 
+    private val chestExercises = mutableListOf(
+        Exercise(
+            type               = "push_up",
+            imageRes           = R.drawable.push,
+            title              = "PUSH-UP",
+            videoUrl           = "https://www.youtube.com/watch?v=77ebGeXQO_g",
+            description        = "Flessione a corpo libero, mani a larghezza spalle, 12 rip.",
+            benefit            = "Petto & tricipiti",
+            detailImage1Res    = R.drawable.push2,
+            detailImage2Res    = R.drawable.push3,
+            descrizioneTotale  = "3 serie da 12 ripetizioni"
+        ),
+        Exercise(
+            type               = "diamond",
+            imageRes           = R.drawable.diamond,
+            title              = "DIAMOND PUSH-UP",
+            videoUrl           = "https://www.youtube.com/watch?v=BVRlNzqhe8g",
+            description        = "Mani a diamante sotto il petto, 10 rip.",
+            benefit            = "Focalizza tricipiti",
+            detailImage1Res    = R.drawable.diamond2,
+            detailImage2Res    = R.drawable.diamond2,
+            descrizioneTotale  = "3 serie da 10 ripetizioni"
+        )
+    )
+
+    private val backExercises = mutableListOf(
+        Exercise(
+            type               = "superman",
+            imageRes           = R.drawable.super2,
+            title              = "SUPERMAN",
+            videoUrl           = "https://www.youtube.com/watch?v=DdFF9RBcheg",
+            description        = "Da pancia a terra, alza braccia e gambe simultaneamente, 12 rip.",
+            benefit            = "Schiena & glutei",
+            detailImage1Res    = R.drawable.superdos,
+            detailImage2Res    = R.drawable.super2,
+            descrizioneTotale  = "3 serie da 12 ripetizioni"
+        ),
+        Exercise(
+            type               = "reverse",
+            imageRes           = R.drawable.libero_schiena,
+            title              = "REVERSE SNOW ANGEL",
+            videoUrl           = "https://www.youtube.com/watch?v=DdFF9RBcheg",
+            description        = "Scivola le braccia lungo il corpo da in basso verso l’alto, 10 rip.",
+            benefit            = "Dorsali",
+            detailImage1Res    = R.drawable.super2,
+            detailImage2Res    = R.drawable.super2,
+            descrizioneTotale  = "3 serie da 10 ripetizioni"
+        )
+    )
     private lateinit var absAdapter: ExerciseAdapter
     private lateinit var chestAdapter: ExerciseAdapter
     private lateinit var backAdapter: ExerciseAdapter

@@ -165,12 +165,14 @@ class ExerciseDetailFragment : DialogFragment() {
         // Sfondo nero, testo bianco, indicatori bianchi
         val blackColor = Color.BLACK
         val whiteColor = Color.WHITE
+        val purple = ContextCompat.getColor(requireContext(), R.color.purple_200)
+
 
         root.findViewById<MaterialCardView>(R.id.detailCardInner)
             .setCardBackgroundColor(blackColor)
 
         root.findViewById<TextView>(R.id.tvDetailTitle)
-            .setTextColor(whiteColor)
+            .setTextColor(purple)
         root.findViewById<TextView>(R.id.tvDetailDescription)
             .setTextColor(whiteColor)
         root.findViewById<TextView>(R.id.subtitle2)

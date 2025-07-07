@@ -184,6 +184,9 @@
         tools:layout="@layout/fragment_bodybuilding">
         <argument android:name="selectedDate"   app:argType="string" />
         <argument android:name="selectedUser"   app:argType="string" />
+        <action
+            android:id="@+id/action_navigation_bodybuilding_to_fragment_workout"
+            app:destination="@id/fragment_workout" />
     </fragment>
     <fragment
         android:id="@+id/navigation_cardio"
@@ -192,6 +195,9 @@
         tools:layout="@layout/fragment_cardio">
         <argument android:name="selectedDate"   app:argType="string" />
         <argument android:name="selectedUser"   app:argType="string" />
+        <action
+            android:id="@+id/action_navigation_cardio_to_fragment_workout"
+            app:destination="@id/fragment_workout" />
     </fragment>
     <fragment
         android:id="@+id/navigation_corpolibero"
@@ -200,6 +206,9 @@
         tools:layout="@layout/fragment_corpolibero">
         <argument android:name="selectedDate"   app:argType="string" />
         <argument android:name="selectedUser"   app:argType="string" />
+        <action
+            android:id="@+id/action_navigation_corpolibero_to_fragment_workout"
+            app:destination="@id/fragment_workout" />
     </fragment>
     <fragment
         android:id="@+id/navigation_stretching"
@@ -208,6 +217,9 @@
         tools:layout="@layout/fragment_stretching">
         <argument android:name="selectedDate"   app:argType="string" />
         <argument android:name="selectedUser"   app:argType="string" />
+        <action
+            android:id="@+id/action_navigation_stretching_to_fragment_workout"
+            app:destination="@id/fragment_workout" />
     </fragment>
 
     <!-- Le mie schede (auto‐flow) -->

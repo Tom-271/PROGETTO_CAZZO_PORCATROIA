@@ -1,8 +1,10 @@
 package com.example.progetto_tosa.ui.workout
 
 import android.content.Context
+import android.content.res.Configuration
 import android.content.res.ColorStateList
 import android.os.Bundle
+import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -23,11 +25,17 @@ import com.google.firebase.firestore.FirebaseFirestore
 class StretchingFragment : Fragment(R.layout.fragment_stretching) {
 
     data class Stretch(
-        val category: String = "stretching",
         val type: String,
         val imageRes: Int,
+        val descriptionImage: Int,
         val title: String,
+        val videoUrl: String,
         val description: String,
+        val subtitle2: String,
+        val description2: String,
+        val detailImage1Res: Int,
+        val detailImage2Res: Int,
+        val descrizioneTotale: String,
         var setsCount: Int = 0,
         var repsCount: Int = 0,
         var isSetsMode: Boolean = true
@@ -37,25 +45,149 @@ class StretchingFragment : Fragment(R.layout.fragment_stretching) {
     private val selectedUser: String? by lazy { arguments?.getString("selectedUser") }
     private val selectedDate: String? by lazy { arguments?.getString("selectedDate") }
 
-    private val neckList     = mutableListOf(
-        Stretch(type="neck_side",    imageRes=R.drawable.stretch_pols,    title="Side Neck Stretch",    description="Inclina la testa verso una spalla, mantieni 20s."),
-        Stretch(type="neck_forward", imageRes=R.drawable.stretch_pols,    title="Forward Neck Stretch", description="Porta il mento verso il petto, mantieni 20s.")
+    private val neckList = mutableListOf(
+        Stretch(
+            type               = "neck_side",
+            imageRes           = R.drawable.nivea,
+            descriptionImage   = R.drawable.nivea,
+            title              = "Side Neck Stretch",
+            videoUrl           = "https://www.youtube.com/watch?v=s2XtMJP6XcI",
+            description        = "Inclina la testa verso una spalla, mantieni 20s.",
+            subtitle2          = "BENEFICI",
+            description2       = "- Aumenta la flessibilità del collo\n- Riduce tensione",
+            detailImage1Res    = R.drawable.belinchecollo,
+            detailImage2Res    = R.drawable.treadmill2,
+            descrizioneTotale  = "Ripeti 3 volte per lato"
+        ),
+        Stretch(
+            type               = "neck_forward",
+            imageRes           = R.drawable.nivea,
+            descriptionImage   = R.drawable.nivea,
+            title              = "Forward Neck Stretch",
+            videoUrl           = "https://www.youtube.com/watch?v=s2XtMJP6XcI",
+            description        = "Porta il mento verso il petto, mantieni 20s.",
+            subtitle2          = "BENEFICI",
+            description2       = "- Allunga muscoli posteriori del collo\n- Migliora postura",
+            detailImage1Res    = R.drawable.belinchecollo,
+            detailImage2Res    = R.drawable.belinchebraccino,
+            descrizioneTotale  = "Ripeti 3 volte"
+        )
     )
+
     private val shoulderList = mutableListOf(
-        Stretch(type="shoulder_cross", imageRes=R.drawable.stretch_schoulders, title="Cross-Body Shoulder", description="Porta un braccio al petto, mantieni 20s."),
-        Stretch(type="shoulder_tricep",imageRes=R.drawable.stretch_arms,       title="Tricep Stretch",      description="Piega il gomito dietro la testa, mantieni 20s.")
+        Stretch(
+            type               = "shoulder_cross",
+            imageRes           = R.drawable.belinchecollo,
+            descriptionImage   = R.drawable.ahahaha,
+            title              = "Cross-Body Shoulder",
+            videoUrl           = "https://www.youtube.com/watch?app=desktop&v=nrZzInPLiK8",
+            description        = "Porta un braccio al petto, mantieni 20s.",
+            subtitle2          = "BENEFICI",
+            description2       = "- Allunga deltoidi posteriori\n- Allevia tensione spalle",
+            detailImage1Res    = R.drawable.aahaha2,
+            detailImage2Res    = R.drawable.ebboh,
+            descrizioneTotale  = "Ripeti 3 volte per braccio"
+        ),
+        Stretch(
+            type               = "shoulder_tricep",
+            imageRes           = R.drawable.stretch_arms,
+            descriptionImage   = R.drawable.tricio,
+            title              = "Tricep Stretch",
+            videoUrl           = "https://www.youtube.com/watch?app=desktop&v=nrZzInPLiK8",
+            description        = "Piega il gomito dietro la testa, mantieni 20s.",
+            subtitle2          = "BENEFICI",
+            description2       = "- Allunga tricipiti\n- Migliora mobilità spalle",
+            detailImage1Res    = R.drawable.ebboh,
+            detailImage2Res    = R.drawable.belinchebraccino,
+            descrizioneTotale  = "Ripeti 3 volte per braccio"
+        )
     )
-    private val backList     = mutableListOf(
-        Stretch(type="cat_cow",    imageRes=R.drawable.stretch_back, title="Cat-Cow",     description="Alterna gobba e inarcata, 8 ripetizioni."),
-        Stretch(type="child_pose", imageRes=R.drawable.stretch_back, title="Child’s Pose",description="Seduto sui talloni, braccia in avanti, 30s.")
+
+    private val backList = mutableListOf(
+        Stretch(
+            type               = "cat_cow",
+            imageRes           = R.drawable.stretch_back,
+            descriptionImage   = R.drawable.gatto3,
+            title              = "Cat-Cow",
+            videoUrl           = "https://www.youtube.com/watch?v=hmHbBReLWQ8",
+            description        = "Alterna gobba e inarcata, 8 ripetizioni.",
+            subtitle2          = "BENEFICI",
+            description2       = "- Mobilizza la colonna vertebrale\n- Riscalda schiena",
+            detailImage1Res    = R.drawable.gatto2,
+            detailImage2Res    = R.drawable.gattone,
+            descrizioneTotale  = "2 serie da 8 ripetizioni"
+        ),
+        Stretch(
+            type               = "child_pose",
+            imageRes           = R.drawable.stretch_back,
+            descriptionImage   = R.drawable.child,
+            title              = "Child’s Pose",
+            videoUrl           = "https://www.youtube.com/watch?v=hmHbBReLWQ8",
+            description        = "Seduto sui talloni, braccia in avanti, 30s.",
+            subtitle2          = "BENEFICI",
+            description2       = "- Allunga schiena e fianchi\n- Favorisce rilassamento",
+            detailImage1Res    = R.drawable.child2,
+            detailImage2Res    = R.drawable.child3,
+            descrizioneTotale  = "Mantieni 30s"
+        )
     )
-    private val legsList     = mutableListOf(
-        Stretch(type="hamstring", imageRes=R.drawable.stretch_legs, title="Hamstring Stretch", description="Gamba distesa, busto in avanti, 20s."),
-        Stretch(type="quad",      imageRes=R.drawable.stretch_legs, title="Quad Stretch",      description="Tira un piede al gluteo, mantieni 20s.")
+
+    private val legsList = mutableListOf(
+        Stretch(
+            type               = "hamstring",
+            imageRes           = R.drawable.stretch_legs,
+            descriptionImage   = R.drawable.gamba,
+            title              = "Hamstring Stretch",
+            videoUrl           = "https://www.youtube.com/watch?v=hmHbBReLWQ8",
+            description        = "Gamba distesa, busto in avanti, 20s.",
+            subtitle2          = "BENEFICI",
+            description2       = "- Allunga ischiocrurali\n- Migliora flessibilità gambe",
+            detailImage1Res    = R.drawable.gamba2,
+            detailImage2Res    = R.drawable.gamba3,
+            descrizioneTotale  = "Ripeti 3 volte per gamba"
+        ),
+        Stretch(
+            type               = "quad",
+            imageRes           = R.drawable.stretch_legs,
+            descriptionImage   = R.drawable.quad,
+            title              = "Quad Stretch",
+            videoUrl           = "https://www.youtube.com/watch?v=ELu4rhf5LCw",
+            description        = "Tira un piede al gluteo, mantieni 20s.",
+            subtitle2          = "BENEFICI",
+            description2       = "- Allunga quadricipiti\n- Migliora mobilità anca",
+            detailImage1Res    = R.drawable.quad2,
+            detailImage2Res    = R.drawable.quad3,
+            descrizioneTotale  = "Ripeti 3 volte per gamba"
+        )
     )
-    private val armsList     = mutableListOf(
-        Stretch(type="wrist",      imageRes=R.drawable.stretch_arms, title="Wrist Stretch",      description="Tira indietro le dita, 20s."),
-        Stretch(type="bicep_wall", imageRes=R.drawable.stretch_arms, title="Bicep Wall Stretch", description="Mano al muro, mantieni 20s.")
+
+    private val armsList = mutableListOf(
+        Stretch(
+            type               = "wrist",
+            imageRes           = R.drawable.stretch_arms,
+            descriptionImage   = R.drawable.wrist,
+            title              = "Wrist Stretch",
+            videoUrl           = "https://www.youtube.com/watch?v=hmHbBReLWQ8",
+            description        = "Tira indietro le dita, mantieni 20s.",
+            subtitle2          = "BENEFICI",
+            description2       = "- Riduce tensione polsi\n- Previene infiammazioni",
+            detailImage1Res    = R.drawable.wrist2,
+            detailImage2Res    = R.drawable.wrist3,
+            descrizioneTotale  = "Mantieni 20s"
+        ),
+        Stretch(
+            type               = "bicep_wall",
+            imageRes           = R.drawable.stretch_arms,
+            descriptionImage   = R.drawable.muro,
+            title              = "Bicep Wall Stretch",
+            videoUrl           = "https://www.youtube.com/watch?v=hmHbBReLWQ8",
+            description        = "Mano al muro, mantieni 20s.",
+            subtitle2          = "BENEFICI",
+            description2       = "- Allunga bicipiti\n- Migliora postura spalle",
+            detailImage1Res    = R.drawable.muro2,
+            detailImage2Res    = R.drawable.muro3,
+            descrizioneTotale  = "Mantieni 20s"
+        )
     )
 
     private lateinit var neckAdapter: StretchAdapter
@@ -73,7 +205,6 @@ class StretchingFragment : Fragment(R.layout.fragment_stretching) {
         legsAdapter     = setupSection(view, R.id.cardStretchLegs,      R.id.rvStretchLegs,      legsList)
         armsAdapter     = setupSection(view, R.id.cardStretchArms,      R.id.rvStretchArms,      armsList)
 
-        // Carica solo se ho una data valida, per evitare IllegalStateException
         if (!selectedDate.isNullOrBlank()) {
             loadSavedStretches()
         }
@@ -94,7 +225,17 @@ class StretchingFragment : Fragment(R.layout.fragment_stretching) {
             this.adapter = adapter
             visibility = View.GONE
         }
-        header.strokeColor = ContextCompat.getColor(requireContext(), R.color.black)
+
+        // bordo bianco 2dp in dark mode
+        if ((resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK)
+            == Configuration.UI_MODE_NIGHT_YES) {
+            val strokePx = TypedValue.applyDimension(
+                TypedValue.COMPLEX_UNIT_DIP, 2f, resources.displayMetrics
+            ).toInt()
+            header.strokeColor = ContextCompat.getColor(requireContext(), android.R.color.black)
+            header.strokeWidth = strokePx
+        }
+
         header.setOnClickListener {
             rv.visibility = if (rv.visibility == View.VISIBLE) View.GONE else View.VISIBLE
         }
@@ -142,9 +283,9 @@ class StretchingFragment : Fragment(R.layout.fragment_stretching) {
 
             private fun adjustCount(delta: Int) {
                 val pos = adapterPosition.takeIf { it != RecyclerView.NO_POSITION } ?: return
-                val ex = items[pos]
-                if (ex.isSetsMode) ex.setsCount = maxOf(0, ex.setsCount + delta)
-                else               ex.repsCount = maxOf(0, ex.repsCount + delta)
+                val s = items[pos]
+                if (s.isSetsMode) s.setsCount = (s.setsCount + delta).coerceAtLeast(0)
+                else              s.repsCount = (s.repsCount + delta).coerceAtLeast(0)
                 notifyItemChanged(pos)
             }
 
@@ -157,12 +298,12 @@ class StretchingFragment : Fragment(R.layout.fragment_stretching) {
                 btnSets.backgroundTintList = ColorStateList.valueOf(if (s.isSetsMode) green else black)
                 btnReps.backgroundTintList = ColorStateList.valueOf(if (!s.isSetsMode) green else black)
 
-                val isTracking = !selectedDate.isNullOrBlank()
+                val tracking = !selectedDate.isNullOrBlank()
                 listOf(btnSets, btnReps, btnPlus, btnMinus, btnConfirm).forEach {
-                    it.visibility = if (isTracking) View.VISIBLE else View.GONE
+                    it.visibility = if (tracking) View.VISIBLE else View.GONE
                 }
-                counterSets.visibility = if (isTracking && s.isSetsMode) View.VISIBLE else View.GONE
-                counterReps.visibility = if (isTracking && !s.isSetsMode) View.VISIBLE else View.GONE
+                counterSets.visibility = if (tracking && s.isSetsMode) View.VISIBLE else View.GONE
+                counterReps.visibility = if (tracking && !s.isSetsMode) View.VISIBLE else View.GONE
             }
         }
 
@@ -177,14 +318,20 @@ class StretchingFragment : Fragment(R.layout.fragment_stretching) {
 
     private fun openDetail(s: Stretch) {
         ExerciseDetailFragment.newInstance(
-            s.title, "", s.description,
-            "", "", s.imageRes, s.imageRes, s.imageRes, s.description
+            s.title,
+            s.videoUrl,
+            s.description,
+            s.subtitle2,
+            s.description2,
+            s.detailImage1Res,
+            s.detailImage2Res,
+            s.descriptionImage,
+            s.descrizioneTotale
         ).show((requireActivity() as FragmentActivity).supportFragmentManager, "stretch_detail")
     }
 
     private fun getStretchRef(): CollectionReference {
-        val date = selectedDate
-            ?: throw IllegalStateException("Data mancante")
+        val date = selectedDate ?: throw IllegalStateException("Data mancante")
         return if (selectedUser != null) {
             db.collection("schede_del_pt")
                 .document(selectedUser!!)
@@ -215,7 +362,6 @@ class StretchingFragment : Fragment(R.layout.fragment_stretching) {
         }
         getStretchRef().document(s.type)
             .set(mapOf(
-                "category"          to s.category,
                 "nomeEsercizio"     to s.title,
                 "numeroSerie"       to s.setsCount,
                 "numeroRipetizioni" to s.repsCount,
@@ -230,21 +376,19 @@ class StretchingFragment : Fragment(R.layout.fragment_stretching) {
     }
 
     private fun loadSavedStretches() {
-        // se non c’è data, esco subito senza crash
-        val date = selectedDate
-        if (date.isNullOrBlank()) return
-
+        val date = selectedDate ?: return
         getStretchRef().get()
             .addOnSuccessListener { snap ->
                 snap.documents.forEach { doc ->
                     val type = doc.id
                     val sets = doc.getLong("numeroSerie")?.toInt() ?: 0
                     val reps = doc.getLong("numeroRipetizioni")?.toInt() ?: 0
-                    neckList.find     { it.type == type }?.apply { setsCount = sets; repsCount = reps }
-                    shoulderList.find { it.type == type }?.apply { setsCount = sets; repsCount = reps }
-                    backList.find     { it.type == type }?.apply { setsCount = sets; repsCount = reps }
-                    legsList.find     { it.type == type }?.apply { setsCount = sets; repsCount = reps }
-                    armsList.find     { it.type == type }?.apply { setsCount = sets; repsCount = reps }
+                    listOf(neckList, shoulderList, backList, legsList, armsList).forEach { list ->
+                        list.find { it.type == type }?.apply {
+                            setsCount = sets
+                            repsCount = reps
+                        }
+                    }
                 }
                 neckAdapter.notifyDataSetChanged()
                 shoulderAdapter.notifyDataSetChanged()
@@ -254,7 +398,7 @@ class StretchingFragment : Fragment(R.layout.fragment_stretching) {
             }
             .addOnFailureListener {
                 Toast.makeText(requireContext(),
-                    "Errore durante il caricamento degli esercizi", Toast.LENGTH_SHORT).show()
+                    "Errore caricamento esercizi", Toast.LENGTH_SHORT).show()
             }
     }
 }

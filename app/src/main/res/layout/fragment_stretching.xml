@@ -6,7 +6,7 @@
     android:id="@+id/stretching_container"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:layout_marginTop="60dp"
+    android:layout_marginTop="90dp"
     android:paddingBottom="80dp"
     tools:context=".ui.workout.StretchingFragment">
 
@@ -50,7 +50,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:scaleType="centerCrop"
-                        android:src="@drawable/stretch_pols"/>
+                        android:src="@drawable/nivea"/>
 
                     <View
                         android:layout_width="match_parent"
