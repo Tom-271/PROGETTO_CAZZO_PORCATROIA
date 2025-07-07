@@ -252,7 +252,7 @@ class MyAutoScheduleFragment : Fragment() {
                     )
                 }
                 val infoButton = ImageButton(requireContext()).apply {
-                    setImageResource(R.drawable.info)
+                    setImageResource(R.drawable.down)
                     background = null
                     layoutParams = LinearLayout.LayoutParams(100, 100)
                 }
@@ -318,8 +318,21 @@ class MyAutoScheduleFragment : Fragment() {
                     }
 
                 //mostra/nascondi card
+                infoButton.tag = false  // false = card chiusa, true = card aperta
                 infoButton.setOnClickListener {
-                    cardView.visibility = if (cardView.visibility == GONE) VISIBLE else GONE
+                    // recupera lo stato corrente
+                    val isOpen = it.tag as Boolean
+                    if (!isOpen) {
+                        // apro la card
+                        cardView.visibility = VISIBLE
+                        infoButton.setImageResource(R.drawable.up)
+                    } else {
+                        // chiudo la card
+                        cardView.visibility = GONE
+                        infoButton.setImageResource(R.drawable.down)
+                    }
+                    // inverto lo stato
+                    it.tag = !isOpen
                 }
 
                 //salva peso su Firestore

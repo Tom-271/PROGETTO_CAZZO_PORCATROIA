@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="120dp"
+    android:height="120dp"
+    android:viewportWidth="120"
+    android:viewportHeight="120">
+
+    <!-- Cappellino -->
+    <path
+        android:fillColor="#424242"
+        android:pathData="
+            M20,30
+            H80
+            C85,30 90,35 90,40
+            L90,45
+            C90,50 85,50 80,50
+            H25
+            C22,50 20,48 20,45
+            Z" />
+
+    <!-- Visiera del cappello -->
+    <path
+        android:fillColor="#424242"
+        android:pathData="
+            M80,40
+            L115,45
+            C118,46 118,50 115,52
+            L80,55
+            Z" />
+
+    <!-- Testa -->
+    <path
+        android:fillColor="#424242"
+        android:pathData="
+            M90,55
+            C90,40 75,30 60,30
+            C45,30 30,40 30,55
+            C30,70 45,80 60,80
+            C75,80 90,70 90,55
+            Z" />
+
+    <!-- Collo e spalle -->
+    <path
+        android:fillColor="#424242"
+        android:pathData="
+            M30,80
+            L30,100
+            C30,105 35,110 60,110
+            C85,110 90,105 90,100
+            L90,80
+            Z" />
+
+    <!-- Fischietto e cordino -->
+    <path
+        android:fillColor="#424242"
+        android:strokeWidth="4"
+        android:strokeColor="#424242"
+        android:pathData="
+            M60,82
+            L60,95" />
+    <path
+        android:fillColor="#424242"
+        android:pathData="
+            M55,95
+            C55,100 65,100 65,95
+            C65,90 55,90 55,95
+            Z" />
+</vector>

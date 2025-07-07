@@ -98,6 +98,17 @@ class RegisterActivity : AppCompatActivity() {
                 return@setOnClickListener
             }
 
+            // controllo complessità password: almeno 1 maiuscola, 1 numero, 1 carattere speciale
+            val passwordRegex = Regex("^(?=.*[A-Z])(?=.*\\d)(?=.*[^A-Za-z0-9]).{6,}\$")
+            if (!passwordRegex.matches(pw)) {
+                Toast.makeText(
+                    this,
+                    "la password deve avere almeno una maiuscola, un numero e un carattere speciale",
+                    Toast.LENGTH_LONG
+                ).show()
+                return@setOnClickListener
+            }
+
             // verifica codice PT
             if (isPT) {
                 if (verifica.isEmpty()) {
@@ -157,6 +168,7 @@ class RegisterActivity : AppCompatActivity() {
                         Toast.LENGTH_LONG).show()
                 }
         }
+
     }
 
     private fun showDatePicker() {

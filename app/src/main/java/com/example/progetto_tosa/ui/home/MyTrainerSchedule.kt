@@ -275,10 +275,27 @@ class MyTrainerSchedule : Fragment(R.layout.fragment_my_trainer_schedule) {
                         d.getDouble("peso")?.let { weightInput.setText(it.toString()) }
                     }
 
-                // toggle dettaglio
-                infoBtn.setOnClickListener {
-                    detailCard.visibility = if (detailCard.visibility == GONE) VISIBLE else GONE
+                // inizializza lo stato: false = card chiusa
+                infoBtn.setImageResource(R.drawable.down)
+                infoBtn.tag = false
+
+                infoBtn.setImageResource(R.drawable.down)
+                infoBtn.tag = false
+
+                infoBtn.setOnClickListener { view ->
+                    val btn = view as ImageButton
+                    val isOpen = btn.tag as Boolean
+                    if (!isOpen) {
+                        detailCard.visibility = VISIBLE
+                        btn.setImageResource(R.drawable.up)
+                    } else {
+                        detailCard.visibility = GONE
+                        btn.setImageResource(R.drawable.down)
+                    }
+                    btn.tag = !isOpen
                 }
+
+
 
                 // salva peso
                 saveBtn.setOnClickListener {
