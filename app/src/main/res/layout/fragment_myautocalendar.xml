@@ -1,40 +1,38 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:layout_marginTop="85dp"
+    android:paddingTop="?attr/actionBarSize"
     android:padding="16dp">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="100dp">
+        android:orientation="vertical">
 
-        <!-- Titolo -->
+        <!-- 1) Titolo -->
         <TextView
             android:id="@+id/instruction"
-            android:layout_width="0dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Seleziona una data!"
             android:textAlignment="center"
             android:textStyle="bold"
             android:textSize="35sp"
             android:textColor="@color/orange"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
+            android:layout_marginBottom="8dp" />
 
-        <!-- Pulsanti navigazione settimana -->
+        <!-- 2) Pulsanti navigazione settimana -->
         <LinearLayout
             android:id="@+id/weekNavButtons"
-            android:layout_width="0dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:gravity="center"
             android:orientation="horizontal"
-            app:layout_constraintTop_toBottomOf="@id/instruction"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent">
+            android:gravity="center"
+            android:layout_marginBottom="16dp">
 
             <Button
                 android:id="@+id/btnPrevWeek"
@@ -53,85 +51,78 @@
                 android:text="Avanti ⟶" />
         </LinearLayout>
 
-        <!-- Qui sostituiamo daysContainer con un ToggleGroup verticale -->
+        <!-- 3) ToggleGroup verticale per i giorni -->
         <com.google.android.material.button.MaterialButtonToggleGroup
             android:id="@+id/daysToggleGroup"
-            android:layout_width="0dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:layout_marginTop="16dp"
-            android:layout_marginLeft="20dp"
-            android:layout_marginRight="20dp"
             app:singleSelection="true"
             app:selectionRequired="true"
-            app:layout_constraintTop_toBottomOf="@id/weekNavButtons"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent">
+            android:layout_marginBottom="16dp">
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnMonday"
                 style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="12dp"
-                android:text="LUNEDÌ" />
+                android:text="LUNEDÌ"
+                android:layout_marginBottom="8dp"/>
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnTuesday"
                 style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="12dp"
-                android:text="MARTEDÌ" />
+                android:text="MARTEDÌ"
+                android:layout_marginBottom="8dp"/>
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnWednesday"
                 style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="12dp"
-                android:text="MERCOLEDÌ" />
+                android:text="MERCOLEDÌ"
+                android:layout_marginBottom="8dp"/>
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnThursday"
                 style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="12dp"
-                android:text="GIOVEDÌ" />
+                android:text="GIOVEDÌ"
+                android:layout_marginBottom="8dp"/>
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnFriday"
                 style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="12dp"
-                android:text="VENERDÌ" />
+                android:text="VENERDÌ"
+                android:layout_marginBottom="8dp"/>
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnSaturday"
                 style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="12dp"
-                android:text="SABATO" />
+                android:text="SABATO"
+                android:layout_marginBottom="8dp"/>
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnSunday"
                 style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="12dp"
-                android:text="DOMENICA" />
-
+                android:text="DOMENICA"/>
         </com.google.android.material.button.MaterialButtonToggleGroup>
 
-        <!-- Bottone finale -->
+        <!-- 4) Bottone finale -->
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnFancy"
-            android:layout_width="280dp"
-            android:layout_height="80dp"
-            android:layout_marginTop="16dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
             android:layout_marginBottom="32dp"
             android:paddingVertical="12dp"
             android:backgroundTint="@color/navy_blue"
@@ -140,10 +131,6 @@
             app:strokeColor="@color/dark_gray"
             app:strokeWidth="0.6dp"
             android:textColor="@color/white"
-            app:cornerRadius="16dp"
-            app:layout_constraintTop_toBottomOf="@id/daysToggleGroup"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
-
-    </androidx.constraintlayout.widget.ConstraintLayout>
+            app:cornerRadius="16dp"/>
+    </LinearLayout>
 </ScrollView>

@@ -5,7 +5,7 @@
     android:id="@+id/stepwatch_container"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="150dp"
+    android:paddingTop="?attr/actionBarSize"
     android:clipChildren="false"
     android:clipToPadding="false">
 

@@ -8,7 +8,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:gravity="center_horizontal"
-    android:padding="24dp">
+    android:paddingTop="?attr/actionBarSize">
 
     <!-- Cronometro centrato in alto -->
 

@@ -5,6 +5,7 @@
     android:id="@+id/cronotimer_container"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:paddingTop="?attr/actionBarSize"
     android:padding="30dp">
 
     <!-- Toggle in alto, sempre visibile -->

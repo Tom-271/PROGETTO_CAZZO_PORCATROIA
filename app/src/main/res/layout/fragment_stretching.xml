@@ -6,8 +6,8 @@
     android:id="@+id/stretching_container"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:layout_marginTop="90dp"
-    android:paddingBottom="80dp"
+    android:paddingTop="?attr/actionBarSize"
+    android:layout_marginTop="40dp"
     tools:context=".ui.workout.StretchingFragment">
 
     <!-- Scroll principale -->
@@ -16,6 +16,7 @@
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:fillViewport="true"
+        android:clipToPadding="false"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"

@@ -86,7 +86,7 @@ class LoginWithEmail : AppCompatActivity() {
                         // Messaggio di errore specifico
                         val msg = when (task.exception) {
                             is FirebaseAuthInvalidUserException       -> "Utente non trovato"
-                            is FirebaseAuthInvalidCredentialsException -> "Password errata"
+                            is FirebaseAuthInvalidCredentialsException -> "Email o Password errata"
                             else                                       -> task.exception?.localizedMessage ?: "Login fallito"
                         }
                         Toast.makeText(this, msg, Toast.LENGTH_LONG).show()

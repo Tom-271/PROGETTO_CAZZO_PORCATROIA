@@ -6,12 +6,12 @@
     android:id="@+id/account_container"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:layout_marginTop="60dp"
-    android:paddingBottom="80dp"
-    tools:context="com.example.progetto_tosa.ui.workout.CorpoliberoFragment">
+    android:paddingTop="?attr/actionBarSize"
+    android:layout_marginTop="40dp"
+    tools:context="com.example.progetto_tosa.ui.workout.BodybuildingFragment">
 
     <androidx.core.widget.NestedScrollView
-        android:id="@+id/scroll_corpolibero"
+        android:id="@+id/scroll_bb"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:fillViewport="true"

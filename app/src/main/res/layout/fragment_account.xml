@@ -8,7 +8,7 @@
     android:layout_height="match_parent"
     android:fillViewport="true"
     android:scrollbars="none"
-    android:layout_marginTop="55dp"
+    android:paddingTop="?attr/actionBarSize"
     android:fitsSystemWindows="true"
     tools:context="com.example.progetto_tosa.ui.account.AccountFragment">
 
@@ -302,8 +302,6 @@
         android:layout_width="300dp"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:layout_marginBottom="0dp"
-        android:paddingBottom="80dp"
         android:translationZ="7dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
