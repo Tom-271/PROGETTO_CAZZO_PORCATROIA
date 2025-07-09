@@ -2,100 +2,59 @@ package com.example.progetto_tosa.ui.account
 
 import android.content.Intent
 import android.os.Bundle
-import android.view.View
-import android.widget.*
+import android.view.animation.AccelerateDecelerateInterpolator
+import android.widget.Toast
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import androidx.databinding.DataBindingUtil
 import com.example.progetto_tosa.R
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
-import com.google.firebase.auth.FirebaseAuthInvalidUserException
-import com.google.firebase.firestore.FirebaseFirestore
+import com.example.progetto_tosa.databinding.ActivityLoginWithEmailBinding
 
 class LoginWithEmail : AppCompatActivity() {
 
-    private lateinit var etEmail: EditText
-    private lateinit var etPassword: EditText
-    private lateinit var btnLogin: Button
-    private lateinit var flLogin: FrameLayout
-    private lateinit var pbLoading: ProgressBar
-    private lateinit var tvGoRegister: TextView
-
-    private val auth by lazy { FirebaseAuth.getInstance() }
+    private lateinit var binding: ActivityLoginWithEmailBinding
+    private val vm: LoginWithEmailViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_login_with_email)
+        binding = DataBindingUtil.setContentView(this, R.layout.activity_login_with_email)
+        binding.vm = vm
+        binding.lifecycleOwner = this
 
-        // bind delle view
-        etEmail      = findViewById(R.id.etEmailLog)
-        etPassword   = findViewById(R.id.etPasswordLog)
-        btnLogin     = findViewById(R.id.btnLogin)
-        flLogin      = findViewById(R.id.flLoginButton)
-        pbLoading    = findViewById(R.id.pbLoading)
-        tvGoRegister = findViewById(R.id.tvGoRegister)
-
-        btnLogin.setOnClickListener {
-            val email = etEmail.text.toString().trim()
-            val pw    = etPassword.text.toString()
-            if (email.isEmpty() || pw.isEmpty()) {
-                Toast.makeText(this, "Inserisci email e password", Toast.LENGTH_SHORT).show()
-                return@setOnClickListener
-            }
-
-            // Disabilita il bottone e mostra loader
-            btnLogin.isEnabled   = false
-            btnLogin.text        = ""
-            pbLoading.visibility = View.VISIBLE
-            pbLoading.alpha      = 0f
-            pbLoading.animate().alpha(1f).setDuration(200).start()
-
-            // Effettua il login
-            auth.signInWithEmailAndPassword(email, pw)
-                .addOnCompleteListener { task ->
-                    // Ripristina UI
-                    pbLoading.animate()
-                        .alpha(0f)
-                        .setDuration(200)
-                        .withEndAction {
-                            pbLoading.visibility = View.GONE
-                            btnLogin.text        = "ACCEDI"
-                            btnLogin.isEnabled   = true
-                        }
-                        .start()
-
-                    if (task.isSuccessful) {
-                        // Animazione di conferma
-                        btnLogin.setBackgroundColor(
-                            ContextCompat.getColor(this, R.color.teal_700)
-                        )
-                        btnLogin.animate()
-                            .scaleX(1.05f).scaleY(1.05f).setDuration(150)
-                            .withEndAction {
-                                btnLogin.animate()
-                                    .scaleX(1f).scaleY(1f)
-                                    .setDuration(100)
-                                    .withEndAction { val intent = Intent(this, MainActivity::class.java)
-                                        intent.putExtra("navigateTo", "account")
-                                        startActivity(intent)
-                                        finish() }
-                                    .start()
-                            }
-                            .start()
-                    } else {
-                        // Messaggio di errore specifico
-                        val msg = when (task.exception) {
-                            is FirebaseAuthInvalidUserException       -> "Utente non trovato"
-                            is FirebaseAuthInvalidCredentialsException -> "Email o Password errata"
-                            else                                       -> task.exception?.localizedMessage ?: "Login fallito"
-                        }
-                        Toast.makeText(this, msg, Toast.LENGTH_LONG).show()
+        vm.navigateEvent.observe(this) { event ->
+            event.getIfNotHandled()?.let { dest ->
+                when (dest) {
+                    is LoginWithEmailViewModel.Destination.SHOW_TOAST ->
+                        Toast.makeText(this, dest.msg, Toast.LENGTH_LONG).show()
+                    LoginWithEmailViewModel.Destination.LOGIN_SUCCESS -> animateSuccess()
+                    LoginWithEmailViewModel.Destination.GO_REGISTER   ->
+                        startActivity(Intent(this, RegisterActivity::class.java))
+                    LoginWithEmailViewModel.Destination.GO_MAIN       -> {
+                        startActivity(Intent(this, MainActivity::class.java).apply {
+                            putExtra("navigateTo", "account")
+                        })
+                        finish()
                     }
                 }
+            }
         }
+    }
 
-        tvGoRegister.setOnClickListener {
-            startActivity(Intent(this, RegisterActivity::class.java))
-        }
+    private fun animateSuccess() {
+        val btn = binding.btnLogin
+        btn.setBackgroundColor(ContextCompat.getColor(this, R.color.teal_700))
+        btn.animate()
+            .scaleX(1.05f).scaleY(1.05f)
+            .setDuration(150)
+            .setInterpolator(AccelerateDecelerateInterpolator())
+            .withEndAction {
+                btn.animate()
+                    .scaleX(1f).scaleY(1f)
+                    .setDuration(100)
+                    .withEndAction { vm.onRegisterComplete() }
+                    .start()
+            }
+            .start()
     }
 }

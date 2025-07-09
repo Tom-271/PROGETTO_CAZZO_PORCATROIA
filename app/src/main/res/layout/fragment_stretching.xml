@@ -1,307 +1,311 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
+<layout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/stretching_container"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:paddingTop="?attr/actionBarSize"
-    android:layout_marginTop="40dp"
-    tools:context=".ui.workout.StretchingFragment">
+    xmlns:tools="http://schemas.android.com/tools">
 
-    <!-- Scroll principale -->
-    <androidx.core.widget.NestedScrollView
-        android:id="@+id/scroll_stretching"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:fillViewport="true"
-        android:clipToPadding="false"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
+    <data>
+        <variable
+            name="viewModel"
+            type="com.example.progetto_tosa.ui.workout.StretchingViewModel" />
+    </data>
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:paddingTop="25dp">
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/stretching_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:paddingTop="?attr/actionBarSize"
+        android:layout_marginTop="40dp"
+        tools:context=".ui.workout.StretchingFragment">
 
-            <!-- SEZIONE COLLO -->
-            <com.google.android.material.card.MaterialCardView
-                android:id="@+id/cardStretchNeck"
-                android:layout_width="match_parent"
-                android:layout_height="160dp"
-                android:layout_margin="12dp"
-                android:clickable="true"
-                android:focusable="true"
-                android:onClick="toggleSection"
-                app:cardCornerRadius="12dp"
-                app:cardElevation="6dp"
-                app:strokeColor="@color/black"
-                app:strokeWidth="1dp"
-                app:cardBackgroundColor="@android:color/transparent">
+        <!-- Scroll principale -->
+        <androidx.core.widget.NestedScrollView
+            android:id="@+id/scroll_stretching"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:fillViewport="true"
+            android:clipToPadding="false"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent">
 
-                <FrameLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent">
-
-                    <ImageView
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:scaleType="centerCrop"
-                        android:src="@drawable/nivea"/>
-
-                    <View
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:background="#80000000"/>
-
-                    <TextView
-                        android:id="@+id/tvStretchNeck"
-                        style="@style/SectionTitle"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        android:text="C   O   L   L   O"
-                        android:textColor="@android:color/white"
-                        android:shadowColor="@color/sky"
-                        android:shadowRadius="20"/>
-                </FrameLayout>
-            </com.google.android.material.card.MaterialCardView>
-
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/rvStretchNeck"
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:nestedScrollingEnabled="false"
-                android:visibility="gone"/>
+                android:orientation="vertical"
+                android:paddingTop="25dp">
 
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:layout_marginHorizontal="40dp"
-                android:background="@color/steel"/>
-
-            <!-- SEZIONE SPALLE -->
-            <com.google.android.material.card.MaterialCardView
-                android:id="@+id/cardStretchShoulders"
-                android:layout_width="match_parent"
-                android:layout_height="160dp"
-                android:layout_margin="12dp"
-                android:clickable="true"
-                android:focusable="true"
-                android:onClick="toggleSection"
-                app:cardCornerRadius="12dp"
-                app:cardElevation="6dp"
-                app:strokeColor="@color/black"
-                app:strokeWidth="1dp"
-                app:cardBackgroundColor="@android:color/transparent">
-
-                <FrameLayout
+                <!-- SEZIONE COLLO -->
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/cardStretchNeck"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent">
+                    android:layout_height="160dp"
+                    android:layout_margin="12dp"
+                    android:clickable="true"
+                    android:focusable="true"
+                    app:cardCornerRadius="12dp"
+                    app:cardElevation="6dp"
+                    app:strokeColor="@color/black"
+                    app:strokeWidth="1dp"
+                    app:cardBackgroundColor="@android:color/transparent">
 
-                    <ImageView
+                    <FrameLayout
                         android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:scaleType="centerCrop"
-                        android:src="@drawable/stretch_schoulders"/>
+                        android:layout_height="match_parent">
 
-                    <View
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:background="#80000000"/>
+                        <ImageView
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:scaleType="centerCrop"
+                            android:src="@drawable/nivea"/>
 
-                    <TextView
-                        android:id="@+id/tvStretchShoulders"
-                        style="@style/SectionTitle"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        android:text="S   P   A   L   L   E"
-                        android:textColor="@android:color/white"
-                        android:shadowColor="@color/sky"
-                        android:shadowRadius="20"/>
-                </FrameLayout>
-            </com.google.android.material.card.MaterialCardView>
+                        <View
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:background="#80000000"/>
 
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/rvStretchShoulders"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:nestedScrollingEnabled="false"
-                android:visibility="gone"/>
+                        <TextView
+                            android:id="@+id/tvStretchNeck"
+                            style="@style/SectionTitle"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:text="C   O   L   L   O"
+                            android:textColor="@android:color/white"
+                            android:shadowColor="@color/sky"
+                            android:shadowRadius="20"/>
+                    </FrameLayout>
+                </com.google.android.material.card.MaterialCardView>
 
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:layout_marginHorizontal="40dp"
-                android:background="@color/steel"/>
-
-            <!-- SEZIONE SCHIENA -->
-            <com.google.android.material.card.MaterialCardView
-                android:id="@+id/cardStretchBack"
-                android:layout_width="match_parent"
-                android:layout_height="160dp"
-                android:layout_margin="12dp"
-                android:clickable="true"
-                android:focusable="true"
-                android:onClick="toggleSection"
-                app:cardCornerRadius="12dp"
-                app:cardElevation="6dp"
-                app:strokeColor="@color/black"
-                app:strokeWidth="1dp"
-                app:cardBackgroundColor="@android:color/transparent">
-
-                <FrameLayout
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/rvStretchNeck"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent">
+                    android:layout_height="wrap_content"
+                    android:nestedScrollingEnabled="false"
+                    android:visibility="gone"/>
 
-                    <ImageView
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:scaleType="centerCrop"
-                        android:src="@drawable/stretch_back"/>
-
-                    <View
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:background="#80000000"/>
-
-                    <TextView
-                        android:id="@+id/tvStretchBack"
-                        style="@style/SectionTitle"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        android:text="S   C   H   I   E   N   A"
-                        android:textColor="@android:color/white"
-                        android:shadowColor="@color/sky"
-                        android:shadowRadius="20"/>
-                </FrameLayout>
-            </com.google.android.material.card.MaterialCardView>
-
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/rvStretchBack"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:nestedScrollingEnabled="false"
-                android:visibility="gone"/>
-
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:layout_marginHorizontal="40dp"
-                android:background="@color/steel"/>
-
-            <!-- SEZIONE GAMBE -->
-            <com.google.android.material.card.MaterialCardView
-                android:id="@+id/cardStretchLegs"
-                android:layout_width="match_parent"
-                android:layout_height="160dp"
-                android:layout_margin="12dp"
-                android:clickable="true"
-                android:focusable="true"
-                android:onClick="toggleSection"
-                app:cardCornerRadius="12dp"
-                app:cardElevation="6dp"
-                app:strokeColor="@color/black"
-                app:strokeWidth="1dp"
-                app:cardBackgroundColor="@android:color/transparent">
-
-                <FrameLayout
+                <View
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent">
+                    android:layout_height="1dp"
+                    android:layout_marginHorizontal="40dp"
+                    android:background="@color/steel"/>
 
-                    <ImageView
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:scaleType="centerCrop"
-                        android:src="@drawable/stretch_legs"/>
-
-                    <View
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:background="#80000000"/>
-
-                    <TextView
-                        android:id="@+id/tvStretchLegs"
-                        style="@style/SectionTitle"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        android:text="G   A   M   B   E"
-                        android:textColor="@android:color/white"
-                        android:shadowColor="@color/sky"
-                        android:shadowRadius="20"/>
-                </FrameLayout>
-            </com.google.android.material.card.MaterialCardView>
-
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/rvStretchLegs"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:nestedScrollingEnabled="false"
-                android:visibility="gone"/>
-
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:layout_marginHorizontal="40dp"
-                android:background="@color/steel"/>
-
-            <!-- SEZIONE BRACCIA -->
-            <com.google.android.material.card.MaterialCardView
-                android:id="@+id/cardStretchArms"
-                android:layout_width="match_parent"
-                android:layout_height="160dp"
-                android:layout_margin="12dp"
-                android:clickable="true"
-                android:focusable="true"
-                android:onClick="toggleSection"
-                app:cardCornerRadius="12dp"
-                app:cardElevation="6dp"
-                app:strokeColor="@color/black"
-                app:strokeWidth="1dp"
-                app:cardBackgroundColor="@android:color/transparent">
-
-                <FrameLayout
+                <!-- SEZIONE SPALLE -->
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/cardStretchShoulders"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent">
+                    android:layout_height="160dp"
+                    android:layout_margin="12dp"
+                    android:clickable="true"
+                    android:focusable="true"
+                    app:cardCornerRadius="12dp"
+                    app:cardElevation="6dp"
+                    app:strokeColor="@color/black"
+                    app:strokeWidth="1dp"
+                    app:cardBackgroundColor="@android:color/transparent">
 
-                    <ImageView
+                    <FrameLayout
                         android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:scaleType="centerCrop"
-                        android:src="@drawable/stretch_arms"/>
+                        android:layout_height="match_parent">
 
-                    <View
+                        <ImageView
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:scaleType="centerCrop"
+                            android:src="@drawable/stretch_schoulders"/>
+
+                        <View
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:background="#80000000"/>
+
+                        <TextView
+                            android:id="@+id/tvStretchShoulders"
+                            style="@style/SectionTitle"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:text="S   P   A   L   L   E"
+                            android:textColor="@android:color/white"
+                            android:shadowColor="@color/sky"
+                            android:shadowRadius="20"/>
+                    </FrameLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/rvStretchShoulders"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:nestedScrollingEnabled="false"
+                    android:visibility="gone"/>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_marginHorizontal="40dp"
+                    android:background="@color/steel"/>
+
+                <!-- SEZIONE SCHIENA -->
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/cardStretchBack"
+                    android:layout_width="match_parent"
+                    android:layout_height="160dp"
+                    android:layout_margin="12dp"
+                    android:clickable="true"
+                    android:focusable="true"
+                    app:cardCornerRadius="12dp"
+                    app:cardElevation="6dp"
+                    app:strokeColor="@color/black"
+                    app:strokeWidth="1dp"
+                    app:cardBackgroundColor="@android:color/transparent">
+
+                    <FrameLayout
                         android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:background="#80000000"/>
+                        android:layout_height="match_parent">
 
-                    <TextView
-                        android:id="@+id/tvStretchArms"
-                        style="@style/SectionTitle"
+                        <ImageView
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:scaleType="centerCrop"
+                            android:src="@drawable/stretch_back"/>
+
+                        <View
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:background="#80000000"/>
+
+                        <TextView
+                            android:id="@+id/tvStretchBack"
+                            style="@style/SectionTitle"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:text="S   C   H   I   E   N   A"
+                            android:textColor="@android:color/white"
+                            android:shadowColor="@color/sky"
+                            android:shadowRadius="20"/>
+                    </FrameLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/rvStretchBack"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:nestedScrollingEnabled="false"
+                    android:visibility="gone"/>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_marginHorizontal="40dp"
+                    android:background="@color/steel"/>
+
+                <!-- SEZIONE GAMBE -->
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/cardStretchLegs"
+                    android:layout_width="match_parent"
+                    android:layout_height="160dp"
+                    android:layout_margin="12dp"
+                    android:clickable="true"
+                    android:focusable="true"
+                    app:cardCornerRadius="12dp"
+                    app:cardElevation="6dp"
+                    app:strokeColor="@color/black"
+                    app:strokeWidth="1dp"
+                    app:cardBackgroundColor="@android:color/transparent">
+
+                    <FrameLayout
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        android:text="B   R   A   C   C   I   A"
-                        android:textColor="@android:color/white"
-                        android:shadowColor="@color/sky"
-                        android:shadowRadius="20"/>
-                </FrameLayout>
-            </com.google.android.material.card.MaterialCardView>
+                        android:layout_height="match_parent">
 
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/rvStretchArms"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:nestedScrollingEnabled="false"
-                android:visibility="gone"/>
+                        <ImageView
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:scaleType="centerCrop"
+                            android:src="@drawable/stretch_legs"/>
 
-        </LinearLayout>
-    </androidx.core.widget.NestedScrollView>
-</androidx.constraintlayout.widget.ConstraintLayout>
+                        <View
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:background="#80000000"/>
+
+                        <TextView
+                            android:id="@+id/tvStretchLegs"
+                            style="@style/SectionTitle"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:text="G   A   M   B   E"
+                            android:textColor="@android:color/white"
+                            android:shadowColor="@color/sky"
+                            android:shadowRadius="20"/>
+                    </FrameLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/rvStretchLegs"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:nestedScrollingEnabled="false"
+                    android:visibility="gone"/>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_marginHorizontal="40dp"
+                    android:background="@color/steel"/>
+
+                <!-- SEZIONE BRACCIA -->
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/cardStretchArms"
+                    android:layout_width="match_parent"
+                    android:layout_height="160dp"
+                    android:layout_margin="12dp"
+                    android:clickable="true"
+                    android:focusable="true"
+                    app:cardCornerRadius="12dp"
+                    app:cardElevation="6dp"
+                    app:strokeColor="@color/black"
+                    app:strokeWidth="1dp"
+                    app:cardBackgroundColor="@android:color/transparent">
+
+                    <FrameLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent">
+
+                        <ImageView
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:scaleType="centerCrop"
+                            android:src="@drawable/stretch_arms"/>
+
+                        <View
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:background="#80000000"/>
+
+                        <TextView
+                            android:id="@+id/tvStretchArms"
+                            style="@style/SectionTitle"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:text="B   R   A   C   C   I   A"
+                            android:textColor="@android:color/white"
+                            android:shadowColor="@color/sky"
+                            android:shadowRadius="20"/>
+                    </FrameLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/rvStretchArms"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:nestedScrollingEnabled="false"
+                    android:visibility="gone"/>
+
+            </LinearLayout>
+        </androidx.core.widget.NestedScrollView>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

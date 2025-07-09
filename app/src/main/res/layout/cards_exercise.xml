@@ -37,7 +37,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="12dp">
+            android:padding="10dp">
 
             <!-- Titolo -->
             <TextView
@@ -63,6 +63,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
+                    android:textSize="13dp"
                     android:text="Sets"
                     android:textColor="@color/white"
                     app:strokeColor="@color/white"
@@ -75,6 +76,8 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="Reps"
+                    android:textSize="13dp"
+
                     android:textColor="@color/white"
                     app:strokeColor="@color/white"
                     app:strokeWidth="1dp"/>

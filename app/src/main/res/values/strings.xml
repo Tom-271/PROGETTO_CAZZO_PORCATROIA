@@ -8,9 +8,11 @@
     <string name="title_corpolibero">Corpo Libero</string>
     <string name="title_workout">Workout</string>
     <string name="exercises_label">Lista di esercizi</string>
-    <string name="exercises_list_description">
-    Seleziona un esercizio dalla lista
-</string>
+    <string name="exercises_list_description">Seleziona un esercizio dalla lista</string>
+
+    <string name="trainer_allievi_desc">I tuoi allievi</string>
+    <string name="i_miei_programmi_desc">I miei programmi</string>
+
     <string name="image_cover">Cover image</string>
 
     <string name="enable_dark_mode">Enable dark mode</string>

@@ -1,115 +1,114 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    android:id="@+id/layout"
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:gravity="center"
-    android:padding="24dp">
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <data>
+        <import type="android.view.View"/>
+        <variable
+            name="vm"
+            type="com.example.progetto_tosa.ui.account.LoginWithEmailViewModel"/>
+    </data>
 
-    <com.google.android.material.card.MaterialCardView
+    <LinearLayout
+        android:id="@+id/layout"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:cardCornerRadius="16dp"
-        app:cardBackgroundColor="@color/navy_blue"
-        app:cardUseCompatPadding="true"
-        app:cardElevation="8dp"
-        android:layout_margin="8dp">
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:gravity="center"
 
-        <LinearLayout
+        android:padding="24dp">
+
+        <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:padding="24dp"
-            android:gravity="center">
+            app:cardCornerRadius="16dp"
+            app:cardBackgroundColor="@color/navy_blue"
+            app:cardUseCompatPadding="true"
+            app:cardElevation="8dp"
+            android:layout_margin="8dp">
 
-            <TextView
-                android:id="@+id/tvWelcome"
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Benvenuto!"
-                android:textSize="20sp"
-                android:textStyle="bold"
-                android:gravity="center"
-                android:textColor="@color/sky"
-                android:layout_marginBottom="16dp"/>
+                android:orientation="vertical"
+                android:padding="24dp"
+                android:gravity="center">
 
-            <EditText
-                android:id="@+id/etEmailLog"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="Email"
-                android:inputType="textEmailAddress"
-                android:padding="12dp"
-                android:drawableStart="@drawable/ic_email"
-                android:drawablePadding="8dp"
-                android:layout_marginBottom="8dp"
-               />
-
-            <EditText
-                android:id="@+id/etPasswordLog"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="Password"
-                android:inputType="textPassword"
-                android:padding="12dp"
-                android:drawableStart="@drawable/ic_lock"
-                android:drawablePadding="8dp"
-                android:layout_marginBottom="16dp"
-               />
-
-            <FrameLayout
-                android:id="@+id/flLoginButton"
-                android:layout_width="match_parent"
-                android:layout_height="56dp"
-                android:layout_marginBottom="24dp">
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnLogin"
-                    style="@style/Widget.MaterialComponents.Button"
+                <TextView
+                    android:id="@+id/tvWelcome"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:text="ACCEDI"
-                    android:textAllCaps="false"
-                    android:textSize="16sp"
-                    android:letterSpacing="0.05"
-                    app:cornerRadius="28dp"
-                    app:icon="@drawable/baseline_arrow_forward_24"
-                    app:iconGravity="textEnd"
-                    app:iconPadding="8dp"
-                    android:elevation="4dp"/>
+                    android:layout_height="wrap_content"
+                    android:text="@{vm.welcomeText}"
+                    android:textSize="20sp"
+                    android:textStyle="bold"
+                    android:gravity="center"
+                    android:textColor="@color/orange"
+                    android:layout_marginBottom="16dp"/>
 
-                <ProgressBar
-                    android:id="@+id/pbLoading"
-                    style="?android:attr/progressBarStyleSmall"
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:layout_gravity="center"
-                    android:visibility="gone"/>
-            </FrameLayout>
+                <EditText
+                    android:id="@+id/etEmailLog"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Email"
+                    android:inputType="textEmailAddress"
+                    android:padding="12dp"
+                    android:drawableStart="@drawable/ic_email"
+                    android:drawablePadding="8dp"
+                    android:layout_marginBottom="8dp"
+                    android:text="@={vm.email}"/>
 
-            <Button
-                android:id="@+id/btnSignOut"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Esci"
-                android:visibility="gone"
-                android:layout_marginBottom="16dp"
-                android:textColor="@android:color/white"
-                android:padding="12dp"
-                app:cornerRadius="20dp"/>
+                <EditText
+                    android:id="@+id/etPasswordLog"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Password"
+                    android:inputType="textPassword"
+                    android:padding="12dp"
+                    android:drawableStart="@drawable/ic_lock"
+                    android:drawablePadding="8dp"
+                    android:layout_marginBottom="16dp"
+                    android:text="@={vm.password}"/>
 
-            <TextView
-                android:id="@+id/tvGoRegister"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Non hai un account? Registrati"
-                android:textSize="14sp"
-                android:textColor="@android:color/white"/>
-        </LinearLayout>
+                <FrameLayout
+                    android:id="@+id/flLoginButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="56dp"
+                    android:layout_marginBottom="24dp">
 
-    </com.google.android.material.card.MaterialCardView>
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnLogin"
+                        style="@style/Widget.MaterialComponents.Button"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:text="ACCEDI"
+                        android:textAllCaps="false"
+                        android:textSize="16sp"
+                        android:letterSpacing="0.05"
+                        app:cornerRadius="28dp"
+                        app:icon="@drawable/baseline_arrow_forward_24"
+                        app:iconGravity="textEnd"
+                        app:iconPadding="8dp"
+                        android:elevation="4dp"
+                        android:enabled="@{!vm.isLoading}"
+                        android:onClick="@{() -> vm.login()}"/>
 
-</LinearLayout>
+                    <ProgressBar
+                        android:id="@+id/pbLoading"
+                        style="?android:attr/progressBarStyleSmall"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:layout_gravity="center"
+                        android:visibility="@{vm.isLoading ? View.VISIBLE : View.GONE}"/>
+                </FrameLayout>
+
+                <TextView
+                    android:id="@+id/tvGoRegister"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Non hai un account? Registrati"
+                    android:textSize="14sp"
+                    android:textColor="@android:color/white"
+                    android:onClick="@{() -> vm.navigateToRegister()}"/>
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+    </LinearLayout>
+</layout>

@@ -1,281 +1,299 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:padding="24dp"
-    android:layout_marginTop="80dp"
-    android:fillViewport="true"
-    android:scrollbars="none">
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <LinearLayout
+    <data>
+        <import type="android.view.View"/>
+        <variable
+            name="vm"
+            type="com.example.progetto_tosa.ui.account.RegisterViewModel"/>
+    </data>
+
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:layout_height="match_parent"
+        android:padding="24dp"
+        android:layout_marginTop="80dp"
+        android:fillViewport="true"
+        android:scrollbars="none">
 
-        <!-- Card Blu con tutti i campi -->
-        <com.google.android.material.card.MaterialCardView
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:cardCornerRadius="20dp"
-            app:cardElevation="12dp"
-            app:cardBackgroundColor="@color/navy_blue"
-            app:cardUseCompatPadding="true"
-            app:cardPreventCornerOverlap="false">
+            android:orientation="vertical">
 
-            <LinearLayout
+            <!-- Card Blu con tutti i campi -->
+            <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="24dp">
+                app:cardCornerRadius="20dp"
+                app:cardElevation="12dp"
+                app:cardBackgroundColor="@color/navy_blue"
+                app:cardUseCompatPadding="true"
+                app:cardPreventCornerOverlap="false">
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Crea il tuo account"
-                    android:textSize="22sp"
-                    android:textStyle="bold"
-                    android:textColor="@color/white"
-                    android:layout_gravity="center"
-                    android:layout_marginBottom="24dp"/>
-
-                <!-- Nome -->
-                <com.google.android.material.textfield.TextInputLayout
-                    style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.Dense"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="16dp"
-                    app:boxBackgroundMode="filled"
-                    app:boxBackgroundColor="@color/dark_gray"
-                    app:boxStrokeColor="@color/navy_blue">
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/etFirstName"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:hint="Nome"
-                        android:inputType="textPersonName"
-                        android:textColor="@android:color/white"/>
-                </com.google.android.material.textfield.TextInputLayout>
-
-                <!-- Cognome -->
-                <com.google.android.material.textfield.TextInputLayout
-                    style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.Dense"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="16dp"
-                    app:boxBackgroundMode="filled"
-                    app:boxBackgroundColor="@color/dark_gray"
-                    app:boxStrokeColor="@color/navy_blue">
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/etLastName"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:hint="Cognome"
-                        android:inputType="textPersonName"
-                        android:textColor="@android:color/white"/>
-                </com.google.android.material.textfield.TextInputLayout>
-
-                <!-- Email -->
-                <com.google.android.material.textfield.TextInputLayout
-                    style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.Dense"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="16dp"
-                    app:boxBackgroundMode="filled"
-                    app:boxBackgroundColor="@color/dark_gray"
-                    app:boxStrokeColor="@color/navy_blue">
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/etEmailReg"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:hint="Email"
-                        android:inputType="textEmailAddress"
-                        android:textColor="@android:color/white"/>
-                </com.google.android.material.textfield.TextInputLayout>
-
-                <!-- Password -->
-                <com.google.android.material.textfield.TextInputLayout
-                    style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.Dense"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="16dp"
-                    app:boxBackgroundMode="filled"
-                    app:boxBackgroundColor="@color/dark_gray"
-                    app:boxStrokeColor="@color/navy_blue">
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/etPasswordReg"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:hint="Password (min. 6)"
-                        android:inputType="textPassword"
-                        android:textColor="@android:color/white"/>
-                </com.google.android.material.textfield.TextInputLayout>
-
-                <!-- Data di nascita -->
-                <com.google.android.material.textfield.TextInputLayout
-                    style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.Dense"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="24dp"
-                    app:boxBackgroundMode="filled"
-                    app:boxBackgroundColor="@color/dark_gray"
-                    app:boxStrokeColor="@color/navy_blue">
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/etBirthDate"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:hint="Data di nascita"
-                        android:focusable="false"
-                        android:clickable="true"
-                        android:drawableEnd="@drawable/ic_calendar"
-                        android:drawablePadding="12dp"
-                        android:textColor="@android:color/white"/>
-                </com.google.android.material.textfield.TextInputLayout>
-
-                <TextView
-                    android:id="@+id/Titoletto"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Informazioni Aggiuntive"
-                    android:textSize="16sp"
-                    android:textColor="@color/white"
-                    android:layout_marginBottom="8dp"/>
-
-                <TextView
-                    android:id="@+id/Descrizionetta"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Punto di partenza per monitorare i tuoi progressi."
-                    android:textSize="14sp"
-                    android:textColor="#CCCCCC"
-                    android:layout_marginBottom="16dp"/>
-
-                <!-- Peso, Altezza, Body Fat in orizzontale -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:weightSum="3"
-                    android:layout_marginBottom="24dp">
+                    android:orientation="vertical"
+                    android:padding="24dp">
 
-                    <com.google.android.material.textfield.TextInputLayout
-                        style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.Dense"
-                        android:layout_width="0dp"
-                        android:layout_weight="1"
-                        android:layout_height="wrap_content"
-                        android:layout_marginEnd="8dp"
-                        app:boxBackgroundMode="filled"
-                        app:boxBackgroundColor="@color/dark_gray"
-                        app:boxStrokeColor="@color/navy_blue">
-                        <com.google.android.material.textfield.TextInputEditText
-                            android:id="@+id/etWeight"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:hint="Peso"
-                            android:inputType="numberDecimal"
-                            android:textColor="@android:color/white"/>
-                    </com.google.android.material.textfield.TextInputLayout>
-
-                    <com.google.android.material.textfield.TextInputLayout
-                        style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.Dense"
-                        android:layout_width="0dp"
-                        android:layout_weight="1"
-                        android:layout_height="wrap_content"
-                        android:layout_marginEnd="8dp"
-                        app:boxBackgroundMode="filled"
-                        app:boxBackgroundColor="@color/dark_gray"
-                        app:boxStrokeColor="@color/navy_blue">
-                        <com.google.android.material.textfield.TextInputEditText
-                            android:id="@+id/etHeight"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:hint="Altezza"
-                            android:inputType="number"
-                            android:textColor="@android:color/white"/>
-                    </com.google.android.material.textfield.TextInputLayout>
-
-                    <com.google.android.material.textfield.TextInputLayout
-                        style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.Dense"
-                        android:layout_width="0dp"
-                        android:layout_weight="1"
-                        android:layout_height="wrap_content"
-                        app:boxBackgroundMode="filled"
-                        app:boxBackgroundColor="@color/dark_gray"
-                        app:boxStrokeColor="@color/navy_blue">
-                        <com.google.android.material.textfield.TextInputEditText
-                            android:id="@+id/etBodyFat"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:hint="BF(%)"
-                            android:inputType="numberDecimal"
-                            android:textColor="@android:color/white"/>
-                    </com.google.android.material.textfield.TextInputLayout>
-                </LinearLayout>
-
-                <TextView
-                    android:id="@+id/TitolettoPerButton"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Sei un Personal Trainer?"
-                    android:textSize="16sp"
-                    android:textColor="@color/white"
-                    android:layout_marginBottom="8dp"/>
-
-                <RadioGroup
-                    android:id="@+id/rgChoices"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:layout_marginBottom="24dp">
-                    <RadioButton
-                        android:id="@+id/rbSI"
+                    <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Sì"
-                        android:buttonTint="@color/orange"
+                        android:text="Crea il tuo account"
+                        android:textSize="22sp"
+                        android:textStyle="bold"
                         android:textColor="@color/white"
-                        android:layout_marginEnd="24dp"/>
-                    <RadioButton
-                        android:id="@+id/rbNO"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="No"
-                        android:buttonTint="@color/orange"
-                        android:textColor="@color/white"/>
-                </RadioGroup>
+                        android:layout_gravity="center"
+                        android:layout_marginBottom="24dp"/>
 
-                <!-- Codice di Verifica -->
-                <com.google.android.material.textfield.TextInputLayout
-                    style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.Dense"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="0dp"
-                    app:boxBackgroundMode="filled"
-                    app:boxBackgroundColor="@color/dark_gray"
-                    app:boxStrokeColor="@color/navy_blue">
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/etCodiceVerifica"
+                    <!-- Nome -->
+                    <com.google.android.material.textfield.TextInputLayout
+                        style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.Dense"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:hint="Codice di Verifica"
-                        android:textColor="@android:color/white"/>
-                </com.google.android.material.textfield.TextInputLayout>
+                        android:layout_marginBottom="16dp"
+                        app:boxBackgroundMode="filled"
+                        app:boxBackgroundColor="@color/dark_gray"
+                        app:boxStrokeColor="@color/navy_blue">
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:hint="Nome"
+                            android:inputType="textPersonName"
+                            android:textColor="@android:color/white"
+                            android:text="@={vm.firstName}"/>
+                    </com.google.android.material.textfield.TextInputLayout>
 
-            </LinearLayout>
-        </com.google.android.material.card.MaterialCardView>
+                    <!-- Cognome -->
+                    <com.google.android.material.textfield.TextInputLayout
+                        style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.Dense"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="16dp"
+                        app:boxBackgroundMode="filled"
+                        app:boxBackgroundColor="@color/dark_gray"
+                        app:boxStrokeColor="@color/navy_blue">
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:hint="Cognome"
+                            android:inputType="textPersonName"
+                            android:textColor="@android:color/white"
+                            android:text="@={vm.lastName}"/>
+                    </com.google.android.material.textfield.TextInputLayout>
 
-        <!-- Pulsante Registrati fuori dalla Card -->
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnRegisterSubmit"
-            style="@style/Widget.MaterialComponents.Button"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Registrati"
-            android:textAllCaps="false"
-            android:paddingVertical="14dp"
-            android:layout_marginTop="24dp"
-            app:cornerRadius="28dp"
-            app:backgroundTint="@color/orange"
-            android:textColor="@android:color/white"/>
-    </LinearLayout>
-</ScrollView>
+                    <!-- Email -->
+                    <com.google.android.material.textfield.TextInputLayout
+                        style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.Dense"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="16dp"
+                        app:boxBackgroundMode="filled"
+                        app:boxBackgroundColor="@color/dark_gray"
+                        app:boxStrokeColor="@color/navy_blue">
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:hint="Email"
+                            android:inputType="textEmailAddress"
+                            android:textColor="@android:color/white"
+                            android:text="@={vm.email}"/>
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <!-- Password -->
+                    <com.google.android.material.textfield.TextInputLayout
+                        style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.Dense"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="16dp"
+                        app:boxBackgroundMode="filled"
+                        app:boxBackgroundColor="@color/dark_gray"
+                        app:boxStrokeColor="@color/navy_blue">
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:hint="Password (min. 6)"
+                            android:inputType="textPassword"
+                            android:textColor="@android:color/white"
+                            android:text="@={vm.password}"/>
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <!-- Data di nascita -->
+                    <com.google.android.material.textfield.TextInputLayout
+                        style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.Dense"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="24dp"
+                        app:boxBackgroundMode="filled"
+                        app:boxBackgroundColor="@color/dark_gray"
+                        app:boxStrokeColor="@color/navy_blue">
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:hint="Data di nascita"
+                            android:focusable="false"
+                            android:clickable="true"
+                            android:drawableEnd="@drawable/ic_calendar"
+                            android:drawablePadding="12dp"
+                            android:textColor="@android:color/white"
+                            android:text="@={vm.birthDate}"
+                            android:onClick="@{() -> vm.onBirthDateClicked()}"/>
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <TextView
+                        android:id="@+id/Titoletto"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Informazioni Aggiuntive"
+                        android:textSize="16sp"
+                        android:textColor="@color/white"
+                        android:layout_marginBottom="8dp"/>
+
+                    <TextView
+                        android:id="@+id/Descrizionetta"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Punto di partenza per monitorare i tuoi progressi."
+                        android:textSize="14sp"
+                        android:textColor="#CCCCCC"
+                        android:layout_marginBottom="16dp"/>
+
+                    <!-- Peso, Altezza, Body Fat in orizzontale -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:weightSum="3"
+                        android:layout_marginBottom="24dp">
+
+                        <com.google.android.material.textfield.TextInputLayout
+                            style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.Dense"
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:layout_height="wrap_content"
+                            android:layout_marginEnd="8dp"
+                            app:boxBackgroundMode="filled"
+                            app:boxBackgroundColor="@color/dark_gray"
+                            app:boxStrokeColor="@color/navy_blue">
+                            <com.google.android.material.textfield.TextInputEditText
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:hint="Peso"
+                                android:inputType="numberDecimal"
+                                android:textColor="@android:color/white"
+                                android:text="@={vm.weight}"/>
+                        </com.google.android.material.textfield.TextInputLayout>
+
+                        <com.google.android.material.textfield.TextInputLayout
+                            style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.Dense"
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:layout_height="wrap_content"
+                            android:layout_marginEnd="8dp"
+                            app:boxBackgroundMode="filled"
+                            app:boxBackgroundColor="@color/dark_gray"
+                            app:boxStrokeColor="@color/navy_blue">
+                            <com.google.android.material.textfield.TextInputEditText
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:hint="Altezza"
+                                android:inputType="number"
+                                android:textColor="@android:color/white"
+                                android:text="@={vm.height}"/>
+                        </com.google.android.material.textfield.TextInputLayout>
+
+                        <com.google.android.material.textfield.TextInputLayout
+                            style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.Dense"
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:layout_height="wrap_content"
+                            app:boxBackgroundMode="filled"
+                            app:boxBackgroundColor="@color/dark_gray"
+                            app:boxStrokeColor="@color/navy_blue">
+                            <com.google.android.material.textfield.TextInputEditText
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:hint="BF(%)"
+                                android:inputType="numberDecimal"
+                                android:textColor="@android:color/white"
+                                android:text="@={vm.bodyFat}"/>
+                        </com.google.android.material.textfield.TextInputLayout>
+                    </LinearLayout>
+
+                    <TextView
+                        android:id="@+id/TitolettoPerButton"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Sei un Personal Trainer?"
+                        android:textSize="16sp"
+                        android:textColor="@color/white"
+                        android:layout_marginBottom="8dp"/>
+
+                    <RadioGroup
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginBottom="24dp">
+
+                        <RadioButton
+                            android:id="@+id/rbSI"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Sì"
+                            android:buttonTint="@color/orange"
+                            android:textColor="@color/white"
+                            android:checked="@={vm.isTrainer}"/>
+
+                        <RadioButton
+                            android:id="@+id/rbNO"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="No"
+                            android:buttonTint="@color/orange"
+                            android:textColor="@color/white"
+                            android:checked="@{!vm.isTrainer}"/>
+                    </RadioGroup>
+
+                    <!-- Codice di Verifica -->
+                    <com.google.android.material.textfield.TextInputLayout
+                        style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.Dense"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        app:boxBackgroundMode="filled"
+                        app:boxBackgroundColor="@color/dark_gray"
+                        app:boxStrokeColor="@color/navy_blue"
+                        android:visibility="@{vm.isTrainer ? View.VISIBLE : View.GONE}">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:hint="Codice di Verifica"
+                            android:textColor="@android:color/white"
+                            android:text="@={vm.verificationCode}"/>
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Pulsante Registrati fuori dalla Card -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnRegisterSubmit"
+                style="@style/Widget.MaterialComponents.Button"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Registrati"
+                android:textAllCaps="false"
+                android:paddingVertical="14dp"
+                android:layout_marginTop="24dp"
+                app:cornerRadius="28dp"
+                app:backgroundTint="@color/orange"
+                android:textColor="@android:color/white"
+                android:onClick="@{() -> vm.onRegister()}"
+                android:enabled="@{!vm.isLoading}"/>
+
+        </LinearLayout>
+    </ScrollView>
+
+</layout>

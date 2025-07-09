@@ -8,126 +8,106 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import com.example.progetto_tosa.R
 import com.example.progetto_tosa.databinding.FragmentPtCalendarBinding
-import com.google.android.material.button.MaterialButtonToggleGroup
-import java.text.SimpleDateFormat
-import java.util.*
 
 class PTcalendar : Fragment() {
 
     private var _binding: FragmentPtCalendarBinding? = null
     private val binding get() = _binding!!
 
+    private lateinit var viewModel: PTCalendarViewModel
+
+    // dettagli utente e ruolo
     private var selectedUser: String? = null
-    private var weekOffset = 0
-    private var dateId: String? = null
     private var isPT: Boolean = false
 
-    // Mappa buttonId → dayOffset
-    private val buttonInfo = mutableMapOf<Int, Int>()
+    // data selezionata per navigare
+    private var selectedDateId: String? = null
 
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
+        inflater: LayoutInflater,
+        container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentPtCalendarBinding.inflate(inflater, container, false)
+        viewModel = ViewModelProvider(this).get(PTCalendarViewModel::class.java)
+        binding.viewModel = viewModel
+        binding.lifecycleOwner = viewLifecycleOwner
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        // setup utente e ruolo
+
+        // recupera args e prefs
         selectedUser = arguments?.getString("selectedUser")
         val prefs = requireActivity()
             .getSharedPreferences("user_data", Context.MODE_PRIVATE)
         isPT = prefs.getBoolean("is_trainer", false)
 
+        // imposta titolo e testo del bottone
         binding.textUserTitle.text = selectedUser ?: getString(R.string.app_name)
-        binding.btnFancy.visibility = View.INVISIBLE
         binding.btnFancy.text = if (isPT)
             "Compila la scheda al tuo allievo!"
         else
             "Visualizza la scheda che il PT ha fatto per te!"
+        binding.btnFancy.visibility = View.INVISIBLE
 
-        setupDays()
-        setupNavButtons()
-    }
-
-    private fun setupNavButtons() {
+        // setta listener navigazione settimana
         binding.btnPrevWeek.setOnClickListener {
-            weekOffset--
+            viewModel.onPrevWeek()
             resetSelection()
-            setupDays()
         }
         binding.btnNextWeek.setOnClickListener {
-            weekOffset++
+            viewModel.onNextWeek()
             resetSelection()
-            setupDays()
         }
-        binding.btnFancy.setOnClickListener {
-            if (dateId == null) {
-                Toast.makeText(requireContext(), "Seleziona prima una data", Toast.LENGTH_SHORT).show()
-                return@setOnClickListener
-            }
-            findNavController().navigate(
-                R.id.action_navigation_ptSchedule_to_fragment_my_trainer_schedule,
-                bundleOf(
-                    "selectedUser" to selectedUser,
-                    "selectedDate" to dateId,
-                    "isPT" to isPT
-                )
-            )
-        }
-    }
 
-    private fun setupDays() {
-        val cal = Calendar.getInstance().apply {
-            set(Calendar.DAY_OF_WEEK, Calendar.MONDAY)
-            add(Calendar.WEEK_OF_YEAR, weekOffset)
-        }
-        val labelFmt = SimpleDateFormat("EEEE d MMMM", Locale("it", "IT"))
-        val idFmt    = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-
-        // I 7 MaterialButton all'interno del ToggleGroup
-        val buttons = listOf(
-            binding.btnMonday,
-            binding.btnTuesday,
-            binding.btnWednesday,
-            binding.btnThursday,
-            binding.btnFriday,
-            binding.btnSaturday,
-            binding.btnSunday
+        // lista ID dei toggle button
+        val dayBtns = listOf(
+            binding.btnMonday.id,
+            binding.btnTuesday.id,
+            binding.btnWednesday.id,
+            binding.btnThursday.id,
+            binding.btnFriday.id,
+            binding.btnSaturday.id,
+            binding.btnSunday.id
         )
 
-        buttonInfo.clear()
-        buttons.forEachIndexed { idx, btn ->
-            val d = (cal.clone() as Calendar).apply { add(Calendar.DAY_OF_YEAR, idx) }
-            btn.text = labelFmt.format(d.time).replaceFirstChar { it.uppercase() }
-            buttonInfo[btn.id] = idx
+        // listener di selezione giorno
+        binding.daysToggleGroup.addOnButtonCheckedListener { _, checkedId, isChecked ->
+            if (isChecked && checkedId != View.NO_ID) {
+                val idx = dayBtns.indexOf(checkedId)
+                selectedDateId = viewModel.dateIds.value?.getOrNull(idx)
+                binding.btnFancy.visibility = View.VISIBLE
+            }
         }
 
-        // Listener sul ToggleGroup
-        binding.daysToggleGroup.clearOnButtonCheckedListeners()
-        binding.daysToggleGroup.addOnButtonCheckedListener { group, checkedId, isChecked ->
-            if (isChecked) {
-                // calcola dataId dal dayOffset
-                val offset = buttonInfo[checkedId]!!
-                val d = (cal.clone() as Calendar).apply { add(Calendar.DAY_OF_YEAR, offset) }
-                dateId = idFmt.format(d.time)
-                binding.btnFancy.visibility = View.VISIBLE
-            } else if (group.checkedButtonId == View.NO_ID) {
-                // nessuna selezione
-                dateId = null
-                binding.btnFancy.visibility = View.INVISIBLE
-            }
+        // click finale per navigazione
+        binding.btnFancy.setOnClickListener {
+            selectedDateId?.let { date ->
+                findNavController().navigate(
+                    R.id.action_navigation_ptSchedule_to_fragment_my_trainer_schedule,
+                    bundleOf(
+                        "selectedUser" to selectedUser,
+                        "selectedDate" to date,
+                        "isPT" to isPT
+                    )
+                )
+            } ?: Toast.makeText(
+                requireContext(),
+                "Seleziona prima una data",
+                Toast.LENGTH_SHORT
+            ).show()
         }
     }
 
     private fun resetSelection() {
         binding.daysToggleGroup.clearChecked()
-        dateId = null
+        selectedDateId = null
         binding.btnFancy.visibility = View.INVISIBLE
     }
 

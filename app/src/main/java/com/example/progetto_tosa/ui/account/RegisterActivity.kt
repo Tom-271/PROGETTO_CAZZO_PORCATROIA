@@ -1,193 +1,61 @@
 package com.example.progetto_tosa.ui.account
 
 import android.app.DatePickerDialog
-import android.content.Context
 import android.os.Bundle
-import android.view.View
-import android.widget.EditText
-import android.widget.RadioButton
-import android.widget.RadioGroup
 import android.widget.Toast
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.databinding.DataBindingUtil
 import com.example.progetto_tosa.R
-import com.google.android.material.button.MaterialButton
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FirebaseFirestore
+import com.example.progetto_tosa.databinding.ActivityRegisterBinding
 import java.text.SimpleDateFormat
 import java.util.*
 
 class RegisterActivity : AppCompatActivity() {
 
-    //dichiarazione delle view utilizzate nell'activity
-    private lateinit var etFirstName: EditText
-    private lateinit var etLastName: EditText
-    private lateinit var etEmail: EditText
-    private lateinit var etPassword: EditText
-    private lateinit var etBirthDate: EditText
-    private lateinit var etWeight: EditText
-    private lateinit var etHeight: EditText
-    private lateinit var etBodyFat: EditText
-    private lateinit var etCodiceVerifica: EditText
-    private lateinit var btnSubmit: MaterialButton
-    private lateinit var rgChoices: RadioGroup
-    private lateinit var btnSi: RadioButton
-    private lateinit var btnNo: RadioButton
+    private lateinit var binding: ActivityRegisterBinding
+    private val vm: RegisterViewModel by viewModels()
 
-    private val auth by lazy { FirebaseAuth.getInstance() }
-    private val db   by lazy { FirebaseFirestore.getInstance() }
-
-    //variabili per la gestione della data
+    // Tieni un parser locale anche qui
     private val calendar = Calendar.getInstance()
     private val dateFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_register)
 
-        etFirstName      = findViewById(R.id.etFirstName)
-        etLastName       = findViewById(R.id.etLastName)
-        etEmail          = findViewById(R.id.etEmailReg)
-        etPassword       = findViewById(R.id.etPasswordReg)
-        etBirthDate      = findViewById(R.id.etBirthDate)
-        etWeight         = findViewById(R.id.etWeight)
-        etHeight         = findViewById(R.id.etHeight)
-        etBodyFat        = findViewById(R.id.etBodyFat)
-        etCodiceVerifica = findViewById(R.id.etCodiceVerifica)
-        rgChoices        = findViewById(R.id.rgChoices)
-        btnSi            = findViewById(R.id.rbSI)
-        btnNo            = findViewById(R.id.rbNO)
-        btnSubmit        = findViewById(R.id.btnRegisterSubmit)
+        binding = DataBindingUtil.setContentView(this, R.layout.activity_register)
+        binding.vm = vm
+        binding.lifecycleOwner = this
 
-        etBirthDate.apply {
-            isFocusable = false  //impedisce l'inserimento manuale
-            isClickable = true  //permette il click
-            setOnClickListener { showDatePicker() }  //mostra il date picker al click
+        // Quando ViewModel richiede di mostrare il DatePicker
+        vm.showDatePickerEvent.observe(this) {
+            showDatePicker()
         }
 
-        //gestione della visibilità del campo codice verifica in base alla scelta radio
-        etCodiceVerifica.visibility = View.GONE
-        rgChoices.setOnCheckedChangeListener { _, checkedId ->
-            etCodiceVerifica.visibility =
-                if (checkedId == R.id.rbSI) View.VISIBLE else View.GONE
+        // Mostra eventuali errori
+        vm.errorMessage.observe(this) { msg ->
+            msg?.let {
+                Toast.makeText(this, it, Toast.LENGTH_LONG).show()
+                vm.errorMessageHandled()
+            }
         }
 
-        btnSubmit.setOnClickListener {
-            //recupero dei valori dai campi di input
-            val fn       = etFirstName.text.toString().trim()
-            val ln       = etLastName.text.toString().trim()
-            val em       = etEmail.text.toString().trim()
-            val pw       = etPassword.text.toString()
-            val bd       = etBirthDate.text.toString().trim()
-            val wt       = etWeight.text.toString().trim()
-            val ht       = etHeight.text.toString().trim()
-            val bf       = etBodyFat.text.toString().trim()
-            val verifica = etCodiceVerifica.text.toString().trim()
-            val isPT     = btnSi.isChecked
-            val codiceUff = "00000"  //codice ufficiale hardcato (fantasia!!)
-
-            //salvataggio nelle SharedPreferences. mi serve un sacco per usarlòo nelle altre classi
-            getSharedPreferences("myAppPrefs", Context.MODE_PRIVATE)
-                .edit()
-                .putBoolean("IS_PT", isPT)
-                .commit()  //commit() invece di apply() per salvataggio sincrono
-
-            //validazione di base dei campi
-            if (fn.isEmpty() || ln.isEmpty() || em.isEmpty() ||
-                pw.length < 6 || bd.isEmpty() ||
-                wt.isEmpty() || ht.isEmpty() || bf.isEmpty()
-            ) {
-                Toast.makeText(this,
-                    "Compila tutti i campi e password minimo 6 caratteri",
-                    Toast.LENGTH_SHORT).show()
-                return@setOnClickListener
-            }
-
-            //validazione complessità password (regex)
-            val passwordRegex = Regex("^(?=.*[A-Z])(?=.*\\d)(?=.*[^A-Za-z0-9]).{6,}\$")
-            if (!passwordRegex.matches(pw)) {
-                Toast.makeText(
-                    this,
-                    "la password deve avere almeno una maiuscola, un numero e un carattere speciale",
-                    Toast.LENGTH_LONG
-                ).show()
-                return@setOnClickListener
-            }
-
-            //validazione codice personal trainer
-            if (isPT) {
-                if (verifica.isEmpty()) {
-                    Toast.makeText(this,
-                        "Inserisci codice di verifica",
-                        Toast.LENGTH_LONG).show()
-                    return@setOnClickListener
-                }
-                if (verifica != codiceUff) {
-                    Toast.makeText(this,
-                        "Codice non valido, contatta l'amministratore",
-                        Toast.LENGTH_LONG).show()
-                    return@setOnClickListener
-                }
-            }
-
-            //creazione utente su Firebase Auth
-            auth.createUserWithEmailAndPassword(em, pw)
-                .addOnSuccessListener { res ->
-                    val uid = res.user?.uid ?: return@addOnSuccessListener
-
-                    //scelta della collection in base al tipo di utente
-                    val collectionName = if (isPT) "personal_trainers" else "users"
-
-                    //parsing della data di nascita
-                    val parts = bd.split("/")
-                    calendar.set(parts[2].toInt(),
-                        parts[1].toInt() - 1,  //I mesi partono da 0
-                        parts[0].toInt())
-
-                    //preparazione dati per Firestore
-                    val data = hashMapOf(
-                        "firstName"         to fn,
-                        "lastName"          to ln,
-                        "email"             to em,
-                        "birthday"          to calendar.time,
-                        "weight"            to wt.toDouble(),
-                        "height"            to ht.toInt(),
-                        "bodyFat"           to bf.toDouble(),
-                        "isPersonalTrainer" to isPT
-                    )
-
-                    db.collection(collectionName)
-                        .document(uid)
-                        .set(data)
-                        .addOnSuccessListener {
-                            Toast.makeText(this,
-                                "Registrazione avvenuta con successo!",
-                                Toast.LENGTH_SHORT).show()
-                            finish()  //Chiude l'activity dopo il successo
-                        }
-                        .addOnFailureListener { e ->
-                            Toast.makeText(this,
-                                "Errore salvataggio: ${e.message}",
-                                Toast.LENGTH_LONG).show()
-                        }
-                }
-                .addOnFailureListener { e ->
-                    Toast.makeText(this,
-                        "Errore creazione account: ${e.message}",
-                        Toast.LENGTH_LONG).show()
-                }
+        // Alla registrazione riuscita, chiude activity
+        vm.registrationSuccessEvent.observe(this) {
+            Toast.makeText(this, "Registrazione avvenuta con successo!", Toast.LENGTH_SHORT).show()
+            finish()
         }
     }
 
-    //mostra il date picker per selezionare la data di nascita
     private fun showDatePicker() {
         val y = calendar.get(Calendar.YEAR)
         val m = calendar.get(Calendar.MONTH)
         val d = calendar.get(Calendar.DAY_OF_MONTH)
         DatePickerDialog(this, { _, yy, mm, dd ->
             calendar.set(yy, mm, dd)
-            etBirthDate.setText(dateFormat.format(calendar.time))
+            // formatto con il dateFormat locale
+            val formatted = dateFormat.format(calendar.time)
+            vm.birthDate.value = formatted
         }, y, m, d).show()
     }
-
-
 }

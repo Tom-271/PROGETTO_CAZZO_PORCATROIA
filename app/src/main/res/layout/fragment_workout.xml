@@ -5,6 +5,7 @@
     android:layout_height="match_parent"
     android:fillViewport="true"
     android:clipToPadding="false"
+    android:layout_margin="15dp"
     android:paddingTop="?attr/actionBarSize">
 
     <androidx.constraintlayout.widget.ConstraintLayout
