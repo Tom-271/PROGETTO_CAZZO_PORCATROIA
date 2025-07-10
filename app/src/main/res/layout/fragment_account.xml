@@ -115,7 +115,6 @@
                     app:strokeColor="@{vm.iconStrokeColor}"
                     android:src="@{vm.isLoggedIn ? (vm.isTrainer ? @drawable/personal : @drawable/atleta) : @drawable/account_principal}" />
 
-
                 <Space
                     android:layout_width="16dp"
                     android:layout_height="100dp"/>
@@ -153,7 +152,7 @@
             android:id="@+id/cardButtons"
             android:layout_width="300dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="300dp"
+            android:layout_marginTop="280dp"
             android:layout_marginHorizontal="16dp"
             android:translationZ="7dp"
             android:backgroundTint="@color/light_gray"
@@ -224,7 +223,7 @@
                     android:id="@+id/UserProgram"
                     android:layout_width="match_parent"
                     android:layout_height="110dp"
-                    android:layout_marginTop="8dp"
+                    android:layout_marginTop="4dp"
                     android:layout_marginHorizontal="16dp"
                     app:strokeColor="@color/dark_gray"
                     android:text="I miei programmi"
@@ -242,7 +241,6 @@
                     android:id="@+id/TrainerAllievs"
                     android:layout_width="match_parent"
                     android:layout_height="110dp"
-                    android:layout_marginTop="8dp"
                     android:layout_marginHorizontal="16dp"
                     android:visibility="@{vm.isTrainer ? View.VISIBLE : View.GONE}"
                     style="@style/Widget.MaterialComponents.Button"
@@ -260,7 +258,7 @@
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
                     android:gravity="center"
-                    android:layout_marginTop="16dp">
+                    android:layout_marginTop="2dp">
 
                     <TextView
                         android:id="@+id/labelReminder"

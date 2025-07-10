@@ -22,24 +22,40 @@ import com.google.firebase.firestore.FirebaseFirestore
 import java.util.Calendar
 import java.util.concurrent.TimeUnit
 
+/**
+ * ViewModel per la schermata Account, gestisce stato utente, login/logout,
+ * impostazioni di promemoria e programmazione notifiche.
+ */
 class AccountViewModel(application: Application) : AndroidViewModel(application) {
 
+    // Riferimento all'autenticazione Firebase
     private val auth = FirebaseAuth.getInstance()
+    // Riferimento al Firestore
     private val db   = FirebaseFirestore.getInstance()
+    // Context ottenuto dall'application per operazioni Android
     private val ctx: Context get() = getApplication()
 
-    // Observable per DataBinding
+    // --- Proprietà osservabili per DataBinding ---
+    // Nome visualizzato (o invito al login)
     val displayName     = ObservableField("Effettua il login")
+    // Testo che mostra il ruolo (Personal Trainer o Atleta)
     val roleText        = ObservableField("")
+    // Colore del bordo dell'icona in base al ruolo/stato
     val iconStrokeColor = ObservableField(
         ColorStateList.valueOf(ContextCompat.getColor(ctx, R.color.yellow))
     )
+    // Flag se l'utente è trainer
     val isTrainer       = ObservableBoolean(false)
+    // Flag se l'utente è attualmente loggato
     val isLoggedIn      = ObservableBoolean(auth.currentUser != null)
+    // Flag se il promemoria è abilitato (da SharedPreferences)
     val reminderEnabled = ObservableBoolean(isReminderEnabled())
+    // Mostra o nasconde le impostazioni
     val showSettings    = ObservableBoolean(false)
 
-    /** Calcola al volo quale drawable usare */
+    /**
+     * Calcola quale drawable usare per l'icona in base a login e ruolo
+     */
     val iconResValue: Int
         get() = when {
             isLoggedIn.get() && isTrainer.get() -> R.drawable.personal
@@ -48,14 +64,21 @@ class AccountViewModel(application: Application) : AndroidViewModel(application)
         }
 
     init {
+        // Aggiorna UI con dati utente e pianifica notifiche
         updateUI()
         scheduleNotifications()
     }
 
+    /**
+     * Naviga alla schermata di login
+     */
     fun onLoginClick(nav: NavController) {
         nav.navigate(R.id.action_navigation_account_to_navigation_login)
     }
 
+    /**
+     * Effettua il logout, resetta dati e UI
+     */
     fun onSignOut(nav: NavController) {
         Toast.makeText(ctx, "Ci vediamo al prossimo allenamento!", Toast.LENGTH_SHORT).show()
         AuthUI.getInstance().signOut(ctx).addOnCompleteListener {
@@ -72,23 +95,29 @@ class AccountViewModel(application: Application) : AndroidViewModel(application)
         }
     }
 
+    /**
+     * Gestisce il cambiamento dello switch per promemoria
+     */
     fun onSwitchReminderChanged(enabled: Boolean) {
         reminderEnabled.set(enabled)
         setReminderEnabled(enabled)
         if (enabled) checkAndRequestNotificationPermission()
         else {
+            // Disabilita notifiche pianificate
             WorkManager.getInstance(ctx).cancelUniqueWork("morningNotification")
             WorkManager.getInstance(ctx).cancelUniqueWork("eveningNotification")
             Toast.makeText(ctx, "Promemoria disattivato", Toast.LENGTH_SHORT).show()
         }
     }
 
-    /** Inverte la visibilità delle impostazioni */
+    /**
+     * Mostra o nasconde le impostazioni utente
+     */
     fun onSettingsClick() {
         showSettings.set(!showSettings.get())
     }
 
-    // --- SharedPreferences ---
+    // --- Gestione SharedPreferences per promemoria e dati utente ---
     private fun isReminderEnabled(): Boolean =
         ctx.getSharedPreferences("settings", Context.MODE_PRIVATE)
             .getBoolean("reminder_enabled", false)
@@ -103,10 +132,11 @@ class AccountViewModel(application: Application) : AndroidViewModel(application)
             .edit().clear().apply()
     }
 
-    // --- Firestore / UI ---
+    // --- Recupero dati utente da Firestore e aggiornamento UI ---
     fun updateUI() {
         val user = auth.currentUser
         if (user == null) {
+            // Se non loggato, prova a caricare da SharedPreferences
             preloadFromPrefs()
             return
         }
@@ -123,6 +153,7 @@ class AccountViewModel(application: Application) : AndroidViewModel(application)
     }
 
     private fun fetchPT(uid: String) {
+        // Se non trovato in "users", controlla in "personal_trainers"
         db.collection("personal_trainers").document(uid).get()
             .addOnSuccessListener { ptDoc ->
                 if (ptDoc.exists()) bindData(
@@ -134,6 +165,9 @@ class AccountViewModel(application: Application) : AndroidViewModel(application)
             .addOnFailureListener { preloadFromPrefs() }
     }
 
+    /**
+     * Popola i campi observables con i dati utente recuperati
+     */
     private fun bindData(first: String?, last: String?, pt: Boolean) {
         val name = if (!first.isNullOrBlank()) "$first ${last.orEmpty()}"
         else auth.currentUser?.email.orEmpty()
@@ -142,12 +176,14 @@ class AccountViewModel(application: Application) : AndroidViewModel(application)
         isTrainer.set(pt)
         isLoggedIn.set(true)
 
+        // Salva in SharedPreferences per preload successivo
         ctx.getSharedPreferences("user_data", Context.MODE_PRIVATE).edit().apply {
             putString("saved_display_name", name)
             putBoolean("is_trainer", pt)
             apply()
         }
 
+        // Aggiorna colore bordo icona in base al ruolo
         iconStrokeColor.set(
             ColorStateList.valueOf(
                 ContextCompat.getColor(ctx, if (pt) R.color.green else R.color.orange)
@@ -156,6 +192,7 @@ class AccountViewModel(application: Application) : AndroidViewModel(application)
     }
 
     private fun preloadFromPrefs() {
+        // Carica dati utente salvati se esistono
         val prefs = ctx.getSharedPreferences("user_data", Context.MODE_PRIVATE)
         val name  = prefs.getString("saved_display_name", null)
         val pt    = prefs.getBoolean("is_trainer", false)
@@ -170,6 +207,7 @@ class AccountViewModel(application: Application) : AndroidViewModel(application)
                 )
             )
         } else {
+            // Se nessun dato, reset UI base
             displayName.set("Effettua il login")
             roleText.set("")
             isTrainer.set(false)
@@ -180,29 +218,33 @@ class AccountViewModel(application: Application) : AndroidViewModel(application)
         }
     }
 
-    // --- Notifiche ---
+    // --- Notifiche giornaliere via WorkManager ---
     private fun checkAndRequestNotificationPermission() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
             ContextCompat.checkSelfPermission(
                 ctx, android.Manifest.permission.POST_NOTIFICATIONS
             ) != PackageManager.PERMISSION_GRANTED
         ) {
-            // Fragment gestisce onRequestPermissionsResult
+            // Se Android 13+, richiedi permesso (gestito dal Fragment)
         } else scheduleNotifications()
     }
 
     private fun scheduleNotifications() {
+        // Pianifica notifica mattutina alle 10:00
         scheduleNotification(10, 0, 1,
             "Buongiorno!",
             "Ricordati di bere abbastanza acqua durante la giornata.",
             "morningNotification"
         )
+        // Pianifica notifica serale alle 18:00
         scheduleNotification(18, 0, 2,
             "È ora di allenarsi!",
             "Non saltare la tua scheda di oggi 💪",
             "eveningNotification"
         )
     }
+
+    // Crea o aggiorna un PeriodicWorkRequest per notifiche ogni 24h
 
     private fun scheduleNotification(
         hour: Int, minute: Int, id: Int,
