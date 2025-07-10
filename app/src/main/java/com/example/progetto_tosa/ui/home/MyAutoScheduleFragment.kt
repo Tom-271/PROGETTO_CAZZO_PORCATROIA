@@ -1,4 +1,3 @@
-// MyAutoScheduleFragment.kt
 package com.example.progetto_tosa.ui.home
 
 import android.app.NotificationChannel
@@ -78,9 +77,14 @@ class MyAutoScheduleFragment : Fragment(R.layout.fragment_my_auto_schedule) {
         // Ricostruisco la lista quando cambia
         viewModel.exercises.observe(viewLifecycleOwner) { renderExercises(it) }
 
-        // Invio la notifica di completion quando remaining==0
-        viewModel.notifyCompletion.observe(viewLifecycleOwner) {
-            sendNotification()
+        // Flag per ignorare il primo valore di remaining all'apertura
+        var initialized = false
+        viewModel.remaining.observe(viewLifecycleOwner) { rem ->
+            if (!initialized) {
+                initialized = true
+            } else if (rem == 0) {
+                sendNotification()
+            }
         }
 
         binding.chrono.setOnClickListener {

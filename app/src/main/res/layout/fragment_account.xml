@@ -237,11 +237,13 @@
                     android:onClick="@{() -> navController.navigate(R.id.action_navigation_account_to_navigation_home)}" />
 
                 <!-- Trainer’s “I TUOI ALLIEVI” -->
+                <!-- Trainer’s “I TUOI ALLIEVI” -->
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/TrainerAllievs"
                     android:layout_width="match_parent"
-                    android:layout_height="100dp"
+                    android:layout_height="110dp"
                     android:layout_marginTop="8dp"
+                    android:layout_marginHorizontal="16dp"
                     android:visibility="@{vm.isTrainer ? View.VISIBLE : View.GONE}"
                     style="@style/Widget.MaterialComponents.Button"
                     app:shapeAppearanceOverlay="@style/ShapeAppearance.BottomRounded"
