@@ -81,7 +81,7 @@ class CardioViewModel : ViewModel() {
             description = "Corsa sul posto portando le ginocchia alte.",
             subtitle2 = "BENEFICI",
             description2 = "- Aumenta frequenza cardiaca\n- Attiva core e gambe",
-            detailImage1Res = R.drawable.salto_corda,
+            detailImage1Res = R.drawable.duecorda,
             detailImage2Res = R.drawable.salto_corda,
             descrizioneTotale = "30–60 secondi x 3 set"
         )

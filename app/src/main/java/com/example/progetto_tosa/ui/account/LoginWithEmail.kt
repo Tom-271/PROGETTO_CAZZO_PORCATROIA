@@ -27,13 +27,20 @@ class LoginWithEmail : AppCompatActivity() {
                 when (dest) {
                     is LoginWithEmailViewModel.Destination.SHOW_TOAST ->
                         Toast.makeText(this, dest.msg, Toast.LENGTH_LONG).show()
-                    LoginWithEmailViewModel.Destination.LOGIN_SUCCESS -> animateSuccess()
-                    LoginWithEmailViewModel.Destination.GO_REGISTER   ->
+
+                    LoginWithEmailViewModel.Destination.LOGIN_SUCCESS ->
+                        animateSuccess()
+
+                    LoginWithEmailViewModel.Destination.GO_REGISTER ->
                         startActivity(Intent(this, RegisterActivity::class.java))
-                    LoginWithEmailViewModel.Destination.GO_MAIN       -> {
-                        startActivity(Intent(this, MainActivity::class.java).apply {
+
+                    LoginWithEmailViewModel.Destination.GO_MAIN -> {
+                        // Naviga a MainActivity e forza l'apertura del fragment Account
+                        val intent = Intent(this, MainActivity::class.java).apply {
+                            flags = Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
                             putExtra("navigateTo", "account")
-                        })
+                        }
+                        startActivity(intent)
                         finish()
                     }
                 }

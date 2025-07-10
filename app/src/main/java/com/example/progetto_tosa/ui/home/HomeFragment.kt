@@ -168,11 +168,12 @@ class HomeFragment : Fragment() {
         binding.buttonForPersonalTrainer.visibility               = View.VISIBLE //mostra pulsante programma pt
         binding.buttonForTheScheduleIDid.visibility               = View.GONE //nasconde altri pulsanti
         binding.buttonForTheSchedulePersonalTrainerDid.visibility = View.GONE
+
+
         binding.buttonForPersonalTrainer.setOnClickListener {
             findNavController().navigate(R.id.action_navigation_home_to_navigation_myautocalendar)
-        } //navigaa a a auto-schedule
+        } //naviga a auto-schedule
     }
-
     override fun onDestroyView() {
         super.onDestroyView()
         //pulisce il binding per evitare memory leak
