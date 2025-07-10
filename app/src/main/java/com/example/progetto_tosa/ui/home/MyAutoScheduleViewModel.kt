@@ -1,3 +1,4 @@
+// MyAutoScheduleViewModel.kt
 package com.example.progetto_tosa.ui.home
 
 import android.app.Application
@@ -6,10 +7,8 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.viewModelScope
 import com.google.firebase.firestore.FirebaseFirestore
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.tasks.await
+import com.google.firebase.firestore.ListenerRegistration
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -20,30 +19,37 @@ class MyAutoScheduleViewModel(
 
     private val db = FirebaseFirestore.getInstance()
 
-    // Giorno della settimana per il subtitle
+    // --- LiveData per il nome del giorno ("LUNEDÌ", ecc.) ---
     private val _dayName = MutableLiveData<String>()
     val dayName: LiveData<String> = _dayName
 
-    // Lista di esercizi: (nome, categoria, docId)
+    // --- LiveData per la lista degli esercizi (nome, categoria, docId) ---
     private val _exercises = MutableLiveData<List<Triple<String, String, String>>>()
     val exercises: LiveData<List<Triple<String, String, String>>> = _exercises
 
-    // Contatore rimanenti
+    // --- LiveData per il contatore di esercizi rimanenti ---
     private val _remaining = MutableLiveData(0)
-    /** Esposto al Fragment per verificare quando arriva a zero */
     val remaining: LiveData<Int> = _remaining
 
-    // Notifica completamento quando remaining == 0
+    // --- MediatorLiveData che emette un evento (Unit) quando remaining==0 ---
     private val _notifyCompletion = MediatorLiveData<Unit>().apply {
         addSource(_remaining) { if (it == 0) value = Unit }
     }
+    /** Osserva questo per lanciare la notifica di “scheda completata” */
     val notifyCompletion: LiveData<Unit> = _notifyCompletion
+
+    // Mantengo tutte le registrazioni per rimuoverle in onCleared()
+    private val listenerRegistrations = mutableListOf<ListenerRegistration>()
+
+    // Mappa temporanea per i dati di ogni categoria
+    private val categoryData = mutableMapOf<String, List<Triple<String, String, String>>>()
 
     init {
         computeDayName()
-        loadExercises()
+        subscribeToExercises()
     }
 
+    /** Calcola il nome del giorno della settimana dalla stringa "yyyy-MM-dd" */
     private fun computeDayName() {
         val fmt = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
         val date = fmt.parse(selectedDateId)!!
@@ -60,58 +66,68 @@ class MyAutoScheduleViewModel(
         _dayName.value = names[cal.get(Calendar.DAY_OF_WEEK)] ?: ""
     }
 
-    private fun loadExercises() {
-        viewModelScope.launch {
-            val prefs = getApplication<Application>()
-                .getSharedPreferences("user_data", Context.MODE_PRIVATE)
-            val user = prefs.getString("saved_display_name", null) ?: return@launch
-            val cats = listOf("bodybuilding", "cardio", "corpo-libero", "stretching")
-            val list = mutableListOf<Triple<String, String, String>>()
-            for (cat in cats) {
-                try {
-                    val snap = db.collection("schede_giornaliere")
-                        .document(user)
-                        .collection(selectedDateId)
-                        .document(cat)
-                        .collection("esercizi")
-                        .get()
-                        .await()
-                    snap.documents.forEach { doc ->
-                        val name = doc.getString("nomeEsercizio") ?: doc.id
-                        list += Triple(name, cat, doc.id)
-                    }
-                } catch (_: Exception) {}
+    /** Registra un listener Firestore su ciascuna category/esercizi */
+    private fun subscribeToExercises() {
+        val prefs = getApplication<Application>()
+            .getSharedPreferences("user_data", Context.MODE_PRIVATE)
+        val user = prefs.getString("saved_display_name", null) ?: return
+
+        val cats = listOf("bodybuilding", "cardio", "corpo-libero", "stretching")
+        cats.forEach { cat ->
+            val ref = db.collection("schede_giornaliere")
+                .document(user)
+                .collection(selectedDateId)
+                .document(cat)
+                .collection("esercizi")
+
+            val registration = ref.addSnapshotListener { snap, err ->
+                if (err != null || snap == null) return@addSnapshotListener
+                // Trasforma i documenti in Triple(nome, categoria, id)
+                val listForCat = snap.documents.map { doc ->
+                    val name = doc.getString("nomeEsercizio") ?: doc.id
+                    Triple(name, cat, doc.id)
+                }
+                // Aggiorna la mappa e ricostruisce la lista completa
+                categoryData[cat] = listForCat
+                val all = cats.flatMap { categoryData[it].orEmpty() }
+                _exercises.value = all
+                _remaining.value = all.size
             }
-            _exercises.value = list
-            _remaining.value = list.size
+
+            listenerRegistrations += registration
         }
     }
 
+    override fun onCleared() {
+        super.onCleared()
+        // Rimuove tutti i listener per evitare memory leak
+        listenerRegistrations.forEach { it.remove() }
+    }
+
+    /**
+     * Cancella un esercizio in Firestore.
+     * Al successo, il listener snapshot aggiornerà automaticamente exercises e remaining.
+     */
     fun markExerciseDone(
         category: String,
         docId: String,
         onSuccess: () -> Unit,
         onError: () -> Unit
     ) {
-        viewModelScope.launch {
-            val prefs = getApplication<Application>()
-                .getSharedPreferences("user_data", Context.MODE_PRIVATE)
-            val user = prefs.getString("saved_display_name", null) ?: return@launch
-            try {
-                db.collection("schede_giornaliere")
-                    .document(user)
-                    .collection(selectedDateId)
-                    .document(category)
-                    .collection("esercizi")
-                    .document(docId)
-                    .delete()
-                    .await()
-                // decrementa il contatore
-                _remaining.value = (_remaining.value ?: 1) - 1
-                onSuccess()
-            } catch (_: Exception) {
-                onError()
-            }
+        val prefs = getApplication<Application>()
+            .getSharedPreferences("user_data", Context.MODE_PRIVATE)
+        val user = prefs.getString("saved_display_name", null) ?: run {
+            onError(); return
         }
+
+        db.collection("schede_giornaliere")
+            .document(user)
+            .collection(selectedDateId)
+            .document(category)
+            .collection("esercizi")
+            .document(docId)
+            .delete()
+            .addOnSuccessListener { onSuccess() }
+            .addOnFailureListener { onError() }
     }
 }

@@ -1,3 +1,4 @@
+// MyAutoScheduleFragment.kt
 package com.example.progetto_tosa.ui.home
 
 import android.app.NotificationChannel
@@ -29,8 +30,10 @@ class MyAutoScheduleFragment : Fragment(R.layout.fragment_my_auto_schedule) {
 
     private var _binding: FragmentMyAutoScheduleBinding? = null
     private val binding get() = _binding!!
+
     private lateinit var viewModel: MyAutoScheduleViewModel
 
+    // Launcher per permesso di notifica su Android 13+
     private val notifLauncher = registerForActivityResult(
         ActivityResultContracts.RequestPermission()
     ) { granted ->
@@ -47,13 +50,18 @@ class MyAutoScheduleFragment : Fragment(R.layout.fragment_my_auto_schedule) {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
         val dateId = requireArguments().getString("selectedDate")
             ?: error("selectedDate missing")
 
+        // ViewModelFactory per passare selectedDateId
         val factory = object : ViewModelProvider.Factory {
             override fun <T : androidx.lifecycle.ViewModel> create(modelClass: Class<T>): T {
                 @Suppress("UNCHECKED_CAST")
-                return MyAutoScheduleViewModel(requireActivity().application, dateId) as T
+                return MyAutoScheduleViewModel(
+                    requireActivity().application,
+                    dateId
+                ) as T
             }
         }
         viewModel = ViewModelProvider(this, factory)
@@ -62,16 +70,25 @@ class MyAutoScheduleFragment : Fragment(R.layout.fragment_my_auto_schedule) {
         binding.viewModel = viewModel
         binding.lifecycleOwner = viewLifecycleOwner
 
+        // Mostro il sottotitolo quando il giorno è pronto
         viewModel.dayName.observe(viewLifecycleOwner) {
             binding.subtitleAllExercises.visibility = VISIBLE
         }
+
+        // Ricostruisco la lista quando cambia
         viewModel.exercises.observe(viewLifecycleOwner) { renderExercises(it) }
+
+        // Invio la notifica di completion quando remaining==0
+        viewModel.notifyCompletion.observe(viewLifecycleOwner) {
+            sendNotification()
+        }
 
         binding.chrono.setOnClickListener {
             findNavController().navigate(
                 R.id.action_fragment_my_auto_schedule_to_navigation_cronotimer
             )
         }
+
         binding.btnFillSchedule.setOnClickListener {
             findNavController().navigate(
                 R.id.action_fragment_my_auto_schedule_to_fragment_workout,
@@ -83,6 +100,7 @@ class MyAutoScheduleFragment : Fragment(R.layout.fragment_my_auto_schedule) {
     private fun renderExercises(exs: List<Triple<String, String, String>>) {
         val container = binding.allExercisesContainer
         container.removeAllViews()
+
         exs.groupBy { it.second }
             .toSortedMap(compareBy {
                 listOf("bodybuilding", "cardio", "corpo-libero", "stretching").indexOf(it)
@@ -108,13 +126,13 @@ class MyAutoScheduleFragment : Fragment(R.layout.fragment_my_auto_schedule) {
         categoria: String,
         docId: String
     ) {
-        // 1) Card dei dettagli (inizialmente nascosta)
+        // 1) Card detail nascosta di default
         val cardView = layoutInflater.inflate(
             R.layout.exercise_info_card, container, false
         ) as CardView
         cardView.visibility = GONE
 
-        // 2) Riga principale: solo nome + freccia
+        // 2) Riga principale con nome e toggle
         val itemLayout = LinearLayout(requireContext()).apply {
             orientation = LinearLayout.HORIZONTAL
             setPadding(36, 4, 8, 16)
@@ -123,7 +141,9 @@ class MyAutoScheduleFragment : Fragment(R.layout.fragment_my_auto_schedule) {
             this.text = "○ $nome"
             setTextColor(ContextCompat.getColor(requireContext(), android.R.color.white))
             layoutParams = LinearLayout.LayoutParams(
-                0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f
+                0,
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+                1f
             )
         }
         val infoButton = ImageButton(requireContext()).apply {
@@ -131,49 +151,46 @@ class MyAutoScheduleFragment : Fragment(R.layout.fragment_my_auto_schedule) {
             background = null
             tag = false
             setOnClickListener { v ->
-                val btn = v as ImageButton
-                val open = btn.tag as Boolean
+                val open = v.tag as Boolean
                 cardView.visibility = if (open) GONE else VISIBLE
-                btn.setImageResource(if (open) R.drawable.down else R.drawable.up)
-                btn.tag = !open
+                (v as ImageButton).setImageResource(if (open) R.drawable.down else R.drawable.up)
+                v.tag = !open
             }
         }
         itemLayout.addView(text)
         itemLayout.addView(infoButton)
         container.addView(itemLayout)
 
-        // 3) All’interno della card, trova il TextView delle serie/ripetizioni
-        val setsRepsTv = cardView.findViewById<TextView>(R.id.cardSetsReps)
-        setsRepsTv.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.tick, 0)
-        setsRepsTv.compoundDrawablePadding = 16
+        // 3) Dentro la card, ottengo il TextView con il tick
+        val setsRepsTv = cardView.findViewById<TextView>(R.id.cardSetsReps).apply {
+            setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.tick, 0)
+            compoundDrawablePadding = 16
+        }
 
-        // 4) Al click sul tick dentro i dettagli
+        // 4) Al click sul tick chiamo il ViewModel
         setsRepsTv.setOnClickListener {
             viewModel.markExerciseDone(categoria, docId, {
-                Toast.makeText(requireContext(),
-                    "Esercizio terminato!", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), "Esercizio terminato!", Toast.LENGTH_SHORT).show()
                 container.removeView(itemLayout)
                 container.removeView(cardView)
-                // se era l'ultimo, notifico qui
-                if (viewModel.remaining.value == 0) {
-                    sendNotification()
-                }
             }, {
-                Toast.makeText(requireContext(),
-                    "Errore eliminazione", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), "Errore eliminazione", Toast.LENGTH_SHORT).show()
             })
         }
 
-        // 5) Aggiungo la card sotto la riga principale
+        // 5) Aggiungo la card subito dopo la riga
         container.addView(cardView)
     }
 
     private fun createNotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val chan = NotificationChannel(
-                "completion_channel", "Completion", NotificationManager.IMPORTANCE_HIGH
+                "completion_channel",
+                "Completion",
+                NotificationManager.IMPORTANCE_HIGH
             ).apply { description = "Notifica fine scheda" }
-            requireContext().getSystemService(NotificationManager::class.java)
+            requireContext()
+                .getSystemService(NotificationManager::class.java)
                 .createNotificationChannel(chan)
         }
     }
@@ -188,9 +205,7 @@ class MyAutoScheduleFragment : Fragment(R.layout.fragment_my_auto_schedule) {
             notifLauncher.launch(android.Manifest.permission.POST_NOTIFICATIONS)
             return
         }
-        val notif = NotificationCompat.Builder(
-            requireContext(), "completion_channel"
-        )
+        val notif = NotificationCompat.Builder(requireContext(), "completion_channel")
             .setSmallIcon(R.drawable.ic_notification)
             .setContentTitle("Bravo!")
             .setContentText("Hai terminato la scheda di oggi!")
