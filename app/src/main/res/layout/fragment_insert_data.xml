@@ -8,6 +8,7 @@
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:paddingTop="?attr/actionBarSize"
+        android:layout_marginTop="90dp"
         android:padding="16dp">
 
         <!-- Nome -->

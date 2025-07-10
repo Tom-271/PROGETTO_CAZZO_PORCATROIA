@@ -1,14 +1,14 @@
 package com.example.progetto_tosa.ui.account
 
+import android.content.Context
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import com.example.progetto_tosa.databinding.FragmentInsertDataBinding
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.SetOptions
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -44,12 +44,10 @@ class InsertData : Fragment() {
             }
 
             if (!isEditing) {
-                // Passa in modalità modifica
                 toggleEditing(true)
                 return@setOnClickListener
             }
 
-            // Sei in modifica: raccogli i valori
             val fn = binding.editTextFirstName.text.toString().trim()
             val ln = binding.editTextLastName.text.toString().trim()
             val em = binding.editTextEmail.text.toString().trim()
@@ -80,23 +78,26 @@ class InsertData : Fragment() {
                 "bodyFat"   to bf
             )
 
-            // **Ora usiamo update() per modificare i campi esistenti**
-            db.collection("users")
-                .document(user.uid)
-                .update(data)
-                .addOnSuccessListener {
-                    Toast.makeText(requireContext(),
-                        "Dati aggiornati con successo", Toast.LENGTH_SHORT).show()
-                    toggleEditing(false)
-                }
-                .addOnFailureListener { e ->
-                    Toast.makeText(requireContext(),
-                        "Errore aggiornamento: ${e.message}",
-                        Toast.LENGTH_LONG).show()
-                }
+            val uid = user.uid
+            val isTrainer = requireContext()
+                .getSharedPreferences("user_data", Context.MODE_PRIVATE)
+                .getBoolean("is_trainer", false)
+
+            // Salva in "users"
+            db.collection("users").document(uid)
+                .set(data, SetOptions.merge())
+
+            // Se è PT, salva anche in "personal_trainers"
+            if (isTrainer) {
+                db.collection("personal_trainers").document(uid)
+                    .set(data, SetOptions.merge())
+            }
+
+            Toast.makeText(requireContext(),
+                "Dati aggiornati con successo", Toast.LENGTH_SHORT).show()
+            toggleEditing(false)
         }
 
-        // Popola subito i campi da Firestore
         updateUI()
     }
 
@@ -112,8 +113,14 @@ class InsertData : Fragment() {
             return
         }
 
-        db.collection("users")
-            .document(user.uid)
+        val uid = user.uid
+        val isTrainer = requireContext()
+            .getSharedPreferences("user_data", Context.MODE_PRIVATE)
+            .getBoolean("is_trainer", false)
+
+        val collectionName = if (isTrainer) "personal_trainers" else "users"
+
+        db.collection(collectionName).document(uid)
             .get()
             .addOnSuccessListener { doc ->
                 val sdf = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
