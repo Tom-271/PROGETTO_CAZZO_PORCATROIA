@@ -24,8 +24,8 @@ class MyAutoScheduleViewModel(
     val dayName: LiveData<String> = _dayName
 
     // --- LiveData per la lista degli esercizi (nome, categoria, docId) ---
-    private val _exercises = MutableLiveData<List<Triple<String, String, String>>>()
-    val exercises: LiveData<List<Triple<String, String, String>>> = _exercises
+    private val _exercises = MutableLiveData<List<ScheduledExercise>>()
+    val exercises: LiveData<List<ScheduledExercise>> = _exercises
 
     // --- LiveData per il contatore di esercizi rimanenti ---
     private val _remaining = MutableLiveData(0)
@@ -42,7 +42,7 @@ class MyAutoScheduleViewModel(
     private val listenerRegistrations = mutableListOf<ListenerRegistration>()
 
     // Mappa temporanea per i dati di ogni categoria
-    private val categoryData = mutableMapOf<String, List<Triple<String, String, String>>>()
+    private val categoryData = mutableMapOf<String, List<ScheduledExercise>>()
 
     init {
         computeDayName()
@@ -85,8 +85,13 @@ class MyAutoScheduleViewModel(
                 // Trasforma i documenti in Triple(nome, categoria, id)
                 val listForCat = snap.documents.map { doc ->
                     val name = doc.getString("nomeEsercizio") ?: doc.id
-                    Triple(name, cat, doc.id)
+                    val sets = doc.getLong("numeroSerie")?.toInt() ?: 0
+                    val reps = doc.getLong("numeroRipetizioni")?.toInt() ?: 0
+                    val peso = doc.getString("peso") // può essere null
+                    ScheduledExercise(name, cat, doc.id, sets, reps, peso)
                 }
+
+
                 // Aggiorna la mappa e ricostruisce la lista completa
                 categoryData[cat] = listForCat
                 val all = cats.flatMap { categoryData[it].orEmpty() }
@@ -104,10 +109,6 @@ class MyAutoScheduleViewModel(
         listenerRegistrations.forEach { it.remove() }
     }
 
-    /**
-     * Cancella un esercizio in Firestore.
-     * Al successo, il listener snapshot aggiornerà automaticamente exercises e remaining.
-     */
     fun markExerciseDone(
         category: String,
         docId: String,
@@ -130,4 +131,39 @@ class MyAutoScheduleViewModel(
             .addOnSuccessListener { onSuccess() }
             .addOnFailureListener { onError() }
     }
+
+    fun saveExerciseWeight(
+        category: String,
+        docId: String,
+        weight: String,
+        onSuccess: () -> Unit,
+        onError: () -> Unit
+    ) {
+        val prefs = getApplication<Application>()
+            .getSharedPreferences("user_data", Context.MODE_PRIVATE)
+        val user = prefs.getString("saved_display_name", null) ?: run {
+            onError(); return
+        }
+
+        val docRef = db.collection("schede_giornaliere")
+            .document(user)
+            .collection(selectedDateId)
+            .document(category)
+            .collection("esercizi")
+            .document(docId)
+
+        docRef.update("peso", weight)
+            .addOnSuccessListener { onSuccess() }
+            .addOnFailureListener { onError() }
+    }
+
 }
+
+data class ScheduledExercise(
+    val nome: String,
+    val categoria: String,
+    val docId: String,
+    val sets: Int,
+    val reps: Int,
+    val peso: String? = null
+)

@@ -10,6 +10,10 @@ import android.view.View
 import android.view.View.GONE
 import android.view.View.VISIBLE
 import android.view.ViewGroup
+import android.widget.ArrayAdapter
+import android.widget.AutoCompleteTextView
+import android.widget.Button
+import android.widget.EditText
 import android.widget.ImageButton
 import android.widget.LinearLayout
 import android.widget.TextView
@@ -25,33 +29,24 @@ import androidx.navigation.fragment.findNavController
 import com.example.progetto_tosa.R
 import com.example.progetto_tosa.databinding.FragmentMyAutoScheduleBinding
 
-/**
- * Fragment che mostra la schedulazione automatica degli esercizi per la data selezionata.
- * Gestisce il rendering degli esercizi, il loro completamento e invia una notifica al termine.
- */
 class MyAutoScheduleFragment : Fragment(R.layout.fragment_my_auto_schedule) {
 
-    // Binding per il layout fragment_my_auto_schedule.xml
     private var _binding: FragmentMyAutoScheduleBinding? = null
     private val binding get() = _binding!!
 
-    // ViewModel specifico, inizializzato con la data selezionata
     private lateinit var viewModel: MyAutoScheduleViewModel
 
-    // Launcher per richiedere il permesso di invio notifiche su Android 13+
+    // Launcher per permesso di notifica su Android 13+
     private val notifLauncher = registerForActivityResult(
         ActivityResultContracts.RequestPermission()
     ) { granted ->
-        // Se permesso concesso, invia la notifica di completamento
         if (granted) sendNotification()
     }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
-        // Inizializzo il binding
         _binding = FragmentMyAutoScheduleBinding.inflate(inflater, container, false)
-        // Creo il canale per le notifiche di completamento (Android O+)
         createNotificationChannel()
         return binding.root
     }
@@ -59,11 +54,10 @@ class MyAutoScheduleFragment : Fragment(R.layout.fragment_my_auto_schedule) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Recupero l'ID della data passata tramite Bundle
         val dateId = requireArguments().getString("selectedDate")
             ?: error("selectedDate missing")
 
-        // Factory per creare il ViewModel con il parametro dateId
+        // ViewModelFactory per passare selectedDateId
         val factory = object : ViewModelProvider.Factory {
             override fun <T : androidx.lifecycle.ViewModel> create(modelClass: Class<T>): T {
                 @Suppress("UNCHECKED_CAST")
@@ -76,20 +70,18 @@ class MyAutoScheduleFragment : Fragment(R.layout.fragment_my_auto_schedule) {
         viewModel = ViewModelProvider(this, factory)
             .get(MyAutoScheduleViewModel::class.java)
 
-        // DataBinding tra ViewModel e layout
         binding.viewModel = viewModel
         binding.lifecycleOwner = viewLifecycleOwner
 
-        // Quando il nome del giorno diventa disponibile, mostro il sottotitolo
+        // Mostro il sottotitolo quando il giorno è pronto
         viewModel.dayName.observe(viewLifecycleOwner) {
             binding.subtitleAllExercises.visibility = VISIBLE
         }
 
-        // Ricostruisco dinamicamente la lista degli esercizi
+        // Ricostruisco la lista quando cambia
         viewModel.exercises.observe(viewLifecycleOwner) { renderExercises(it) }
 
-        // Gestisco l'evento di completamento degli esercizi:
-        // ignoro il primo valore, poi se remaining==0 invio la notifica
+        // Flag per ignorare il primo valore di remaining all'apertura
         var initialized = false
         viewModel.remaining.observe(viewLifecycleOwner) { rem ->
             if (!initialized) {
@@ -99,14 +91,12 @@ class MyAutoScheduleFragment : Fragment(R.layout.fragment_my_auto_schedule) {
             }
         }
 
-        // Click sul cronometro: naviga al fragment CronoTimer
         binding.chrono.setOnClickListener {
             findNavController().navigate(
                 R.id.action_fragment_my_auto_schedule_to_navigation_cronotimer
             )
         }
 
-        // Click sul pulsante per riempire la scheda: naviga al fragment Workout
         binding.btnFillSchedule.setOnClickListener {
             findNavController().navigate(
                 R.id.action_fragment_my_auto_schedule_to_fragment_workout,
@@ -115,22 +105,17 @@ class MyAutoScheduleFragment : Fragment(R.layout.fragment_my_auto_schedule) {
         }
     }
 
-    /**
-     * Renderizza la lista degli esercizi raggruppati per categoria.
-     * Ogni categoria ha un header e le righe esercizio con toggle per dettagli.
-     */
-    private fun renderExercises(exs: List<Triple<String, String, String>>) {
+    private fun renderExercises(exs: List<ScheduledExercise>) {
         val container = binding.allExercisesContainer
-        // Pulisce vista precedente
         container.removeAllViews()
 
-        exs.groupBy { it.second }
-            // Ordina categorie secondo un ordine personalizzato
-            .toSortedMap(compareBy {
+        exs.groupBy { it.categoria ?: "Altro" }
+            .toSortedMap(compareBy<String> {
                 listOf("bodybuilding", "cardio", "corpo-libero", "stretching").indexOf(it)
             })
+
+
             .forEach { (cat, list) ->
-                // Header categoria
                 val header = TextView(requireContext()).apply {
                     text = cat.uppercase()
                     setTextColor(ContextCompat.getColor(requireContext(), R.color.orange))
@@ -139,47 +124,41 @@ class MyAutoScheduleFragment : Fragment(R.layout.fragment_my_auto_schedule) {
                     setPadding(36, 24, 8, 8)
                 }
                 container.addView(header)
-                // Righe di ogni esercizio nella categoria
-                list.forEach { (nome, categoria, docId) ->
-                    addExerciseRow(container, nome, categoria, docId)
+
+                list.forEach { exercise ->
+                    addExerciseRow(container, exercise)
                 }
             }
     }
 
-    /**
-     * Aggiunge una riga esercizio con info collapsabile e azione di completamento.
-     */
-    private fun addExerciseRow(
-        container: LinearLayout,
-        nome: String,
-        categoria: String,
-        docId: String
-    ) {
-        // 1) Inflate della CardView per dettagli e la nasconde
+
+    private fun addExerciseRow(container: LinearLayout, exercise: ScheduledExercise) {
+        val nome = exercise.nome
+        val categoria = exercise.categoria
+        val docId = exercise.docId
+        val sets = exercise.sets
+        val reps = exercise.reps
+
         val cardView = layoutInflater.inflate(
             R.layout.exercise_info_card, container, false
         ) as CardView
         cardView.visibility = GONE
 
-        // 2) Crea layout orizzontale per nome e pulsante toggle
         val itemLayout = LinearLayout(requireContext()).apply {
             orientation = LinearLayout.HORIZONTAL
             setPadding(36, 4, 8, 16)
         }
+
         val text = TextView(requireContext()).apply {
             this.text = "○ $nome"
             setTextColor(ContextCompat.getColor(requireContext(), android.R.color.white))
-            layoutParams = LinearLayout.LayoutParams(
-                0,
-                LinearLayout.LayoutParams.WRAP_CONTENT,
-                1f
-            )
+            layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
         }
+
         val infoButton = ImageButton(requireContext()).apply {
             setImageResource(R.drawable.down)
             background = null
             tag = false
-            // Toggle visibilità card
             setOnClickListener { v ->
                 val open = v.tag as Boolean
                 cardView.visibility = if (open) GONE else VISIBLE
@@ -187,17 +166,17 @@ class MyAutoScheduleFragment : Fragment(R.layout.fragment_my_auto_schedule) {
                 v.tag = !open
             }
         }
+
         itemLayout.addView(text)
         itemLayout.addView(infoButton)
         container.addView(itemLayout)
 
-        // 3) Configura il TextView con tick interno nella card
-        val setsRepsTv = cardView.findViewById<TextView>(R.id.cardSetsReps).apply {
-            setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.tick, 0)
-            compoundDrawablePadding = 16
-        }
+        val setsRepsTv = cardView.findViewById<TextView>(R.id.cardSetsReps)
+        setsRepsTv.text = "$sets set x $reps ripetizioni"
+        setsRepsTv.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.tick, 0)
+        setsRepsTv.compoundDrawablePadding = 16
 
-        // 4) Al click sul tick, chiama ViewModel per marcare come fatto
+
         setsRepsTv.setOnClickListener {
             viewModel.markExerciseDone(categoria, docId, {
                 Toast.makeText(requireContext(), "Esercizio terminato!", Toast.LENGTH_SHORT).show()
@@ -208,13 +187,31 @@ class MyAutoScheduleFragment : Fragment(R.layout.fragment_my_auto_schedule) {
             })
         }
 
-        // 5) Aggiunge la card subito dopo la riga principale
+        val weightInput = cardView.findViewById<EditText>(R.id.cardWeightInput)
+        val saveButton = cardView.findViewById<Button>(R.id.cardSaveButton)
+
+        exercise.peso?.let {
+            weightInput.setText(it)
+        }
+
+        saveButton.setOnClickListener {
+            val inputText = weightInput.text.toString().trim()
+            if (inputText.isNotEmpty()) {
+                viewModel.saveExerciseWeight(categoria, docId, inputText, {
+                    Toast.makeText(requireContext(), "Peso salvato!", Toast.LENGTH_SHORT).show()
+                }, {
+                    Toast.makeText(requireContext(), "Errore salvataggio peso", Toast.LENGTH_SHORT).show()
+                })
+            } else {
+                Toast.makeText(requireContext(), "Inserisci un valore", Toast.LENGTH_SHORT).show()
+            }
+        }
+
+
         container.addView(cardView)
     }
 
-    /**
-     * Crea il canale di notifica per i messaggi di completamento (Android O+)
-     */
+
     private fun createNotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val chan = NotificationChannel(
@@ -228,23 +225,16 @@ class MyAutoScheduleFragment : Fragment(R.layout.fragment_my_auto_schedule) {
         }
     }
 
-    /**
-     * Invia la notifica di completamento della scheda,
-     * richiede permesso su Android 13+ se necessario
-     */
     private fun sendNotification() {
-        // Controllo permesso POST_NOTIFICATIONS su Android 13+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
             ContextCompat.checkSelfPermission(
                 requireContext(),
                 android.Manifest.permission.POST_NOTIFICATIONS
             ) != PackageManager.PERMISSION_GRANTED
         ) {
-            // Se non concesso, richiedo permesso
             notifLauncher.launch(android.Manifest.permission.POST_NOTIFICATIONS)
             return
         }
-        // Costruisco e invio la notifica
         val notif = NotificationCompat.Builder(requireContext(), "completion_channel")
             .setSmallIcon(R.drawable.ic_notification)
             .setContentTitle("Bravo!")
@@ -257,7 +247,8 @@ class MyAutoScheduleFragment : Fragment(R.layout.fragment_my_auto_schedule) {
 
     override fun onDestroyView() {
         super.onDestroyView()
-        // Pulisce il binding per evitare memory leaks
         _binding = null
     }
+
+
 }

@@ -22,11 +22,9 @@ import com.google.firebase.firestore.FirebaseFirestore
 import java.util.Calendar
 import java.util.concurrent.TimeUnit
 
-/**
- * ViewModel per la schermata Account, gestisce stato utente, login/logout,
- * impostazioni di promemoria e programmazione notifiche.
- */
 class AccountViewModel(application: Application) : AndroidViewModel(application) {
+
+    private var alreadyInitialized = false
 
     // Riferimento all'autenticazione Firebase
     private val auth = FirebaseAuth.getInstance()
@@ -65,6 +63,7 @@ class AccountViewModel(application: Application) : AndroidViewModel(application)
 
     init {
         // Aggiorna UI con dati utente e pianifica notifiche
+        preloadFromPrefs()
         updateUI()
         scheduleNotifications()
     }
@@ -134,22 +133,33 @@ class AccountViewModel(application: Application) : AndroidViewModel(application)
 
     // --- Recupero dati utente da Firestore e aggiornamento UI ---
     fun updateUI() {
+        if (alreadyInitialized) return // evita ricariche multiple
+
         val user = auth.currentUser
         if (user == null) {
-            // Se non loggato, prova a caricare da SharedPreferences
             preloadFromPrefs()
+            alreadyInitialized = true
             return
         }
+
         val uid = user.uid
         db.collection("users").document(uid).get()
             .addOnSuccessListener { doc ->
-                if (doc.exists()) bindData(
-                    doc.getString("firstName"),
-                    doc.getString("lastName"),
-                    doc.getBoolean("isPersonalTrainer") == true
-                ) else fetchPT(uid)
+                if (doc.exists()) {
+                    bindData(
+                        doc.getString("firstName"),
+                        doc.getString("lastName"),
+                        doc.getBoolean("isPersonalTrainer") == true
+                    )
+                } else {
+                    fetchPT(uid)
+                }
+                alreadyInitialized = true
             }
-            .addOnFailureListener { preloadFromPrefs() }
+            .addOnFailureListener {
+                preloadFromPrefs()
+                alreadyInitialized = true
+            }
     }
 
     private fun fetchPT(uid: String) {
@@ -243,6 +253,7 @@ class AccountViewModel(application: Application) : AndroidViewModel(application)
             "eveningNotification"
         )
     }
+
 
     // Crea o aggiorna un PeriodicWorkRequest per notifiche ogni 24h
 

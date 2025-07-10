@@ -12,6 +12,7 @@ import com.example.progetto_tosa.databinding.FragmentAccountBinding
 class AccountFragment : Fragment() {
 
     private val viewModel: AccountViewModel by viewModels()
+
     private lateinit var binding: FragmentAccountBinding
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,

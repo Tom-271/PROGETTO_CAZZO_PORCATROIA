@@ -33,7 +33,7 @@
             android:id="@+id/cardWeightInput"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Peso sollevato (kg)"
+            android:hint="Peso / Durata"
             android:inputType="numberDecimal"
             android:layout_marginTop="12dp" />
 

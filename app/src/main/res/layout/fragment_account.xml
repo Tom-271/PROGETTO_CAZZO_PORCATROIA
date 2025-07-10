@@ -88,19 +88,20 @@
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/cardInfo"
             android:layout_width="match_parent"
-            android:layout_height="350dp"
+            android:layout_height="wrap_content"
             android:layout_marginHorizontal="8dp"
             android:backgroundTint="@color/navy_blue"
             app:shapeAppearanceOverlay="@style/ShapeAppearance.BottomRounded"
             app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toTopOf="@+id/cardButtons"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent">
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="347dp"
-                android:orientation="horizontal"
+                android:layout_height="173dp"
                 android:gravity="center_vertical"
+                android:orientation="horizontal"
                 android:padding="16dp">
 
                 <!-- ICONA UTENTE con binding ternario -->
@@ -110,39 +111,39 @@
                     android:layout_height="130dp"
                     android:clipToOutline="true"
                     android:scaleType="centerCrop"
+                    android:src="@{vm.isLoggedIn ? (vm.isTrainer ? @drawable/personal : @drawable/atleta) : @drawable/account_principal}"
                     app:shapeAppearanceOverlay="@style/CircleImage"
-                    app:strokeWidth="5dp"
                     app:strokeColor="@{vm.iconStrokeColor}"
-                    android:src="@{vm.isLoggedIn ? (vm.isTrainer ? @drawable/personal : @drawable/atleta) : @drawable/account_principal}" />
+                    app:strokeWidth="5dp" />
 
                 <Space
                     android:layout_width="16dp"
-                    android:layout_height="100dp"/>
+                    android:layout_height="100dp" />
 
                 <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:gravity="center_vertical">
+                    android:gravity="center_vertical"
+                    android:orientation="vertical">
 
                     <TextView
                         android:id="@+id/NomeUtente"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:text="@{vm.displayName}"
                         android:textAllCaps="true"
-                        android:textSize="25sp"
-                        android:textStyle="bold"
                         android:textColor="@color/orange"
-                        android:text="@{vm.displayName}"/>
+                        android:textSize="25sp"
+                        android:textStyle="bold" />
 
                     <TextView
                         android:id="@+id/ruolo"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:textSize="15sp"
-                        android:textStyle="italic"
+                        android:text="@{vm.roleText}"
                         android:textColor="@color/white"
-                        android:text="@{vm.roleText}"/>
+                        android:textSize="15sp"
+                        android:textStyle="italic" />
                 </LinearLayout>
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
