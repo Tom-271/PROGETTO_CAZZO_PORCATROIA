@@ -22,6 +22,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 
+//i commetni che ho fatto per bbfragment sono i medesimi, dicimo che questi altri 3 fragment sono un copia e incolla di bb fragment
 class CardioFragment : Fragment(R.layout.fragment_cardio) {
 
     private var _binding: FragmentCardioBinding? = null
