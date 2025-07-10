@@ -1,330 +1,319 @@
-<?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/account_container"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:fillViewport="true"
-    android:scrollbars="none"
-    android:paddingTop="?attr/actionBarSize"
-    android:fitsSystemWindows="true"
-    tools:context="com.example.progetto_tosa.ui.account.AccountFragment">
+    xmlns:tools="http://schemas.android.com/tools">
 
+    <data>
+        <import type="android.view.View"/>
+        <import type="com.example.progetto_tosa.R"/>
+        <import type="androidx.navigation.NavController"/>
 
-    <!-- Dettagli utente (nascosti) -->
-    <TextView
-        android:id="@+id/tvFirstLast"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:text="Nome e Cognome:"
-        android:textColor="@color/white"
-        android:visibility="invisible"
-        app:layout_constraintTop_toBottomOf="@id/cardInfo"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
+        <variable
+            name="vm"
+            type="com.example.progetto_tosa.ui.account.AccountViewModel" />
+        <variable
+            name="navController"
+            type="NavController" />
+    </data>
 
-    <TextView
-        android:id="@+id/tvEmail"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="4dp"
-        android:text="Email:"
-        android:textColor="@color/white"
-        android:visibility="gone"
-        app:layout_constraintTop_toBottomOf="@id/tvFirstLast"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
-
-    <TextView
-        android:id="@+id/tvBirthday"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="4dp"
-        android:text="Data di nascita:"
-        android:textColor="@color/white"
-        android:visibility="gone"
-        app:layout_constraintTop_toBottomOf="@id/tvEmail"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
-
-    <TextView
-        android:id="@+id/tvWeight"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="4dp"
-        android:text="Peso:"
-        android:textColor="@color/white"
-        android:visibility="gone"
-        app:layout_constraintTop_toBottomOf="@id/tvBirthday"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
-
-    <TextView
-        android:id="@+id/tvHeight"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="4dp"
-        android:text="Altezza:"
-        android:textColor="@color/white"
-        android:visibility="gone"
-        app:layout_constraintTop_toBottomOf="@id/tvWeight"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
-
-    <!-- Card con immagine e nome utente -->
-    <com.google.android.material.card.MaterialCardView
-        android:id="@+id/cardInfo"
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/account_container"
         android:layout_width="match_parent"
-        android:layout_height="350dp"
-        android:layout_marginLeft="8dp"
-        android:layout_marginRight="8dp"
-        android:backgroundTint="@color/navy_blue"
-        app:shapeAppearanceOverlay="@style/ShapeAppearance.BottomRounded"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
+        android:layout_height="match_parent"
+        android:paddingTop="?attr/actionBarSize"
+        android:fitsSystemWindows="true"
+        tools:context="com.example.progetto_tosa.ui.account.AccountFragment">
 
-        <!-- Wrapper orizzontale: foto a sinistra, nome a destra -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="347dp"
-            android:gravity="center_vertical"
-            android:orientation="horizontal"
-            android:padding="16dp">
-
-            <!-- Icona utente -->
-            <com.google.android.material.imageview.ShapeableImageView
-                android:id="@+id/iconaUtente"
-                android:layout_width="130dp"
-                android:layout_height="130dp"
-                android:clipToOutline="true"
-                android:scaleType="centerCrop"
-                app:shapeAppearanceOverlay="@style/CircleImage"
-                app:strokeColor="@color/yellow"
-                app:strokeWidth="5dp" />
-
-            <!-- Spazio fra immagine e testo -->
-            <Space
-                android:layout_width="16dp"
-                android:layout_height="100dp" />
-
-            <!-- Nome utente + tipologia -->
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:gravity="center_vertical">
-
-                <TextView
-                    android:id="@+id/NomeUtente"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textAllCaps="true"
-                    android:textColor="@color/white"
-                    android:textSize="25sp"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:id="@+id/ruolo"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textColor="@color/white"
-                    android:textSize="15sp"
-                    android:textStyle="italic" />
-            </LinearLayout>
-        </LinearLayout>
-    </com.google.android.material.card.MaterialCardView>
-
-    <!-- Contenitore senza ombra -->
-    <com.google.android.material.card.MaterialCardView
-        android:id="@+id/cardButtons"
-        android:layout_width="300dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginEnd="16dp"
-        android:layout_marginTop="300dp"
-        android:translationZ="7dp"
-        android:backgroundTint="@color/light_gray"
-        app:cardCornerRadius="20dp"
-        app:cardElevation="0dp"
-        android:stateListAnimator="@null"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
-
-        <LinearLayout
-            android:layout_width="match_parent"
+        <!-- Hidden user details -->
+        <TextView
+            android:id="@+id/tvFirstLast"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:padding="6dp">
+            android:layout_marginTop="8dp"
+            android:text="Nome e Cognome:"
+            android:textColor="@color/white"
+            android:visibility="invisible"
+            app:layout_constraintTop_toBottomOf="@id/cardInfo"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
 
-            <!-- Rimuovi anche l’ombra interna -->
-            <com.google.android.material.card.MaterialCardView
-                android:id="@+id/buttonsForThings"
+        <TextView
+            android:id="@+id/tvEmail"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="Email:"
+            android:textColor="@color/white"
+            android:visibility="gone"
+            app:layout_constraintTop_toBottomOf="@id/tvFirstLast"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <TextView
+            android:id="@+id/tvBirthday"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="Data di nascita:"
+            android:textColor="@color/white"
+            android:visibility="gone"
+            app:layout_constraintTop_toBottomOf="@id/tvEmail"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <TextView
+            android:id="@+id/tvWeight"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="Peso:"
+            android:textColor="@color/white"
+            android:visibility="gone"
+            app:layout_constraintTop_toBottomOf="@id/tvBirthday"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <TextView
+            android:id="@+id/tvHeight"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="Altezza:"
+            android:textColor="@color/white"
+            android:visibility="gone"
+            app:layout_constraintTop_toBottomOf="@id/tvWeight"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <!-- User card -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cardInfo"
+            android:layout_width="match_parent"
+            android:layout_height="350dp"
+            android:layout_marginHorizontal="8dp"
+            android:backgroundTint="@color/navy_blue"
+            app:shapeAppearanceOverlay="@style/ShapeAppearance.BottomRounded"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent">
+
+            <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="60dp"
-                android:backgroundTint="@color/light_gray"
-                app:cardCornerRadius="20dp"
-                app:cardElevation="0dp"
-                android:stateListAnimator="@null">
+                android:layout_height="347dp"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:padding="16dp">
+
+                <!-- ICONA UTENTE con binding ternario -->
+                <com.google.android.material.imageview.ShapeableImageView
+                    android:id="@+id/iconaUtente"
+                    android:layout_width="130dp"
+                    android:layout_height="130dp"
+                    android:clipToOutline="true"
+                    android:scaleType="centerCrop"
+                    app:shapeAppearanceOverlay="@style/CircleImage"
+                    app:strokeWidth="5dp"
+                    app:strokeColor="@{vm.iconStrokeColor}"
+                    android:src="@{vm.isLoggedIn ? (vm.isTrainer ? @drawable/personal : @drawable/atleta) : @drawable/account_principal}" />
+
+
+                <Space
+                    android:layout_width="16dp"
+                    android:layout_height="100dp"/>
 
                 <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:orientation="horizontal"
-                    android:showDividers="middle"
-                    android:divider="@drawable/vertical_divider"
-                    android:dividerPadding="8dp"
-                    android:gravity="center">
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:gravity="center_vertical">
 
-                    <!-- I tuoi 4 pulsanti… -->
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/userData"
-                        style="@style/Widget.MaterialComponents.Button.TextButton"
-                        android:layout_width="0dp"
+                    <TextView
+                        android:id="@+id/NomeUtente"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        app:icon="@drawable/datos"
-                        app:iconTint="@android:color/black"
-                        app:iconSize="30dp"
-                        app:iconGravity="textStart"
-                        android:text="" />
+                        android:textAllCaps="true"
+                        android:textSize="25sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/orange"
+                        android:text="@{vm.displayName}"/>
 
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/impostazioni"
-                        style="@style/Widget.MaterialComponents.Button.TextButton"
-                        android:layout_width="0dp"
+                    <TextView
+                        android:id="@+id/ruolo"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        app:icon="@drawable/ingranagges"
-                        app:iconTint="@android:color/black"
-                        app:iconSize="30dp"
-                        app:iconGravity="textStart"
-                        android:text="" />
+                        android:textSize="15sp"
+                        android:textStyle="italic"
+                        android:textColor="@color/white"
+                        android:text="@{vm.roleText}"/>
                 </LinearLayout>
-            </com.google.android.material.card.MaterialCardView>
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
 
-            <!-- I miei programmi / Il mio percorso -->
+        <!-- Buttons container -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cardButtons"
+            android:layout_width="300dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="300dp"
+            android:layout_marginHorizontal="16dp"
+            android:translationZ="7dp"
+            android:backgroundTint="@color/light_gray"
+            app:cardCornerRadius="20dp"
+            app:cardElevation="0dp"
+            android:stateListAnimator="@null"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent">
+
             <LinearLayout
-                android:layout_width="300dp"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center"
-                android:layout_gravity="center">
+                android:orientation="vertical"
+                android:padding="6dp">
 
+                <!-- Top two icon-buttons -->
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="match_parent"
+                    android:layout_height="60dp"
+                    android:backgroundTint="@color/light_gray"
+                    app:cardCornerRadius="20dp"
+                    app:cardElevation="0dp"
+                    android:stateListAnimator="@null">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:orientation="horizontal"
+                        android:showDividers="middle"
+                        android:divider="@drawable/vertical_divider"
+                        android:dividerPadding="8dp"
+                        android:gravity="center">
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/userData"
+                            style="@style/Widget.MaterialComponents.Button.TextButton"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            app:icon="@drawable/datos"
+                            app:iconTint="@android:color/black"
+                            app:iconSize="30dp"
+                            app:iconGravity="textStart"
+                            android:enabled="@{vm.isLoggedIn}"
+                            android:alpha="@{vm.isLoggedIn ? 1f : 0.4f}"
+                            android:onClick="@{() -> navController.navigate(R.id.action_account_to_UserData)}" />
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/impostazioni"
+                            style="@style/Widget.MaterialComponents.Button.TextButton"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            app:icon="@drawable/ingranagges"
+                            app:iconTint="@android:color/black"
+                            app:iconSize="30dp"
+                            app:iconGravity="textStart"
+                            android:enabled="@{vm.isLoggedIn}"
+                            android:alpha="@{vm.isLoggedIn ? 1f : 0.4f}"
+                            android:onClick="@{() -> vm.onSettingsClick()}"
+                            android:visibility="@{vm.isLoggedIn ? View.VISIBLE : View.GONE}" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <!-- “I miei programmi” button -->
                 <Button
                     android:id="@+id/UserProgram"
                     android:layout_width="match_parent"
                     android:layout_height="110dp"
-                    android:layout_marginStart="16dp"
-                    android:layout_marginEnd="16dp"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginHorizontal="16dp"
                     app:strokeColor="@color/dark_gray"
-                    android:textStyle="bold"
-                    android:textSize="15dp"
-                    android:backgroundTint="@color/orange"
-                    android:elevation="3dp"
-                    android:stateListAnimator="@null"
                     android:text="I miei programmi"
-                    android:textColor="@color/black" />
-
-                <!-- per la tesi
-                <Button
-                    android:id="@+id/UserJourney"
-                    android:layout_width="130dp"
-                    android:layout_height="110dp"
-                    android:layout_marginStart="4dp"
-                    app:cornerRadius="0dp"
-                    android:backgroundTint="@color/navy_blue"
-                    app:strokeWidth="0.5dp"
-                    app:strokeColor="@color/black"
-                    android:text="Il mio percorso"
-                    android:textColor="@color/light_gray"/>
-                -->
-            </LinearLayout>
-
-            <!-- TrainerProgram -->
-            <com.google.android.material.button.MaterialButton
-                xmlns:android="http://schemas.android.com/apk/res/android"
-                xmlns:app="http://schemas.android.com/apk/res-auto"
-                android:id="@+id/TrainerAllievs"
-                android:layout_width="match_parent"
-                android:layout_height="100dp"
-                android:visibility="gone"
-                style="@style/Widget.MaterialComponents.Button"
-                app:shapeAppearanceOverlay="@style/ShapeAppearance.BottomRounded"
-                android:backgroundTint="@color/green"
-                app:strokeWidth="0dp"
-                app:strokeColor="@color/dark_gray"
-                android:layout_marginStart="10dp"
-                android:layout_marginEnd="10dp"
-                android:textColor="@color/black"
-                android:text="I TUOI ALLIEVI"
-                android:textStyle="bold"
-                android:textSize="15dp" />
-
-            <!-- Sostituisci il vecchio Switch con questo LinearLayout verticale -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:gravity="center"
-                android:layout_marginTop="16dp">
-
-                <!-- Testo sopra il toggle, centrato -->
-                <TextView
-                    android:id="@+id/labelReminder"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:visibility="gone"
-                    android:text="Notifiche per l'allenamento"
+                    android:textStyle="bold"
+                    android:textSize="15sp"
+                    android:backgroundTint="@color/orange"
                     android:textColor="@color/black"
-                    android:textSize="16sp"
-                    android:layout_marginBottom="8dp"/>
+                    android:enabled="@{vm.isLoggedIn}"
+                    android:alpha="@{vm.isLoggedIn ? 1f : 0.4f}"
+                    android:onClick="@{() -> navController.navigate(R.id.action_navigation_account_to_navigation_home)}" />
 
-                <!-- Toggle centrato sotto il testo -->
-                <Switch
-                    android:id="@+id/switchReminder"
-                    android:visibility="gone"
-                    android:layout_width="wrap_content"
+                <!-- Trainer’s “I TUOI ALLIEVI” -->
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/TrainerAllievs"
+                    android:layout_width="match_parent"
+                    android:layout_height="100dp"
+                    android:layout_marginTop="8dp"
+                    android:visibility="@{vm.isTrainer ? View.VISIBLE : View.GONE}"
+                    style="@style/Widget.MaterialComponents.Button"
+                    app:shapeAppearanceOverlay="@style/ShapeAppearance.BottomRounded"
+                    android:backgroundTint="@color/green"
+                    android:text="I TUOI ALLIEVI"
+                    android:textStyle="bold"
+                    android:textSize="15sp"
+                    android:textColor="@color/black"
+                    android:onClick="@{() -> navController.navigate(R.id.action_navigation_account_to_navigation_allievi)}" />
+
+                <!-- Reminder switch -->
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:checked="false"/>
+                    android:orientation="vertical"
+                    android:gravity="center"
+                    android:layout_marginTop="16dp">
+
+                    <TextView
+                        android:id="@+id/labelReminder"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Notifiche per l'allenamento"
+                        android:textColor="@color/black"
+                        android:textSize="16sp"
+                        android:visibility="@{vm.showSettings ? View.VISIBLE : View.GONE}"
+                        android:layout_marginTop="16dp"/>
+
+                    <Switch
+                        android:id="@+id/switchReminder"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:checked="@{vm.reminderEnabled}"
+                        android:onCheckedChanged="@{(btn,checked) -> vm.onSwitchReminderChanged(checked)}"
+                        android:visibility="@{vm.showSettings ? View.VISIBLE : View.GONE}"/>
+
+                </LinearLayout>
             </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
 
-        </LinearLayout>
-    </com.google.android.material.card.MaterialCardView>
-
-    <!-- Logout + Login sempre sul fondo -->
-    <LinearLayout
-        android:id="@+id/bottomButtons"
-        android:layout_width="300dp"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:translationZ="7dp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent">
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/sign_out"
-            android:visibility="gone"
-            android:layout_width="0dp"
+        <!-- Bottom login/logout -->
+        <LinearLayout
+            android:id="@+id/bottomButtons"
+            android:layout_width="300dp"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
+            android:orientation="horizontal"
             android:translationZ="7dp"
-            android:text="Logout"
-            app:shapeAppearanceOverlay="@style/ShapeAppearance.Rounded" />
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent">
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/ButtonLogin"
-            android:visibility="gone"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:backgroundTint="@color/sky"
-            android:text="LOGIN"
-            app:shapeAppearanceOverlay="@style/ShapeAppearance.Rounded" />
-    </LinearLayout>
-</androidx.constraintlayout.widget.ConstraintLayout>
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/sign_out"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Logout"
+                android:visibility="@{vm.isLoggedIn ? View.VISIBLE : View.GONE}"
+                android:onClick="@{() -> vm.onSignOut(navController)}"
+                app:shapeAppearanceOverlay="@style/ShapeAppearance.Rounded" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/ButtonLogin"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="LOGIN"
+                android:backgroundTint="@color/sky"
+                android:visibility="@{vm.isLoggedIn ? View.GONE : View.VISIBLE}"
+                android:onClick="@{() -> vm.onLoginClick(navController)}"
+                app:shapeAppearanceOverlay="@style/ShapeAppearance.Rounded" />
+        </LinearLayout>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>
