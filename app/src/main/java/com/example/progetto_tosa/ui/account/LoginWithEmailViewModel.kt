@@ -15,7 +15,6 @@ class LoginWithEmailViewModel(application: Application) : AndroidViewModel(appli
     val isLoading: LiveData<Boolean> = _isLoading
 
     private val _isSignedIn = MutableLiveData(false)
-    val isSignedIn: LiveData<Boolean> = _isSignedIn
 
     private val _navigateEvent = MutableLiveData<Event<Destination>>()
     val navigateEvent: LiveData<Event<Destination>> = _navigateEvent
@@ -47,12 +46,6 @@ class LoginWithEmailViewModel(application: Application) : AndroidViewModel(appli
                     _navigateEvent.value = Event(Destination.SHOW_TOAST(msg))
                 }
             }
-    }
-
-    fun signOut() {
-        auth.signOut()
-        _isSignedIn.value = false
-        _navigateEvent.value = Event(Destination.SHOW_TOAST("Disconnesso"))
     }
 
     fun navigateToRegister() {

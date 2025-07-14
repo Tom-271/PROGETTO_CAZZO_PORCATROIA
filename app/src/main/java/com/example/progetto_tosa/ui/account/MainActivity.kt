@@ -11,7 +11,6 @@ import android.view.WindowInsetsController
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
 import androidx.core.view.WindowCompat
 import com.example.progetto_tosa.R
 import com.example.progetto_tosa.databinding.ActivityMainBinding

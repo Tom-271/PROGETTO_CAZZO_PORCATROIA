@@ -156,7 +156,6 @@ class MyAutoScheduleViewModel(
             .addOnSuccessListener { onSuccess() }
             .addOnFailureListener { onError() }
     }
-
 }
 
 data class ScheduledExercise(

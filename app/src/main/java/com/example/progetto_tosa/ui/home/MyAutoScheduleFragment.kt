@@ -89,16 +89,15 @@ class MyAutoScheduleFragment : Fragment(R.layout.fragment_my_auto_schedule) {
         // Ricostruisco la lista di esercizi ogni volta che cambia
         viewModel.exercises.observe(viewLifecycleOwner) { renderExercises(it) }
 
-        // Flag per ignorare la prima emissione di remaining
-        var initialized = false
-        viewModel.remaining.observe(viewLifecycleOwner) { rem ->
-            if (!initialized) {
-                initialized = true
-            } else if (rem == 0) {
-                // Quando non restano esercizi, invio la notifica di fine scheda
-                sendNotification()
-            }
-        }
+        // Inizializziamo previousRemaining col valore corrente (che potrebbe essere 0)
+           var previousRemaining = viewModel.remaining.value ?: 0
+           viewModel.remaining.observe(viewLifecycleOwner) { rem ->
+                    // mando notifica solo se prima c'erano esercizi (>0) e ora non ce ne sono più (==0)
+                    if (previousRemaining > 0 && rem == 0) {
+                            sendNotification()
+                        }
+                    previousRemaining = rem
+                }
 
         // Navigazione al timer cronometro
         binding.chrono.setOnClickListener {
