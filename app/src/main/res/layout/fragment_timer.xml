@@ -5,8 +5,8 @@
     android:id="@+id/stepwatch_container"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:paddingTop="?attr/actionBarSize"
     android:clipChildren="false"
+    android:paddingTop="50dp"
     android:clipToPadding="false">
 
     <!-- Spinner come titolo -->
@@ -14,7 +14,7 @@
         android:id="@+id/spinner_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="24dp"
+        android:layout_marginTop="100dp"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />

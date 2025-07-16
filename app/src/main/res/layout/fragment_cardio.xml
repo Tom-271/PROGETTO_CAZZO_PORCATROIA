@@ -13,15 +13,12 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:fillViewport="true"
-        android:paddingTop="?attr/actionBarSize"
-        android:layout_marginTop="40dp"
         android:clipToPadding="false">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:paddingTop="25dp">
+            android:orientation="vertical">
 
             <!-- SEZIONE CARDIO: CORSA -->
             <com.google.android.material.card.MaterialCardView
