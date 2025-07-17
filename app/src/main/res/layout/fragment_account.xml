@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
@@ -202,8 +203,34 @@
                             app:iconSize="30dp"
                             app:iconGravity="textStart"
                             android:enabled="@{vm.isLoggedIn}"
+                            android:alpha="@{vm.isLoggedIn ? 1f : 0.4f}" />
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/buttonQr"
+                            style="@style/Widget.MaterialComponents.Button.TextButton"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            app:icon="@drawable/inquadrami"
+                            app:iconTint="@android:color/black"
+                            app:iconSize="30dp"
+                            app:iconGravity="textStart"
+                            android:enabled="@{vm.isLoggedIn}"
+                            android:alpha="@{vm.isLoggedIn ? 1f : 0.4f}" />
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/buttonCamera"
+                            style="@style/Widget.MaterialComponents.Button.TextButton"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            app:icon="@drawable/fotocamera"
+                            app:iconTint="@android:color/black"
+                            app:iconSize="30dp"
+                            app:iconGravity="textStart"
+                            android:enabled="@{vm.isLoggedIn}"
                             android:alpha="@{vm.isLoggedIn ? 1f : 0.4f}"
-                            android:onClick="@{() -> navController.navigate(R.id.action_account_to_UserData)}" />
+                            android:visibility="@{vm.isLoggedIn ? View.VISIBLE : View.GONE}" />
 
                         <com.google.android.material.button.MaterialButton
                             android:id="@+id/impostazioni"
@@ -219,6 +246,7 @@
                             android:alpha="@{vm.isLoggedIn ? 1f : 0.4f}"
                             android:onClick="@{() -> vm.onSettingsClick()}"
                             android:visibility="@{vm.isLoggedIn ? View.VISIBLE : View.GONE}" />
+
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
 
@@ -239,7 +267,6 @@
                     android:alpha="@{vm.isLoggedIn ? 1f : 0.4f}"
                     android:onClick="@{() -> navController.navigate(R.id.action_navigation_account_to_navigation_home)}" />
 
-                <!-- Trainer’s “I TUOI ALLIEVI” -->
                 <!-- Trainer’s “I TUOI ALLIEVI” -->
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/TrainerAllievs"
@@ -285,6 +312,17 @@
                 </LinearLayout>
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
+
+        <!-- ImageView per il QR (nascosto finché non viene generato) -->
+        <ImageView
+            android:id="@+id/imageViewQr"
+            android:layout_width="200dp"
+            android:layout_height="200dp"
+            android:visibility="gone"
+            app:layout_constraintTop_toBottomOf="@id/cardButtons"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginTop="16dp"/>
 
         <!-- Bottom login/logout -->
         <LinearLayout

@@ -14,7 +14,6 @@
         android:fillViewport="true"
         android:paddingTop="?attr/actionBarSize">
 
-
         <!-- Interno Card: titolo, descrizione, data+stato -->
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
