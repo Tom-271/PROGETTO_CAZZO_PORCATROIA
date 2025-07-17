@@ -4,7 +4,6 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:fillViewport="true"
     tools:context=".ui.home.HomeFragment">
 
@@ -13,25 +12,8 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:fillViewport="true"
-        android:paddingTop="?attr/actionBarSize"
-        android:layout_marginTop="20dp">
+        android:paddingTop="?attr/actionBarSize">
 
-
-    <!-- Card blu con titolo centrato, descrizione e banner -->
-        <com.google.android.material.card.MaterialCardView
-            android:id="@+id/containerblue"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="18dp"
-            android:layout_marginEnd="18dp"
-            android:padding="16dp"
-            android:maxHeight="350dp"
-            android:elevation="4dp"
-            android:backgroundTint="@color/navy_blue"
-            app:shapeAppearanceOverlay="@style/ShapeAppearance.BottomRounded"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent">
 
         <!-- Interno Card: titolo, descrizione, data+stato -->
         <androidx.constraintlayout.widget.ConstraintLayout
@@ -45,7 +27,6 @@
                 android:layout_height="300dp"
                 android:layout_marginStart="18dp"
                 android:layout_marginEnd="18dp"
-                android:layout_marginTop="8dp"
                 android:padding="16dp"
                 android:maxHeight="350dp"
                 android:elevation="4dp"
