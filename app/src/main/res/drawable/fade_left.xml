@@ -1,0 +1,7 @@
+<!-- fade_left.xml -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
+    <gradient
+        android:startColor="@android:color/transparent"
+        android:endColor="@color/black"
+        android:angle="0"/>
+</shape>

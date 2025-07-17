@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="100dp"
+    android:height="56dp"
+    android:viewportWidth="100"
+    android:viewportHeight="56">
+
+    <!-- Prima fascia principale più lunga verso destra -->
+    <path
+        android:fillColor="@color/lapis"
+        android:pathData="M0,0 L70,0 L0,200 Z" />
+
+    <!-- Gap trasparente obliquo -->
+    <path
+        android:fillColor="@android:color/transparent"
+        android:pathData="M85,0 L90,0 L30,56 L25,56 Z" />
+
+    <!-- Seconda fascia lapis, inclinazione leggermente diversa -->
+    <path
+        android:fillColor="@color/lapis"
+        android:pathData="M90,0 L100,0 L40,176 L70,56 Z" />
+
+</vector>

@@ -42,6 +42,9 @@
         <action
             android:id="@+id/action_navigation_home_to_navigation_account2"
             app:destination="@id/navigation_account" />
+        <action
+            android:id="@+id/action_navigation_home_to_progressionFragment"
+            app:destination="@id/progressionFragment" />
     </fragment>
 
     <!-- Workout container -->
@@ -343,5 +346,11 @@
             android:id="@+id/action_fragment_my_trainer_schedule_to_navigation_cronotimer"
             app:destination="@id/navigation_cronotimer" />
     </fragment>
+
+    <fragment
+        android:id="@+id/progressionFragment"
+        android:name="com.example.progetto_tosa.ui.progression.ProgressionFragment"
+        android:label="I miei progressi"
+        tools:layout="@layout/fragment_progression" />
 
 </navigation>

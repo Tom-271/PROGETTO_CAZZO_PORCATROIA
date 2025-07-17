@@ -29,6 +29,7 @@ class MyAutoCalendarViewModel : ViewModel() {
                 set(Calendar.DAY_OF_WEEK, Calendar.MONDAY)
                 add(Calendar.WEEK_OF_YEAR, _weekOffset.value ?: 0)
             }
+
         val labelFmt = SimpleDateFormat("EEEE d MMMM", Locale("it", "IT"))
         val idFmt    = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
 

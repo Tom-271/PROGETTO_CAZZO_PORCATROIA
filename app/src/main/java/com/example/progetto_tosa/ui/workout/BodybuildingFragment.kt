@@ -112,7 +112,6 @@ class BodybuildingFragment : Fragment(R.layout.fragment_bodybuilding) {
     }
 
     // Mostra un dialog di dettaglio con titolo, video e descrizioni dell'esercizio.
-
     private fun openDetail(ex: BodybuildingViewModel.Exercise) {
         ExerciseDetailFragment.newInstance(
             ex.title,

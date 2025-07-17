@@ -22,6 +22,7 @@
     <color name="onSurfaceLight">#000000</color>
     <color name="lightRed">#5CFF0000</color>
     <color name="transparent">#00000000</color>
+    <color name="lapis">#2979FF</color>
     <color name="light_gray">#BABABA</color>
     <color name="yellow">#FFFF00</color>"
     <color name="navy_blue">#2C3E50</color>
@@ -30,5 +31,5 @@
     <color name="beige">#877150</color>
     <color name="perNomeAtleta">#F8BE81</color>
     <color name="perNomePersonal">#CCDFF2</color>
-
+    <color name="unige">#002678</color>
 </resources>
