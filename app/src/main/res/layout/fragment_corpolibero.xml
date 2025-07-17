@@ -14,8 +14,6 @@
         android:id="@+id/account_container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:paddingTop="?attr/actionBarSize"
-        android:layout_marginTop="40dp"
         tools:context="com.example.progetto_tosa.ui.workout.CorpoliberoFragment">
 
         <!-- Scroll principale -->

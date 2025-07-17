@@ -13,15 +13,14 @@
         android:id="@+id/scrollView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:padding="16dp"
-        android:paddingTop="?attr/actionBarSize"
         xmlns:tools="http://schemas.android.com/tools"
         tools:context=".ui.home.PTcalendar">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="100dp">
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp">
 
             <!-- Titolo con nome utente (impostato da Fragment) -->
             <TextView

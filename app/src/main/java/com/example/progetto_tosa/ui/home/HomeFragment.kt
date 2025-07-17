@@ -17,6 +17,7 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.PagerSnapHelper
@@ -45,7 +46,6 @@ class HomeFragment : Fragment() {
 
     private var carouselTimer: java.util.Timer? = null
     private var currentPosition = 0
-
     companion object {
         private const val TAG = "HomeFragment"
         private val CATEGORIES = listOf("bodybuilding", "cardio", "corpo_libero", "stretching")
@@ -293,6 +293,47 @@ class HomeFragment : Fragment() {
                 start()
             }
         }
+        val today = Date()
+        val displayFmt = SimpleDateFormat("EEEE, d MMMM yyyy", Locale.getDefault())
+        val keyFmt = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+        binding.bannerDate.text = displayFmt.format(today)
+        val todayId = keyFmt.format(today)
+        Log.d(TAG, "TodayId = $todayId")
+
+        val viewModel = ViewModelProvider(this)[HomeViewModel::class.java]
+
+        val user = auth.currentUser
+        if (user == null) {
+            Log.d(TAG, "Utente non loggato")
+            binding.bannerStatus.visibility = View.GONE
+            setAllGone()
+            return
+        }
+
+        val prefs = requireActivity().getSharedPreferences("user_data", Context.MODE_PRIVATE)
+        val isTrainer = prefs.getBoolean("is_trainer", false)
+        if (isTrainer) {
+            Log.d(TAG, "Accesso come PT")
+            binding.bannerStatus.visibility = View.GONE
+            showButtonsForPT()
+            return
+        }
+
+        showButtonsForUser()
+
+        val fullName = prefs.getString("saved_display_name", "").orEmpty()
+        if (fullName.isBlank()) {
+            Log.e(TAG, "FullName mancante")
+            binding.bannerStatus.text = "Errore controllo scheda"
+            return
+        }
+
+        viewModel.combinedStatus.observe(viewLifecycleOwner) {
+            binding.bannerStatus.text = it
+        }
+
+        // Carica i dati per entrambi i banner
+        viewModel.loadData(fullName, todayId)
     }
 
     private fun setAllGone() {
@@ -315,6 +356,7 @@ class HomeFragment : Fragment() {
     private fun showButtonsForUser() {
         val prefs = requireActivity().getSharedPreferences("user_data", Context.MODE_PRIVATE)
         val fullName = prefs.getString("saved_display_name", "").orEmpty()
+
         binding.buttonForPersonalTrainer.visibility = View.GONE
         binding.buttonForTheScheduleIDid.visibility = View.VISIBLE
         binding.buttonForTheSchedulePersonalTrainerDid.visibility = View.VISIBLE
@@ -334,14 +376,13 @@ class HomeFragment : Fragment() {
             findNavController().navigate(
                 R.id.action_navigation_home_to_pt_schedule,
                 bundle
-            )
-        }
-    }
+
 
     private fun showButtonsForPT() {
         binding.buttonForPersonalTrainer.visibility = View.VISIBLE
         binding.buttonForTheScheduleIDid.visibility = View.GONE
         binding.buttonForTheSchedulePersonalTrainerDid.visibility = View.GONE
+
         binding.buttonForPersonalTrainer.setOnClickListener {
             findNavController().navigate(R.id.action_navigation_home_to_navigation_myautocalendar)
         }
@@ -353,3 +394,4 @@ class HomeFragment : Fragment() {
         _binding = null
     }
 }
+

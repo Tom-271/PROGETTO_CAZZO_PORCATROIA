@@ -4,7 +4,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/container"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true">
 
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/nav_view"
@@ -15,7 +16,6 @@
         android:background="@drawable/bg_bottom_nav_rounded"
         app:itemBackground="@android:color/transparent"
         app:itemIconSize="30dp"
-        android:layout_marginBottom="15dp"
         android:padding="8dp"
         app:itemIconTint="@null"
         app:labelVisibilityMode="labeled"
@@ -32,7 +32,6 @@
         app:defaultNavHost="true"
         app:navGraph="@navigation/mobile_navigation"
         app:layout_constraintTop_toTopOf="parent"
-        android:paddingTop="?attr/actionBarSize"
         app:layout_constraintBottom_toTopOf="@id/nav_view"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>

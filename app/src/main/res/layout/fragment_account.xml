@@ -19,7 +19,6 @@
         android:id="@+id/account_container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:paddingTop="?attr/actionBarSize"
         android:fitsSystemWindows="true"
         tools:context="com.example.progetto_tosa.ui.account.AccountFragment">
 
