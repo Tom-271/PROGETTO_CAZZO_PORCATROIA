@@ -211,7 +211,7 @@
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            app:icon="@drawable/inquadrami"
+                            app:icon="@drawable/newqr"
                             app:iconTint="@android:color/black"
                             app:iconSize="30dp"
                             app:iconGravity="textStart"

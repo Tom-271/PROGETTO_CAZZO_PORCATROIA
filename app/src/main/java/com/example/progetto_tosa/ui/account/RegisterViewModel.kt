@@ -14,6 +14,7 @@ class RegisterViewModel(application: Application) : AndroidViewModel(application
     // --- Input fields ---
     val firstName        = MutableLiveData<String>()
     val lastName         = MutableLiveData<String>()
+    val nickname         = MutableLiveData<String>()
     val email            = MutableLiveData<String>()
     val password         = MutableLiveData<String>()
     val birthDate        = MutableLiveData<String>()
@@ -39,15 +40,14 @@ class RegisterViewModel(application: Application) : AndroidViewModel(application
     private val db   = FirebaseFirestore.getInstance()
     private val dateParser = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
 
-    /** Chiamato dal layout quando si clicca sul campo data */
     fun onBirthDateClicked() {
         _showDatePicker.value = Unit
     }
 
-    /** Lancia la procedura di registrazione */
     fun onRegister() {
         val fn    = firstName.value.orEmpty().trim()
         val ln    = lastName.value.orEmpty().trim()
+        val nk    = nickname.value.orEmpty().trim()
         val em    = email.value.orEmpty().trim()
         val pw    = password.value.orEmpty()
         val bdStr = birthDate.value.orEmpty().trim()
@@ -57,55 +57,57 @@ class RegisterViewModel(application: Application) : AndroidViewModel(application
         val vCode = verificationCode.value.orEmpty().trim()
         val pt    = isTrainer.value == true
 
-        // **Controllo: nome e cognome solo lettere**
+        // Validazioni di base
         val nameRegex = Regex("^[A-Za-zÀ-ÖØ-öø-ÿ]+$")
         if (!nameRegex.matches(fn) || !nameRegex.matches(ln)) {
             _errorMessage.value = "Nome e cognome devono contenere solo lettere"
             return
         }
-
-        // Base validation
-        if (fn.isEmpty() || ln.isEmpty() || em.isEmpty()
+        if (fn.isEmpty() || ln.isEmpty() || nk.isEmpty() || em.isEmpty()
             || pw.length < 6 || bdStr.isEmpty()
             || wtStr.isEmpty() || htStr.isEmpty() || bfStr.isEmpty()
         ) {
-            _errorMessage.value = "Compila tutti i campi e password minimo 6 caratteri"
+            _errorMessage.value = "Compila tutti i campi (incluso nickname) e password minimo 6 caratteri"
             return
         }
-
-        // Password strength
         val pwRegex = Regex("^(?=.*[A-Z])(?=.*\\d)(?=.*[^A-Za-z0-9]).{6,}\$")
         if (!pwRegex.matches(pw)) {
             _errorMessage.value = "La password deve avere almeno una maiuscola, un numero e un carattere speciale"
             return
         }
-
-        // Trainer code
-        if (pt) {
-            val official = "00000"
-            if (vCode != official) {
-                _errorMessage.value = "Codice non valido, contatta l'amministratore"
-                return
-            }
+        if (pt && vCode != "00000") {
+            _errorMessage.value = "Codice trainer non valido"
+            return
         }
 
         viewModelScope.launch {
             isLoading.value = true
             _errorMessage.value = null
             try {
-                // 1) create auth user
+                // 1) Creo l’utente in Firebase Auth (ora sono autenticato)
                 val authResult = auth.createUserWithEmailAndPassword(em, pw).await()
-                val uid = authResult.user?.uid
-                    ?: throw Exception("UID non disponibile")
+                val uid = authResult.user?.uid ?: throw Exception("UID non disponibile")
 
-                // 2) parse birthDate in Date
+                // 2) Verifico duplicati di nickname
+                val usersWithSameNick = db.collection("users")
+                    .whereEqualTo("nickname", nk).get().await()
+                val trainersWithSameNick = db.collection("personal_trainers")
+                    .whereEqualTo("nickname", nk).get().await()
+
+                if (!usersWithSameNick.isEmpty || !trainersWithSameNick.isEmpty) {
+                    _errorMessage.value = "Nickname già in uso"
+                    return@launch
+                }
+
+                // 3) Parse data di nascita
                 val bdDate = dateParser.parse(bdStr)
                     ?: throw Exception("Formato data errato")
 
-                // 3) prepare Firestore data
+                // 4) Preparo dati per Firestore
                 val data = mapOf(
                     "firstName"         to fn,
                     "lastName"          to ln,
+                    "nickname"          to nk,
                     "email"             to em,
                     "birthday"          to bdDate,
                     "weight"            to wtStr.toDouble(),
@@ -114,6 +116,8 @@ class RegisterViewModel(application: Application) : AndroidViewModel(application
                     "isPersonalTrainer" to pt
                 )
                 val collection = if (pt) "personal_trainers" else "users"
+
+                // 5) Salvo i dati in Firestore
                 db.collection(collection)
                     .document(uid)
                     .set(data)
@@ -128,6 +132,7 @@ class RegisterViewModel(application: Application) : AndroidViewModel(application
             }
         }
     }
+
     fun errorMessageHandled() {
         _errorMessage.value = null
     }
