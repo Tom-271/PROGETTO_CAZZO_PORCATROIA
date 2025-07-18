@@ -71,7 +71,6 @@
                         style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.Dense"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginBottom="16dp"
                         app:boxBackgroundMode="filled"
                         app:boxBackgroundColor="@color/dark_gray"
                         app:boxStrokeColor="@color/navy_blue">
@@ -83,6 +82,42 @@
                             android:textColor="@android:color/white"
                             android:text="@={vm.lastName}"/>
                     </com.google.android.material.textfield.TextInputLayout>
+
+                    <!-- Divider tra Cognome e Nickname -->
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:layout_marginTop="16dp"
+                        android:layout_marginStart="40dp"
+                        android:layout_marginEnd="40dp"
+                        android:layout_marginBottom="16dp"
+                        android:background="@color/light_gray" />
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.Dense"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        app:boxBackgroundMode="filled"
+                        app:boxBackgroundColor="@color/dark_gray"
+                        app:boxStrokeColor="@color/navy_blue">
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:hint="NickName"
+                            android:inputType="textPersonName"
+                            android:textColor="@android:color/white"
+                            android:text="@={vm.nickname}"/>
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <!-- Divider tra Cognome e Nickname -->
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:layout_marginTop="16dp"
+                        android:layout_marginStart="40dp"
+                        android:layout_marginEnd="40dp"
+                        android:layout_marginBottom="16dp"
+                        android:background="@color/light_gray" />
 
                     <!-- Email -->
                     <com.google.android.material.textfield.TextInputLayout
@@ -242,7 +277,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Sì"
-                            android:buttonTint="@color/orange"
+                            android:buttonTint="@color/purple_200"
                             android:textColor="@color/white"
                             android:checked="@={vm.isTrainer}"/>
 
@@ -251,7 +286,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="No"
-                            android:buttonTint="@color/orange"
+                            android:buttonTint="@color/purple_200"
                             android:textColor="@color/white"
                             android:checked="@{!vm.isTrainer}"/>
                     </RadioGroup>
@@ -288,7 +323,7 @@
                 android:paddingVertical="14dp"
                 android:layout_marginTop="24dp"
                 app:cornerRadius="28dp"
-                app:backgroundTint="@color/orange"
+                app:backgroundTint="@color/purple_200"
                 android:textColor="@android:color/white"
                 android:onClick="@{() -> vm.onRegister()}"
                 android:enabled="@{!vm.isLoading}"/>

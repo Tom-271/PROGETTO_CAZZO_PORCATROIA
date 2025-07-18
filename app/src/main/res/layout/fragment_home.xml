@@ -13,7 +13,6 @@
         android:layout_height="match_parent"
         android:fillViewport="true">
 
-
         <!-- Interno Card: titolo, descrizione, data+stato -->
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"

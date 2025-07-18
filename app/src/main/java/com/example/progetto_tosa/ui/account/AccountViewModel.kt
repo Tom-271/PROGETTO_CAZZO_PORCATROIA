@@ -18,6 +18,7 @@ import com.example.progetto_tosa.R
 import com.example.progetto_tosa.workers.MyWorker
 import com.firebase.ui.auth.AuthUI
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import java.util.Calendar
 import java.util.concurrent.TimeUnit
@@ -254,9 +255,36 @@ class AccountViewModel(application: Application) : AndroidViewModel(application)
         )
     }
 
+    // Funzione per linkare atleta al PT in Firestore
+    fun linkAthleteToPT(athleteUid: String) {
+        val ptUid = auth.currentUser?.uid ?: return
+        val coll  = "atleti_di_$ptUid"
+        // Prima recupera il nome dell'atleta da Firestore
+        db.collection("users").document(athleteUid).get()
+            .addOnSuccessListener { doc ->
+                val first = doc.getString("firstName").orEmpty()
+                val last  = doc.getString("lastName").orEmpty()
+                val fullName = if (first.isNotBlank()) "$first $last".trim() else athleteUid
+                // Salva id e nome
+                db.collection(coll)
+                    .document(athleteUid)
+                    .set(mapOf(
+                        "uid"      to athleteUid,
+                        "name"     to fullName
+                    ))
+                    .addOnSuccessListener {
+                        Toast.makeText(ctx, "Atleta aggiunto: $fullName", Toast.LENGTH_SHORT).show()
+                    }
+                    .addOnFailureListener { e ->
+                        Toast.makeText(ctx, "Errore salvataggio atleta: ${e.localizedMessage}", Toast.LENGTH_SHORT).show()
+                    }
+            }
+            .addOnFailureListener { e ->
+                Toast.makeText(ctx, "Impossibile recuperare dati atleta: ${e.localizedMessage}", Toast.LENGTH_SHORT).show()
+            }
+    }
 
     // Crea o aggiorna un PeriodicWorkRequest per notifiche ogni 24h
-
     private fun scheduleNotification(
         hour: Int, minute: Int, id: Int,
         title: String, msg: String, workName: String

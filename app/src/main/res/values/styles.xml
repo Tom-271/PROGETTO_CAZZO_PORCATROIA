@@ -19,6 +19,14 @@
         <item name="cornerSizeTopLeft">0dp</item>
     </style>
 
+    <style name="FullScreenDialog" parent="Theme.MaterialComponents.Light.DialogWhenLarge">
+        <!-- sfondo del dialog trasparente -->
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:windowNoTitle">true</item>
+    </style>
+
+
     <!-- ShapeAppearance con angoli piccoli -->
     <style name="ShapeAppearance.FabSmall" parent="">
         <item name="cornerFamily">rounded</item>
