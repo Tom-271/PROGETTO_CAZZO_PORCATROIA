@@ -36,7 +36,6 @@
                     android:layout_height="wrap_content"
                     android:text="Workouts"
                     android:textSize="34sp"
-                    android:paddingTop="80dp"
                     android:textStyle="bold"
                     android:textColor="@android:color/white" />
 
@@ -82,16 +81,74 @@
                     </LinearLayout>
                 </androidx.cardview.widget.CardView>
 
-                <Button
-                    android:id="@+id/btnFillSchedule"
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Aggiungi degli esercizi!"
-                    android:gravity="center"
-                    android:layout_marginBottom="24dp" />
+                    android:orientation="horizontal"
+                    android:weightSum="2"
+                    android:layout_marginBottom="24dp"
+                    android:gravity="center_vertical">
+
+                    <Button
+                        android:id="@+id/btnFillSchedule"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Aggiungi degli esercizi!"
+                        android:gravity="center" />
+
+                    <Button
+                        android:id="@+id/btnStartTraining"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:layout_marginStart="12dp"
+                        android:text="Inizia l'allenamento!"
+                        android:gravity="center" />
+                </LinearLayout>
+
+                <!-- 🔽 Spostata qui sotto: sezione visibile nello scroll -->
+                <LinearLayout
+                    android:id="@+id/trainingQueueLayout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp"
+                    android:visibility="gone">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Coda Allenamento"
+                        android:textSize="18sp"
+                        android:textStyle="bold"
+                        android:textColor="@android:color/white"
+                        android:layout_marginBottom="8dp"
+                        android:visibility="gone"/>
+
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/recyclerTrainingQueue"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content" />
+                </LinearLayout>
             </LinearLayout>
         </ScrollView>
+        <!-- SOTTO ALLO ScrollView -->
+        <include
+            layout="@layout/card_training_queue"
+            android:id="@+id/trainingQueueCard"
+            android:visibility="gone"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:background="@color/dark_gray"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            android:translationZ="10dp"
+            android:elevation="10dp" />
 
+        <!-- 🟠 Pulsante fluttuante fuori dallo ScrollView -->
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/chrono"
             android:layout_width="wrap_content"
@@ -102,7 +159,6 @@
             app:backgroundTint="@color/orange"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            android:layout_marginBottom="20dp"/>
-
+            android:layout_marginBottom="20dp" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

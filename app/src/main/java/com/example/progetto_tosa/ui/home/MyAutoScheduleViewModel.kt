@@ -7,6 +7,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
 import java.text.SimpleDateFormat
@@ -83,7 +84,9 @@ class MyAutoScheduleViewModel(
             val registration = ref.addSnapshotListener { snap, err ->
                 if (err != null || snap == null) return@addSnapshotListener
                 // Trasforma i documenti in Triple(nome, categoria, id)
-                val listForCat = snap.documents.map { doc ->
+                val listForCat = snap.documents
+                    .sortedBy { it.getLong("ordine") ?: 0L }
+                    .map { doc ->
                     val name = doc.getString("nomeEsercizio") ?: doc.id
                     val sets = doc.getLong("numeroSerie")?.toInt() ?: 0
                     val reps = doc.getLong("numeroRipetizioni")?.toInt() ?: 0
@@ -156,6 +159,39 @@ class MyAutoScheduleViewModel(
             .addOnSuccessListener { onSuccess() }
             .addOnFailureListener { onError() }
     }
+
+    fun updateExerciseOrder(newList: List<ScheduledExercise>) {
+        _exercises.value = newList
+    }
+
+    fun saveReorderedExercises(reorderedList: List<ScheduledExercise>) {
+        val prefs = getApplication<Application>()
+            .getSharedPreferences("user_data", Context.MODE_PRIVATE)
+        val user = prefs.getString("saved_display_name", null) ?: return
+
+        val db = FirebaseFirestore.getInstance()
+
+        // raggruppa gli esercizi per categoria
+        val grouped = reorderedList.groupBy { it.categoria }
+
+        grouped.forEach { (categoria, exercisesInCat) ->
+            val collectionRef = db.collection("schede_giornaliere")
+                .document(user)
+                .collection(selectedDateId)
+                .document(categoria)
+                .collection("esercizi")
+
+            val batch = db.batch()
+
+            exercisesInCat.forEachIndexed { index, exercise ->
+                val docRef = collectionRef.document(exercise.docId)
+                batch.update(docRef, "ordine", index)
+            }
+
+            batch.commit()
+        }
+    }
+
 }
 
 data class ScheduledExercise(

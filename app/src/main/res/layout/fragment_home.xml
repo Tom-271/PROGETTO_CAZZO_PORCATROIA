@@ -11,8 +11,7 @@
         android:id="@+id/scrollHome"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:fillViewport="true"
-        android:paddingTop="?attr/actionBarSize">
+        android:fillViewport="true">
 
 
         <!-- Interno Card: titolo, descrizione, data+stato -->
@@ -95,40 +94,69 @@
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:gravity="center">
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:paddingHorizontal="16dp">
 
-                    <!-- HEADER ROSSO -->
-                    <TextView
-                        android:id="@+id/bannerDayName"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:background="@color/lapis"
-                        android:paddingVertical="8dp"
-                        android:gravity="center"
-                        android:textColor="@android:color/white"
-                        android:textStyle="bold"
-                        android:textSize="16sp" />
+                    <!-- FRECCIA SINISTRA INGANDITA -->
+                    <ImageView
+                        android:id="@+id/arrowLeft"
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:src="@drawable/ic_arrow_left"
+                        android:contentDescription="Freccia sinistra"
+                        android:padding="8dp" />
 
-                    <!-- GIORNO -->
-                    <TextView
-                        android:id="@+id/bannerDayNumber"
-                        android:layout_width="wrap_content"
+                    <!-- CONTENUTO CENTRALE -->
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="8dp"
-                        android:textColor="@android:color/black"
-                        android:textStyle="bold"
-                        android:textSize="40sp"/>
+                        android:orientation="vertical"
+                        android:gravity="center">
 
-                    <!-- MESE -->
-                    <TextView
-                        android:id="@+id/bannerMonth"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="4dp"
-                        android:textColor="@android:color/black"
-                        android:textSize="20sp"/>
+                        <!-- HEADER ROSSO -->
+                        <TextView
+                            android:id="@+id/bannerDayName"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:background="@color/lapis"
+                            android:paddingVertical="8dp"
+                            android:gravity="center"
+                            android:textColor="@android:color/white"
+                            android:textStyle="bold"
+                            android:textSize="16sp" />
+
+                        <!-- GIORNO -->
+                        <TextView
+                            android:id="@+id/bannerDayNumber"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="8dp"
+                            android:textColor="@android:color/black"
+                            android:textStyle="bold"
+                            android:textSize="40sp"/>
+
+                        <!-- MESE -->
+                        <TextView
+                            android:id="@+id/bannerMonth"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="4dp"
+                            android:textColor="@android:color/black"
+                            android:textSize="20sp"/>
+                    </LinearLayout>
+
+                    <!-- FRECCIA DESTRA INGRANDITA -->
+                    <ImageView
+                        android:id="@+id/arrowRight"
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:src="@drawable/ic_arrow_right"
+                        android:contentDescription="Freccia destra"
+                        android:padding="8dp" />
                 </LinearLayout>
+
             </androidx.cardview.widget.CardView>
 
             <!-- Titolo e pacchetti -->

@@ -30,10 +30,6 @@
             app:destination="@id/navigation_ptSchedule" />
 
         <action
-            android:id="@+id/action_navigation_home_to_navigation_myautocalendar"
-            app:destination="@id/navigation_myautocalendar" />
-
-        <action
             android:id="@+id/action_navigation_home_to_navigation_cronotimer"
             app:destination="@id/navigation_cronotimer" />
         <action
@@ -45,6 +41,17 @@
         <action
             android:id="@+id/action_navigation_home_to_progressionFragment"
             app:destination="@id/progressionFragment" />
+        <action
+            android:id="@+id/action_navigation_home_to_fragment_my_auto_schedule"
+            app:destination="@id/fragment_my_auto_schedule">
+        <argument android:name="selectedDate" app:argType="string" />
+        </action>
+        <action
+            android:id="@+id/action_navigation_home_to_fragment_my_trainer_schedule"
+            app:destination="@id/fragment_my_trainer_schedule">
+            <argument android:name="selectedUser" app:argType="string" />
+            <argument android:name="selectedDate"   app:argType="string" />
+        </action>
     </fragment>
 
     <!-- Workout container -->
@@ -283,20 +290,6 @@
             app:destination="@id/fragment_my_trainer_schedule">
             <argument android:name="selectedUser" app:argType="string" />
             <argument android:name="selectedDate"   app:argType="string" />
-        </action>
-    </fragment>
-
-    <!-- Il calendario auto -->
-    <fragment
-        android:id="@+id/navigation_myautocalendar"
-        android:name="com.example.progetto_tosa.ui.home.MyAutoCalendar"
-        android:label="E' tempo di allenarsi!"
-        tools:layout="@layout/fragment_myautocalendar">
-
-        <action
-            android:id="@+id/action_navigation_myautocalendar_to_fragment_my_auto_schedule"
-            app:destination="@id/fragment_my_auto_schedule">
-            <argument android:name="selectedDate" app:argType="string" />
         </action>
     </fragment>
 
