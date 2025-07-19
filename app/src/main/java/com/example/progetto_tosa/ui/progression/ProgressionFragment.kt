@@ -38,6 +38,9 @@ class ProgressionFragment : Fragment(R.layout.fragment_progression) {
     private var bodyFatListener: ListenerRegistration? = null
     private var selectedDate: LocalDate = LocalDate.now()
     private var uid: String? = null
+    private var targetFatLimitLine: com.github.mikephil.charting.components.LimitLine? = null
+    private var targetFatValue: Float? = null
+
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -84,11 +87,43 @@ class ProgressionFragment : Fragment(R.layout.fragment_progression) {
                 bodyFatChart.clear()
             } else updateChart(list)
         }
-        vm.goals.observe(viewLifecycleOwner) {
-            tvWeightGoalValue.text = it.targetLean?.let { v -> String.format("%.1f kg", v) } ?: "—"
-            tvBodyFatGoalValue.text = (it.currentBodyFat ?: it.targetFat)?.let { v -> String.format("%.1f %%", v) } ?: "—"
+        vm.goals.observe(viewLifecycleOwner) { g ->
+            tvWeightGoalValue.text = g.targetLean?.let { v -> String.format("%.1f kg", v) } ?: "—"
+            tvBodyFatGoalValue.text = g.targetFat?.let { v -> String.format("%.1f %%", v) } ?: "—"
+
+            val newTarget = g.targetFat?.toFloat()
+            if (newTarget != null && newTarget != targetFatValue) {
+                targetFatValue = newTarget
+                addOrUpdateTargetLimitLine(newTarget)
+            }
         }
+
+
     }
+
+    private fun addOrUpdateTargetLimitLine(value: Float) {
+        val yAxis = bodyFatChart.axisLeft
+
+        // Rimuovi la precedente se esiste
+        targetFatLimitLine?.let { yAxis.removeLimitLine(it) }
+
+        targetFatLimitLine = com.github.mikephil.charting.components.LimitLine(value, "Target")
+            .apply {
+                lineWidth = 2.5f            // spessore
+                enableDashedLine(0f, 0f, 0f) // linea piena (se vuoi tratteggi: es. 10f,5f,0f)
+                textSize = 10f
+                textColor = Color.RED
+                lineColor = Color.RED
+                labelPosition = com.github.mikephil.charting.components.LimitLine.LimitLabelPosition.RIGHT_TOP
+            }
+
+        yAxis.addLimitLine(targetFatLimitLine)
+        // Porta la linea dietro o davanti (opzionale: yAxis.setDrawLimitLinesBehindData(false))
+        yAxis.setDrawLimitLinesBehindData(false)
+
+        bodyFatChart.invalidate()
+    }
+
 
     private fun attachListener() {
         val user = auth.currentUser ?: return
