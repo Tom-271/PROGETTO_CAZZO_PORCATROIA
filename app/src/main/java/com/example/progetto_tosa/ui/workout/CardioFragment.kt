@@ -7,6 +7,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
 import androidx.core.content.ContextCompat
@@ -153,12 +154,8 @@ class CardioFragment : Fragment(R.layout.fragment_cardio) {
 
         inner class VH(view: View) : RecyclerView.ViewHolder(view) {
             private val titleTv = view.findViewById<TextView>(R.id.textViewTitleTop)
-            private val btnSets = view.findViewById<MaterialButton>(R.id.toggleSets)
-            private val btnReps = view.findViewById<MaterialButton>(R.id.toggleReps)
-            private val counterSets = view.findViewById<TextView>(R.id.counterSets)
-            private val counterReps = view.findViewById<TextView>(R.id.counterReps)
-            private val btnMinus = view.findViewById<FloatingActionButton>(R.id.buttonMinus)
-            private val btnPlus = view.findViewById<FloatingActionButton>(R.id.buttonPlus)
+            private val inputSets = view.findViewById<EditText>(R.id.inputSets)
+            private val inputReps = view.findViewById<EditText>(R.id.inputReps)
             private val btnConfirm = view.findViewById<MaterialButton>(R.id.buttonConfirm)
             private val green = ContextCompat.getColor(view.context, R.color.green)
             private val black = ContextCompat.getColor(view.context, R.color.black)
@@ -168,10 +165,8 @@ class CardioFragment : Fragment(R.layout.fragment_cardio) {
                     adapterPosition.takeIf { it != RecyclerView.NO_POSITION }
                         ?.let { onConfirmClick(items[it]) }
                 }
-                btnSets.setOnClickListener { toggleMode(true) }
-                btnReps.setOnClickListener { toggleMode(false) }
-                btnPlus.setOnClickListener { adjustCount(1) }
-                btnMinus.setOnClickListener { adjustCount(-1) }
+                val sets = inputSets.text.toString().toIntOrNull()
+                val reps = inputReps.text.toString().toIntOrNull()
             }
 
             private fun toggleMode(isSets: Boolean) {
@@ -192,23 +187,13 @@ class CardioFragment : Fragment(R.layout.fragment_cardio) {
 
             fun bind(ex: CardioViewModel.Exercise) {
                 titleTv.text = ex.title
-                counterSets.text = ex.setsCount.toString()
-                counterReps.text = ex.repsCount.toString()
-                btnSets.isChecked = ex.isSetsMode
-                btnReps.isChecked = !ex.isSetsMode
-                btnSets.backgroundTintList =
-                    android.content.res.ColorStateList.valueOf(if (ex.isSetsMode) green else black)
-                btnReps.backgroundTintList =
-                    android.content.res.ColorStateList.valueOf(if (ex.isSetsMode) black else green)
+                inputSets.setText(ex.setsCount.takeIf { it > 0 }?.toString() ?: "")
+                inputReps.setText(ex.repsCount.takeIf { it > 0 }?.toString() ?: "")
 
                 val isTracking = !selectedDate.isNullOrBlank()
-                listOf(btnSets, btnReps, btnPlus, btnMinus, btnConfirm).forEach {
+                listOf(inputSets, inputReps, btnConfirm).forEach {
                     it.visibility = if (isTracking) View.VISIBLE else View.GONE
                 }
-                counterSets.visibility =
-                    if (isTracking && ex.isSetsMode) View.VISIBLE else View.GONE
-                counterReps.visibility =
-                    if (isTracking && !ex.isSetsMode) View.VISIBLE else View.GONE
 
                 itemView.setOnClickListener {
                     if (!isTracking) onCardClick(ex)

@@ -1,5 +1,6 @@
 package com.example.progetto_tosa.ui.workout
 
+import android.R.attr.onClick
 import android.content.Context
 import android.content.res.Configuration
 import android.os.Bundle
@@ -191,28 +192,26 @@ class BodybuildingFragment : Fragment(R.layout.fragment_bodybuilding) {
 
         inner class VH(view: View) : RecyclerView.ViewHolder(view) {
             private val titleTv = view.findViewById<TextView>(R.id.textViewTitleTop)
-            private val btnSets = view.findViewById<MaterialButton>(R.id.toggleSets)
-            private val btnReps = view.findViewById<MaterialButton>(R.id.toggleReps)
-            private val counterSets = view.findViewById<TextView>(R.id.counterSets)
-            private val counterReps = view.findViewById<TextView>(R.id.counterReps)
-            private val btnMinus = view.findViewById<FloatingActionButton>(R.id.buttonMinus)
-            private val btnPlus = view.findViewById<FloatingActionButton>(R.id.buttonPlus)
+            private val inputSets = view.findViewById<android.widget.EditText>(R.id.inputSets)
+            private val inputReps = view.findViewById<android.widget.EditText>(R.id.inputReps)
             private val btnConfirm = view.findViewById<MaterialButton>(R.id.buttonConfirm)
             private val green = ContextCompat.getColor(view.context, R.color.green)
             private val black = ContextCompat.getColor(view.context, R.color.black)
 
             init {
-                // Listener per il pulsante di conferma salvataggio
                 btnConfirm.setOnClickListener {
                     val pos = adapterPosition.takeIf { it != RecyclerView.NO_POSITION } ?: return@setOnClickListener
-                    onConfirmClick(items[pos])
+                    val ex = items[pos]
+
+                    // Leggi i valori inseriti nei campi
+                    ex.setsCount = inputSets.text.toString().toIntOrNull() ?: 0
+                    ex.repsCount = inputReps.text.toString().toIntOrNull() ?: 0
+                    onConfirmClick(ex)
                 }
-                // Toggle tra conteggio serie e ripetizioni
-                btnSets.setOnClickListener { toggleMode(true) }
-                btnReps.setOnClickListener { toggleMode(false) }
-                // Incremento/decremento del contatore
-                btnPlus.setOnClickListener { adjustCount(1) }
-                btnMinus.setOnClickListener { adjustCount(-1) }
+                itemView.setOnClickListener {
+                    adapterPosition.takeIf { it != RecyclerView.NO_POSITION }
+                        ?.let { onCardClick(items[it]) }
+                }
             }
 
             // Cambia la modalità tra serie e ripetizioni, aggiorna item
@@ -235,22 +234,15 @@ class BodybuildingFragment : Fragment(R.layout.fragment_bodybuilding) {
             // Collega i dati dell'esercizio alla UI e gestisce visibilità controll
             fun bind(ex: BodybuildingViewModel.Exercise) {
                 titleTv.text = ex.title
-                counterSets.text = ex.setsCount.toString()
-                counterReps.text = ex.repsCount.toString()
-                btnSets.isChecked = ex.isSetsMode
-                btnReps.isChecked = !ex.isSetsMode
-                btnSets.backgroundTintList = android.content.res.ColorStateList.valueOf(if (ex.isSetsMode) green else black)
-                btnReps.backgroundTintList = android.content.res.ColorStateList.valueOf(if (ex.isSetsMode) black else green)
 
-                // Mostra i controlli solo se la data è stata selezionata
+                inputSets.setText(ex.setsCount.takeIf { it > 0 }?.toString() ?: "")
+                inputReps.setText(ex.repsCount.takeIf { it > 0 }?.toString() ?: "")
+
                 val isTracking = selectedDate != null
-                listOf(btnSets, btnReps, btnPlus, btnMinus, btnConfirm).forEach {
+                listOf(btnConfirm, inputSets, inputReps).forEach {
                     it.visibility = if (isTracking) View.VISIBLE else View.GONE
                 }
-                counterSets.visibility = if (isTracking && ex.isSetsMode) View.VISIBLE else View.GONE
-                counterReps.visibility = if (isTracking && !ex.isSetsMode) View.VISIBLE else View.GONE
 
-                // Se non in modalità tracking, al click apro il dettaglio
                 itemView.setOnClickListener {
                     if (!isTracking) onCardClick(ex)
                 }

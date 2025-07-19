@@ -31,6 +31,8 @@ class HomeFragment : Fragment() {
     private val db = FirebaseFirestore.getInstance()
     private val TAG = "HomeFragment"
 
+    private var currentDate = Date()
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -85,17 +87,17 @@ class HomeFragment : Fragment() {
         binding.Myprogression.setOnClickListener {
             findNavController().navigate(R.id.action_navigation_home_to_progressionFragment)
         }
+
     }
 
     private fun setupBannerDate() {
-        val today = Date()
         val dayNameFmt = SimpleDateFormat("EEEE", Locale.getDefault())
         val dayNumberFmt = SimpleDateFormat("d", Locale.getDefault())
         val monthFmt = SimpleDateFormat("MMMM", Locale.getDefault())
 
-        binding.bannerDayName.text = dayNameFmt.format(today).uppercase(Locale.getDefault())
-        binding.bannerDayNumber.text = dayNumberFmt.format(today)
-        binding.bannerMonth.text = monthFmt.format(today).uppercase(Locale.getDefault())
+        binding.bannerDayName.text = dayNameFmt.format(currentDate).uppercase(Locale.getDefault())
+        binding.bannerDayNumber.text = dayNumberFmt.format(currentDate)
+        binding.bannerMonth.text = monthFmt.format(currentDate).uppercase(Locale.getDefault())
     }
 
     private fun checkTodaysSchedule(fullName: String) {
@@ -149,19 +151,28 @@ class HomeFragment : Fragment() {
         binding.buttonForTheSchedulePersonalTrainerDid.visibility = View.VISIBLE
 
         binding.buttonForTheScheduleIDid.setOnClickListener {
-            findNavController().navigate(R.id.action_navigation_home_to_navigation_myautocalendar)
+            val selectedDate = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(currentDate)
+            val bundle = Bundle().apply {
+                putString("selectedDate", selectedDate)
+            }
+            findNavController().navigate(
+                R.id.action_navigation_home_to_fragment_my_auto_schedule,
+                bundle
+            )
         }
 
         binding.buttonForTheSchedulePersonalTrainerDid.setOnClickListener {
+            val selectedDate = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
             if (fullName.isBlank()) {
                 Toast.makeText(context, "Nome utente non disponibile", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
             val bundle = Bundle().apply {
+                putString("selectedDate", selectedDate)
                 putString("selectedUser", fullName)
             }
             findNavController().navigate(
-                R.id.action_navigation_home_to_pt_schedule,
+                R.id.action_navigation_home_to_fragment_my_trainer_schedule,
                 bundle
             )
         }
@@ -173,7 +184,11 @@ class HomeFragment : Fragment() {
         binding.buttonForTheSchedulePersonalTrainerDid.visibility = View.GONE
 
         binding.buttonForPersonalTrainer.setOnClickListener {
-            findNavController().navigate(R.id.action_navigation_home_to_navigation_myautocalendar)
+            val today = java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.getDefault()).format(java.util.Date())
+            val bundle = Bundle().apply {
+                putString("selectedDate", today)
+            }
+            findNavController().navigate(R.id.action_navigation_home_to_fragment_my_auto_schedule, bundle)
         }
     }
 

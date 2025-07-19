@@ -37,6 +37,14 @@
             android:inputType="numberDecimal"
             android:layout_marginTop="12dp" />
 
+        <EditText
+            android:id="@+id/cardRecoverInput"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Tempo di recupero (in s)"
+            android:inputType="numberDecimal"
+            android:layout_marginTop="12dp" />
+
         <Button
             android:id="@+id/cardSaveButton"
             android:layout_width="wrap_content"

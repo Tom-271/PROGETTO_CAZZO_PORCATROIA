@@ -37,6 +37,8 @@ class MyTrainerScheduleViewModel : ViewModel() {
     private val _showFillButton = MutableLiveData(false)
     val showFillButton: LiveData<Boolean> = _showFillButton
 
+    val selectedDateId = MutableLiveData<String>()
+
     private val _showChrono = MutableLiveData(false)
     val showChrono: LiveData<Boolean> = _showChrono
 
@@ -57,25 +59,38 @@ class MyTrainerScheduleViewModel : ViewModel() {
 
     fun setArgs(selectedUserId: String, dateId: String) {
         this.selectedUserId = selectedUserId
-        this.dateId = dateId
+        selectedDateId.value = dateId
     }
 
     fun initialize(context: Context) {
-        createNotificationChannel(context)
-        formatSubtitle()
-        checkUserRole()
-        fetchUnifiedList()
+        selectedDateId.observeForever { dateStr ->
+            createNotificationChannel(context)
+            formatSubtitle(dateStr)
+            checkUserRole()
+            fetchUnifiedList()
+        }
     }
 
-    private fun formatSubtitle() {
+    private fun formatSubtitle(dateStr: String) {
         val inFmt = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-        val outFmt = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
-        val dispDate = outFmt.format(inFmt.parse(dateId)!!)
-        val today = outFmt.format(Date())
-        _subtitleText.value = if (dispDate == today)
-            "oggi il pt ha preparato per me questa scheda:"
+        val parsedDate = inFmt.parse(dateStr) ?: return
+
+        val dayNameFmt = SimpleDateFormat("EEEE", Locale.getDefault())     // lunedì
+        val dayNumberFmt = SimpleDateFormat("d", Locale.getDefault())      // 19
+        val monthFmt = SimpleDateFormat("MMMM", Locale.getDefault())       // luglio
+
+        val nomeGiorno = dayNameFmt.format(parsedDate).uppercase(Locale.getDefault()) // → LUNEDÌ
+        val numeroGiorno = dayNumberFmt.format(parsedDate)                            // → 19
+        val mese = monthFmt.format(parsedDate).uppercase(Locale.getDefault())         // → LUGLIO
+
+        val todayFmt = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+        val oggi = todayFmt.format(Date())
+        val dataConfronto = todayFmt.format(parsedDate)
+
+        _subtitleText.value = if (dataConfronto == oggi)
+            "OGGI HAI QUESTA SCHEDA DAL PT:"
         else
-            "la scheda che mi ha preparato il pt del: $dispDate"
+            "SCHEDA PER $nomeGiorno $numeroGiorno $mese DAL PT"
     }
 
     private fun checkUserRole() {
@@ -94,6 +109,11 @@ class MyTrainerScheduleViewModel : ViewModel() {
     }
 
     private fun fetchUnifiedList() {
+        if (!::dateId.isInitialized) {
+            // evita crash se chiamata troppo presto
+            return
+        }
+
         val cats = listOf("bodybuilding", "cardio", "corpo-libero", "stretching")
         val tmp = mutableListOf<Triple<String, String, String>>()
         var completed = 0
@@ -170,7 +190,7 @@ class MyTrainerScheduleViewModel : ViewModel() {
                     // carica serie/ripetizioni/peso
                     db.collection("schede_del_pt")
                         .document(selectedUserId)
-                        .collection(dateId)
+                        .collection(selectedDateId.value!!)
                         .document(cat)
                         .collection("esercizi")
                         .document(docId)
@@ -187,7 +207,7 @@ class MyTrainerScheduleViewModel : ViewModel() {
                                 // elimina esercizio
                                 db.collection("schede_del_pt")
                                     .document(selectedUserId)
-                                    .collection(dateId)
+                                    .collection(selectedDateId.value!!)
                                     .document(cat)
                                     .collection("esercizi")
                                     .document(docId)
@@ -220,7 +240,7 @@ class MyTrainerScheduleViewModel : ViewModel() {
                         }
                         db.collection("schede_del_pt")
                             .document(selectedUserId)
-                            .collection(dateId)
+                            .collection(selectedDateId.value!!)
                             .document(cat)
                             .collection("esercizi")
                             .document(docId)

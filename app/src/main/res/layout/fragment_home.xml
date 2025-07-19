@@ -11,8 +11,7 @@
         android:id="@+id/scrollHome"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:fillViewport="true"
-        android:paddingTop="?attr/actionBarSize">
+        android:fillViewport="true">
 
         <!-- Interno Card: titolo, descrizione, data+stato -->
         <androidx.constraintlayout.widget.ConstraintLayout
@@ -95,9 +94,9 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:gravity="center">
+                    android:padding="8dp">
 
-                    <!-- HEADER ROSSO -->
+                    <!-- Day name (top row, full width) -->
                     <TextView
                         android:id="@+id/bannerDayName"
                         android:layout_width="match_parent"
@@ -109,25 +108,33 @@
                         android:textStyle="bold"
                         android:textSize="16sp" />
 
-                    <!-- GIORNO -->
-                    <TextView
-                        android:id="@+id/bannerDayNumber"
-                        android:layout_width="wrap_content"
+                    <!-- Day number and month (second row) -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="8dp"
-                        android:textColor="@android:color/black"
-                        android:textStyle="bold"
-                        android:textSize="40sp"/>
+                        android:orientation="horizontal"
+                        android:gravity="center"
+                        android:paddingTop="8dp">
 
-                    <!-- MESE -->
-                    <TextView
-                        android:id="@+id/bannerMonth"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="4dp"
-                        android:textColor="@android:color/black"
-                        android:textSize="20sp"/>
+                        <TextView
+                            android:id="@+id/bannerDayNumber"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textColor="@android:color/black"
+                            android:textStyle="bold"
+                            android:textSize="40sp"
+                            android:layout_marginEnd="8dp"/>
+
+                        <TextView
+                            android:id="@+id/bannerMonth"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textColor="@android:color/black"
+                            android:textSize="20sp"/>
+                    </LinearLayout>
                 </LinearLayout>
+
+
             </androidx.cardview.widget.CardView>
 
             <!-- Titolo e pacchetti -->

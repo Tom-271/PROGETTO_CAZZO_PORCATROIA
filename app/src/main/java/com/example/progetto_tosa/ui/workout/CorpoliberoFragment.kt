@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.View.GONE
 import android.view.ViewGroup
+import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
 import androidx.core.content.ContextCompat
@@ -126,25 +127,21 @@ class CorpoliberoFragment : Fragment(R.layout.fragment_corpolibero) {
 
         inner class VH(itemView: View) : RecyclerView.ViewHolder(itemView) {
             private val titleTv     = itemView.findViewById<TextView>(R.id.textViewTitleTop)
-            private val btnSets     = itemView.findViewById<MaterialButton>(R.id.toggleSets)
-            private val btnReps     = itemView.findViewById<MaterialButton>(R.id.toggleReps)
-            private val counterSets = itemView.findViewById<TextView>(R.id.counterSets)
-            private val counterReps = itemView.findViewById<TextView>(R.id.counterReps)
-            private val btnPlus     = itemView.findViewById<FloatingActionButton>(R.id.buttonPlus)
-            private val btnMinus    = itemView.findViewById<FloatingActionButton>(R.id.buttonMinus)
+            private val inputSets = itemView.findViewById<EditText>(R.id.inputSets)
+            private val inputReps = itemView.findViewById<EditText>(R.id.inputReps)
             private val btnConfirm  = itemView.findViewById<MaterialButton>(R.id.buttonConfirm)
             private val green       = ContextCompat.getColor(itemView.context, R.color.green)
             private val black       = ContextCompat.getColor(itemView.context, R.color.black)
 
             init {
-                btnSets.setOnClickListener  { toggleMode(true)  }
-                btnReps.setOnClickListener  { toggleMode(false) }
-                btnPlus.setOnClickListener  { adjustCount(+1)   }
-                btnMinus.setOnClickListener { adjustCount(-1)   }
                 btnConfirm.setOnClickListener {
-                    adapterPosition
-                        .takeIf { it != RecyclerView.NO_POSITION }
-                        ?.let { onConfirmClick(items[it]) }
+
+                    val pos = adapterPosition.takeIf { it != RecyclerView.NO_POSITION } ?: return@setOnClickListener
+                    val ex = items[pos]
+                    // Leggi i valori inseriti nei campi
+                    ex.setsCount = inputSets.text.toString().toIntOrNull() ?: 0
+                    ex.repsCount = inputReps.text.toString().toIntOrNull() ?: 0
+                    onConfirmClick(ex)
                 }
                 itemView.setOnClickListener {
                     adapterPosition
@@ -171,23 +168,17 @@ class CorpoliberoFragment : Fragment(R.layout.fragment_corpolibero) {
 
             fun bind(ex: CorpoliberoViewModel.Exercise) {
                 titleTv.text              = ex.title
-                counterSets.text          = ex.setsCount.toString()
-                counterReps.text          = ex.repsCount.toString()
-                btnSets.isChecked         = ex.isSetsMode
-                btnReps.isChecked         = !ex.isSetsMode
-                btnSets.backgroundTintList = android.content.res.ColorStateList.valueOf(
-                    if (ex.isSetsMode) green else black
-                )
-                btnReps.backgroundTintList = android.content.res.ColorStateList.valueOf(
-                    if (!ex.isSetsMode) green else black
-                )
+                inputSets.setText(ex.setsCount.takeIf { it > 0 }?.toString() ?: "")
+                inputReps.setText(ex.repsCount.takeIf { it > 0 }?.toString() ?: "")
 
                 val isTracking = !selectedDate.isNullOrBlank()
-                listOf(btnSets, btnReps, btnPlus, btnMinus, btnConfirm).forEach {
+                listOf(btnConfirm, inputSets, btnConfirm).forEach {
                     it.visibility = if (isTracking) View.VISIBLE else GONE
                 }
-                counterSets.visibility = if (isTracking && ex.isSetsMode) View.VISIBLE else GONE
-                counterReps.visibility = if (isTracking && !ex.isSetsMode) View.VISIBLE else GONE
+
+                itemView.setOnClickListener {
+                    if (!isTracking) onCardClick(ex)
+                }
             }
         }
 
