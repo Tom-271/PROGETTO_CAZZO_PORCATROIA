@@ -33,23 +33,48 @@
 
                 <!-- Titolo principale -->
                 <TextView
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="Workouts"
                     android:textSize="34sp"
                     android:textStyle="bold"
-                    android:textColor="@android:color/white" />
+                    android:textColor="@android:color/white"
+                    android:gravity="center"/>
 
                 <!-- Subtitle dinamico via DataBinding -->
-                <TextView
-                    android:id="@+id/subtitleAllExercises"
-                    android:layout_width="wrap_content"
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="@{vm.subtitleText}"
-                    android:textSize="16sp"
-                    android:textAllCaps="true"
-                    android:textColor="#80B6E3"
-                    android:layout_marginTop="8dp" />
+                    android:layout_marginTop="8dp"
+                    android:orientation="horizontal"
+                    android:gravity="center"> <!-- centra tutto orizzontalmente -->
+
+                    <ImageView
+                        android:id="@+id/arrowLeft"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:src="@drawable/ic_arrow_left"
+                        android:contentDescription="Frecce sinistra"
+                        android:layout_marginEnd="8dp"
+                        app:tint="#80B6E3" />
+
+                    <TextView
+                        android:id="@+id/subtitleAllExercises"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Tutti gli esercizi"
+                        android:textSize="16sp"
+                        android:textColor="#80B6E3" />
+
+                    <ImageView
+                        android:id="@+id/arrowRight"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:src="@drawable/ic_arrow_right"
+                        android:contentDescription="Frecce destra"
+                        android:layout_marginStart="8dp"
+                        app:tint="#80B6E3" />
+                </LinearLayout>
 
                 <!-- Spazio di separazione -->
                 <View
@@ -62,10 +87,9 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="24dp"
                     android:layout_marginBottom="24dp"
+                    android:backgroundTint="@color/black"
                     app:cardCornerRadius="16dp"
-                    app:cardElevation="6dp"
-                    app:cardUseCompatPadding="true"
-                    android:backgroundTint="@color/black">
+                    app:cardElevation="6dp">
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -107,6 +131,18 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:orientation="vertical" />
+
+                        <TextView
+                            android:id="@+id/emptyMessage"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="Non hai alcuna scheda dal tuo PT per oggi"
+                            android:textColor="@android:color/darker_gray"
+                            android:textSize="16sp"
+                            android:gravity="center"
+                            android:paddingTop="16dp"
+                            android:paddingBottom="16dp"
+                            android:visibility="gone" />
 
                     </LinearLayout>
                 </androidx.cardview.widget.CardView>

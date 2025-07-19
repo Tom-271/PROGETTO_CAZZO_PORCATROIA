@@ -14,11 +14,12 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 class MyAutoScheduleViewModel(
-    application: Application,
-    private val selectedDateId: String
+    application: Application
 ) : AndroidViewModel(application) {
 
     private val db = FirebaseFirestore.getInstance()
+
+    val selectedDateId = MutableLiveData<String>() // data selezionata dinamicamente
 
     // --- LiveData per il nome del giorno ("LUNEDÌ", ecc.) ---
     private val _dayName = MutableLiveData<String>()
@@ -46,29 +47,29 @@ class MyAutoScheduleViewModel(
     private val categoryData = mutableMapOf<String, List<ScheduledExercise>>()
 
     init {
-        computeDayName()
-        subscribeToExercises()
+        selectedDateId.observeForever { dateStr ->
+            unsubscribeFromExercises()
+            computeDayName(dateStr)
+            subscribeToExercises(dateStr)
+        }
     }
 
     /** Calcola il nome del giorno della settimana dalla stringa "yyyy-MM-dd" */
-    private fun computeDayName() {
+    private fun computeDayName(dateStr: String) {
         val fmt = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-        val date = fmt.parse(selectedDateId)!!
+        val date = fmt.parse(dateStr)!!
         val cal = Calendar.getInstance().apply { time = date }
         val names = mapOf(
-            Calendar.SUNDAY    to "DOMENICA",
-            Calendar.MONDAY    to "LUNEDÌ",
-            Calendar.TUESDAY   to "MARTEDÌ",
-            Calendar.WEDNESDAY to "MERCOLEDÌ",
-            Calendar.THURSDAY  to "GIOVEDÌ",
-            Calendar.FRIDAY    to "VENERDÌ",
-            Calendar.SATURDAY  to "SABATO"
+            Calendar.SUNDAY to "DOMENICA", Calendar.MONDAY to "LUNEDÌ",
+            Calendar.TUESDAY to "MARTEDÌ", Calendar.WEDNESDAY to "MERCOLEDÌ",
+            Calendar.THURSDAY to "GIOVEDÌ", Calendar.FRIDAY to "VENERDÌ",
+            Calendar.SATURDAY to "SABATO"
         )
         _dayName.value = names[cal.get(Calendar.DAY_OF_WEEK)] ?: ""
     }
 
     /** Registra un listener Firestore su ciascuna category/esercizi */
-    private fun subscribeToExercises() {
+    private fun subscribeToExercises(dateId: String) {
         val prefs = getApplication<Application>()
             .getSharedPreferences("user_data", Context.MODE_PRIVATE)
         val user = prefs.getString("saved_display_name", null) ?: return
@@ -77,25 +78,22 @@ class MyAutoScheduleViewModel(
         cats.forEach { cat ->
             val ref = db.collection("schede_giornaliere")
                 .document(user)
-                .collection(selectedDateId)
+                .collection(dateId)
                 .document(cat)
                 .collection("esercizi")
 
             val registration = ref.addSnapshotListener { snap, err ->
                 if (err != null || snap == null) return@addSnapshotListener
-                // Trasforma i documenti in Triple(nome, categoria, id)
                 val listForCat = snap.documents
                     .sortedBy { it.getLong("ordine") ?: 0L }
                     .map { doc ->
-                    val name = doc.getString("nomeEsercizio") ?: doc.id
-                    val sets = doc.getLong("numeroSerie")?.toInt() ?: 0
-                    val reps = doc.getLong("numeroRipetizioni")?.toInt() ?: 0
-                    val peso = doc.getString("peso") // può essere null
-                    ScheduledExercise(name, cat, doc.id, sets, reps, peso)
-                }
+                        val name = doc.getString("nomeEsercizio") ?: doc.id
+                        val sets = doc.getLong("numeroSerie")?.toInt() ?: 0
+                        val reps = doc.getLong("numeroRipetizioni")?.toInt() ?: 0
+                        val peso = doc.getString("peso")
+                        ScheduledExercise(name, cat, doc.id, sets, reps, peso)
+                    }
 
-
-                // Aggiorna la mappa e ricostruisce la lista completa
                 categoryData[cat] = listForCat
                 val all = cats.flatMap { categoryData[it].orEmpty() }
                 _exercises.value = all
@@ -126,7 +124,7 @@ class MyAutoScheduleViewModel(
 
         db.collection("schede_giornaliere")
             .document(user)
-            .collection(selectedDateId)
+            .collection(selectedDateId.value!!)
             .document(category)
             .collection("esercizi")
             .document(docId)
@@ -150,7 +148,7 @@ class MyAutoScheduleViewModel(
 
         val docRef = db.collection("schede_giornaliere")
             .document(user)
-            .collection(selectedDateId)
+            .collection(selectedDateId.value!!)
             .document(category)
             .collection("esercizi")
             .document(docId)
@@ -177,7 +175,7 @@ class MyAutoScheduleViewModel(
         grouped.forEach { (categoria, exercisesInCat) ->
             val collectionRef = db.collection("schede_giornaliere")
                 .document(user)
-                .collection(selectedDateId)
+                .collection(selectedDateId.value!!)
                 .document(categoria)
                 .collection("esercizi")
 
@@ -192,6 +190,11 @@ class MyAutoScheduleViewModel(
         }
     }
 
+    private fun unsubscribeFromExercises() {
+        listenerRegistrations.forEach { it.remove() }
+        listenerRegistrations.clear()
+        categoryData.clear()
+    }
 }
 
 data class ScheduledExercise(

@@ -93,68 +93,47 @@
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:gravity="center_vertical"
-                    android:paddingHorizontal="16dp">
+                    android:orientation="vertical"
+                    android:padding="8dp">
 
-                    <!-- FRECCIA SINISTRA INGANDITA -->
-                    <ImageView
-                        android:id="@+id/arrowLeft"
-                        android:layout_width="48dp"
-                        android:layout_height="48dp"
-                        android:src="@drawable/ic_arrow_left"
-                        android:contentDescription="Freccia sinistra"
-                        android:padding="8dp" />
-
-                    <!-- CONTENUTO CENTRALE -->
-                    <LinearLayout
-                        android:layout_width="0dp"
-                        android:layout_weight="1"
+                    <!-- Day name (top row, full width) -->
+                    <TextView
+                        android:id="@+id/bannerDayName"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:orientation="vertical"
-                        android:gravity="center">
+                        android:background="@color/lapis"
+                        android:paddingVertical="8dp"
+                        android:gravity="center"
+                        android:textColor="@android:color/white"
+                        android:textStyle="bold"
+                        android:textSize="16sp" />
 
-                        <!-- HEADER ROSSO -->
-                        <TextView
-                            android:id="@+id/bannerDayName"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:background="@color/lapis"
-                            android:paddingVertical="8dp"
-                            android:gravity="center"
-                            android:textColor="@android:color/white"
-                            android:textStyle="bold"
-                            android:textSize="16sp" />
+                    <!-- Day number and month (second row) -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center"
+                        android:paddingTop="8dp">
 
-                        <!-- GIORNO -->
                         <TextView
                             android:id="@+id/bannerDayNumber"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="8dp"
                             android:textColor="@android:color/black"
                             android:textStyle="bold"
-                            android:textSize="40sp"/>
+                            android:textSize="40sp"
+                            android:layout_marginEnd="8dp"/>
 
-                        <!-- MESE -->
                         <TextView
                             android:id="@+id/bannerMonth"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="4dp"
                             android:textColor="@android:color/black"
                             android:textSize="20sp"/>
                     </LinearLayout>
-
-                    <!-- FRECCIA DESTRA INGRANDITA -->
-                    <ImageView
-                        android:id="@+id/arrowRight"
-                        android:layout_width="48dp"
-                        android:layout_height="48dp"
-                        android:src="@drawable/ic_arrow_right"
-                        android:contentDescription="Freccia destra"
-                        android:padding="8dp" />
                 </LinearLayout>
+
 
             </androidx.cardview.widget.CardView>
 

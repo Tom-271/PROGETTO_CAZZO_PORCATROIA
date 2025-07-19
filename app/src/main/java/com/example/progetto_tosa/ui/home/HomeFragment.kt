@@ -88,14 +88,6 @@ class HomeFragment : Fragment() {
             findNavController().navigate(R.id.action_navigation_home_to_progressionFragment)
         }
 
-        binding.arrowLeft.setOnClickListener {
-            changeDayBy(-1) // giorno precedente
-        }
-
-        binding.arrowRight.setOnClickListener {
-            changeDayBy(1) // giorno successivo
-        }
-
     }
 
     private fun setupBannerDate() {
@@ -106,14 +98,6 @@ class HomeFragment : Fragment() {
         binding.bannerDayName.text = dayNameFmt.format(currentDate).uppercase(Locale.getDefault())
         binding.bannerDayNumber.text = dayNumberFmt.format(currentDate)
         binding.bannerMonth.text = monthFmt.format(currentDate).uppercase(Locale.getDefault())
-    }
-
-    private fun changeDayBy(days: Int) {
-        val calendar = java.util.Calendar.getInstance()
-        calendar.time = currentDate
-        calendar.add(java.util.Calendar.DATE, days)
-        currentDate = calendar.time
-        setupBannerDate()
     }
 
     private fun checkTodaysSchedule(fullName: String) {
@@ -178,7 +162,7 @@ class HomeFragment : Fragment() {
         }
 
         binding.buttonForTheSchedulePersonalTrainerDid.setOnClickListener {
-            val selectedDate = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(currentDate)
+            val selectedDate = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
             if (fullName.isBlank()) {
                 Toast.makeText(context, "Nome utente non disponibile", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
@@ -200,7 +184,11 @@ class HomeFragment : Fragment() {
         binding.buttonForTheSchedulePersonalTrainerDid.visibility = View.GONE
 
         binding.buttonForPersonalTrainer.setOnClickListener {
-            findNavController().navigate(R.id.action_navigation_home_to_fragment_my_auto_schedule)
+            val today = java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.getDefault()).format(java.util.Date())
+            val bundle = Bundle().apply {
+                putString("selectedDate", today)
+            }
+            findNavController().navigate(R.id.action_navigation_home_to_fragment_my_auto_schedule, bundle)
         }
     }
 

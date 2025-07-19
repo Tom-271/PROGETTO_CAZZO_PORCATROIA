@@ -26,6 +26,9 @@ import com.example.progetto_tosa.R
 import com.example.progetto_tosa.databinding.FragmentMyAutoScheduleBinding
 import com.example.progetto_tosa.ui.workout.BodybuildingViewModel
 import com.google.android.material.card.MaterialCardView
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 
 class MyAutoScheduleFragment : Fragment(R.layout.fragment_my_auto_schedule) {
@@ -36,9 +39,11 @@ class MyAutoScheduleFragment : Fragment(R.layout.fragment_my_auto_schedule) {
     private lateinit var viewModel: MyAutoScheduleViewModel
     private lateinit var itemTouchHelper: ItemTouchHelper
 
-    private val notifLauncher = registerForActivityResult(
+    private var currentDate = Date()
+
+    /*private val notifLauncher = registerForActivityResult(
         ActivityResultContracts.RequestPermission()
-    ) { granted -> if (granted) sendNotification() }
+    ) { granted -> if (granted) sendNotification() }*/
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -53,12 +58,12 @@ class MyAutoScheduleFragment : Fragment(R.layout.fragment_my_auto_schedule) {
 
         val dateId = requireArguments().getString("selectedDate") ?: return
 
-        viewModel = ViewModelProvider(this, object : ViewModelProvider.Factory {
-            override fun <T : androidx.lifecycle.ViewModel> create(modelClass: Class<T>): T {
-                @Suppress("UNCHECKED_CAST")
-                return MyAutoScheduleViewModel(requireActivity().application, dateId) as T
-            }
-        }).get(MyAutoScheduleViewModel::class.java)
+        viewModel = ViewModelProvider(this)[MyAutoScheduleViewModel::class.java]
+        binding.viewModel = viewModel
+        binding.lifecycleOwner = viewLifecycleOwner
+
+        val initialDate = requireArguments().getString("selectedDate") ?: return
+        viewModel.selectedDateId.value = initialDate
 
         binding.viewModel = viewModel
         binding.lifecycleOwner = viewLifecycleOwner
@@ -71,11 +76,11 @@ class MyAutoScheduleFragment : Fragment(R.layout.fragment_my_auto_schedule) {
             renderExercises(it)
         }
 
-        var prevRemaining = viewModel.remaining.value ?: 0
+        /*var prevRemaining = viewModel.remaining.value ?: 0
         viewModel.remaining.observe(viewLifecycleOwner) { rem ->
             if (prevRemaining > 0 && rem == 0) sendNotification()
             prevRemaining = rem
-        }
+        }*/
 
         binding.chrono.setOnClickListener {
             findNavController().navigate(R.id.action_fragment_my_auto_schedule_to_navigation_cronotimer)
@@ -98,6 +103,41 @@ class MyAutoScheduleFragment : Fragment(R.layout.fragment_my_auto_schedule) {
             dialog.show(parentFragmentManager, "training_queue_dialog")
         }
 
+        binding.arrowLeft.setOnClickListener {
+            changeDayBy(-1) // giorno precedente
+        }
+
+        binding.arrowRight.setOnClickListener {
+            changeDayBy(1) // giorno successivo
+        }
+
+        setupBannerDate()
+
+    }
+
+    private fun changeDayBy(days: Int) {
+        val calendar = java.util.Calendar.getInstance()
+        calendar.time = currentDate
+        calendar.add(java.util.Calendar.DATE, days)
+        currentDate = calendar.time
+
+        val newDateId = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(currentDate)
+        viewModel.selectedDateId.value = newDateId
+
+        setupBannerDate()
+    }
+
+    private fun setupBannerDate() {
+        val dayNameFmt = SimpleDateFormat("EEEE", Locale.getDefault()) // es. lunedì
+        val dayNumberFmt = SimpleDateFormat("d", Locale.getDefault())   // es. 19
+        val monthFmt = SimpleDateFormat("MMMM", Locale.getDefault())   // es. luglio
+
+        val nomeGiorno = dayNameFmt.format(currentDate).uppercase(Locale.getDefault()) // → LUNEDÌ
+        val numeroGiorno = dayNumberFmt.format(currentDate)                            // → 19
+        val mese = monthFmt.format(currentDate).uppercase(Locale.getDefault())         // → LUGLIO
+
+        val testo = "SCHEDA DI $nomeGiorno $numeroGiorno $mese"
+        binding.subtitleAllExercises.text = testo
     }
 
     private fun setupTrainingQueueCard(
@@ -221,7 +261,7 @@ class MyAutoScheduleFragment : Fragment(R.layout.fragment_my_auto_schedule) {
         }
     }
 
-    private fun sendNotification() {
+    /*private fun sendNotification() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
             ContextCompat.checkSelfPermission(
                 requireContext(),
@@ -241,7 +281,7 @@ class MyAutoScheduleFragment : Fragment(R.layout.fragment_my_auto_schedule) {
             .build()
 
         NotificationManagerCompat.from(requireContext()).notify(1001, notif)
-    }
+    }*/
 
     override fun onDestroyView() {
         super.onDestroyView()

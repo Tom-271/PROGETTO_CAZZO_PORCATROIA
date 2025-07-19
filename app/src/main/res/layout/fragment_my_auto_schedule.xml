@@ -32,21 +32,48 @@
                 android:orientation="vertical">
 
                 <TextView
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="Workouts"
                     android:textSize="34sp"
                     android:textStyle="bold"
-                    android:textColor="@android:color/white" />
+                    android:textColor="@android:color/white"
+                    android:gravity="center"/>
 
-                <TextView
-                    android:id="@+id/subtitleAllExercises"
-                    android:layout_width="wrap_content"
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="@{viewModel.dayName != null ? `SCHEDA DI ` + viewModel.dayName : `Tutti gli esercizi`}"
-                    android:textSize="16sp"
-                    android:textColor="#80B6E3"
-                    android:layout_marginTop="8dp" />
+                    android:layout_marginTop="8dp"
+                    android:orientation="horizontal"
+                    android:gravity="center"> <!-- centra tutto orizzontalmente -->
+
+                    <ImageView
+                        android:id="@+id/arrowLeft"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:src="@drawable/ic_arrow_left"
+                        android:contentDescription="Frecce sinistra"
+                        android:layout_marginEnd="8dp"
+                        app:tint="#80B6E3" />
+
+                    <TextView
+                        android:id="@+id/subtitleAllExercises"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Tutti gli esercizi"
+                        android:textSize="16sp"
+                        android:textColor="#80B6E3" />
+
+                    <ImageView
+                        android:id="@+id/arrowRight"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:src="@drawable/ic_arrow_right"
+                        android:contentDescription="Frecce destra"
+                        android:layout_marginStart="8dp"
+                        app:tint="#80B6E3" />
+                </LinearLayout>
+
 
                 <androidx.cardview.widget.CardView
                     android:layout_width="match_parent"
