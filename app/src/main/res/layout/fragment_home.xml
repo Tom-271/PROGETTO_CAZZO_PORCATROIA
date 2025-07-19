@@ -80,8 +80,8 @@
                 android:id="@+id/bannerDateCard"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="100dp"
-                android:layout_marginEnd="100dp"
+                android:layout_marginStart="120dp"
+                android:layout_marginEnd="120dp"
                 app:cardCornerRadius="12dp"
                 app:cardBackgroundColor="@color/white"
                 android:translationZ="5dp"
@@ -94,7 +94,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:padding="8dp">
+                    >
 
                     <!-- Day name (top row, full width) -->
                     <TextView
@@ -123,6 +123,7 @@
                             android:textColor="@android:color/black"
                             android:textStyle="bold"
                             android:textSize="40sp"
+                            android:layout_marginBottom="4dp"
                             android:layout_marginEnd="8dp"/>
 
                         <TextView
