@@ -1,24 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:card_view="http://schemas.android.com/apk/res-auto"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginBottom="12dp"
     card_view:cardCornerRadius="12dp"
     card_view:cardElevation="4dp"
     card_view:cardUseCompatPadding="true"
-    card_view:cardBackgroundColor="@color/dark_gray"
-    android:foreground="?attr/selectableItemBackground">
+    card_view:cardBackgroundColor="@color/dark_gray">
 
     <LinearLayout
+        android:id="@+id/rootContainer"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="16dp">
+        android:padding="16dp"
+        android:descendantFocusability="afterDescendants">
 
         <RelativeLayout
+            android:id="@+id/headerRow"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:foreground="?attr/selectableItemBackground"
+            android:clickable="true"
+            android:focusable="true"
+            android:focusableInTouchMode="false">
 
             <TextView
                 android:id="@+id/tvAthleteTitle"
@@ -32,13 +39,13 @@
 
             <ImageButton
                 android:id="@+id/btnToggle"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
                 android:layout_alignParentEnd="true"
                 android:layout_centerVertical="true"
                 android:background="?attr/selectableItemBackgroundBorderless"
-                android:src="@drawable/down"
-                 />
+                android:contentDescription="@string/app_name"
+                android:src="@drawable/down" />
         </RelativeLayout>
 
         <LinearLayout
@@ -55,27 +62,121 @@
                 android:layout_height="wrap_content"
                 android:textSize="14sp"
                 android:textColor="@android:color/white" />
+
             <TextView
                 android:id="@+id/tvBirth"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textSize="14sp"
-                android:textColor="@android:color/white"
-                android:layout_marginTop="4dp" />
+                android:layout_marginTop="4dp"
+                android:textColor="@android:color/white" />
+
             <TextView
                 android:id="@+id/tvHeight"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textSize="14sp"
-                android:textColor="@android:color/white"
-                android:layout_marginTop="4dp" />
+                android:layout_marginTop="4dp"
+                android:textColor="@android:color/white" />
+
             <TextView
                 android:id="@+id/tvWeight"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textSize="14sp"
+                android:layout_marginTop="4dp"
+                android:textColor="@android:color/white" />
+
+            <TextView
+                android:id="@+id/tvBodyFat"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="14sp"
                 android:textColor="@android:color/white"
                 android:layout_marginTop="4dp" />
+
+            <TextView
+                android:id="@+id/Sottotitolo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="19sp"
+                android:textStyle="italic"
+                android:layout_marginVertical="15dp"
+                android:text="Gli obiettivi per il tuo atleta:"
+                android:textColor="@color/lapis"
+                android:layout_marginTop="4dp" />
+
+            <!-- RIGA 1 -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="8dp">
+
+                <TextView
+                    android:id="@+id/tvBodyFatLabel"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="BODYFAT:"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:textColor="@android:color/white" />
+
+                <EditText
+                    android:id="@+id/etTargetFat"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:hint="% obiettivo"
+                    android:gravity="center"
+                    android:inputType="numberDecimal"
+                    android:imeOptions="actionNext"
+                    android:backgroundTint="@color/lapis"
+                    android:textColor="@android:color/white"
+                    android:textColorHint="@android:color/darker_gray" />
+            </LinearLayout>
+
+            <!-- RIGA 2 -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="6dp">
+
+                <TextView
+                    android:id="@+id/tvLeanMassLabel"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="PESO:"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:textColor="@android:color/white" />
+
+                <EditText
+                    android:id="@+id/etTargetLean"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:hint="kg obiettivo"
+                    android:gravity="center"
+                    android:inputType="numberDecimal"
+                    android:imeOptions="actionDone"
+                    android:backgroundTint="@color/lapis"
+                    android:textColor="@android:color/white"
+                    android:textColorHint="@android:color/darker_gray" />
+            </LinearLayout>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnSaveTargets"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Salva"
+                app:cornerRadius="16dp"
+                app:backgroundTint="@color/purple_200"
+                android:textColor="@android:color/white"
+                android:layout_marginTop="12dp" />
         </LinearLayout>
     </LinearLayout>
 </androidx.cardview.widget.CardView>
