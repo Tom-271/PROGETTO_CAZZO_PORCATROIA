@@ -159,34 +159,31 @@ class StretchingFragment : Fragment(R.layout.fragment_stretching) {
 
     private inner class StretchAdapter(
         val items: MutableList<StretchingViewModel.Stretch>,
-        private val onClick: (StretchingViewModel.Stretch) -> Unit,
-        private val onConfirm: (StretchingViewModel.Stretch) -> Unit
+        private val onCardClick: (StretchingViewModel.Stretch) -> Unit,
+        private val onConfirmClick: (StretchingViewModel.Stretch) -> Unit
     ) : RecyclerView.Adapter<StretchAdapter.VH>() {
 
         inner class VH(view: View) : RecyclerView.ViewHolder(view) {
             private val titleTv     = view.findViewById<TextView>(R.id.textViewTitleTop)
-            private val btnSets     = view.findViewById<MaterialButton>(R.id.toggleSets)
-            private val btnReps     = view.findViewById<MaterialButton>(R.id.toggleReps)
-            private val counterSets = view.findViewById<TextView>(R.id.counterSets)
-            private val counterReps = view.findViewById<TextView>(R.id.counterReps)
-            private val btnPlus     = view.findViewById<FloatingActionButton>(R.id.buttonPlus)
-            private val btnMinus    = view.findViewById<FloatingActionButton>(R.id.buttonMinus)
+            private val inputSets = view.findViewById<android.widget.EditText>(R.id.inputSets)
+            private val inputReps = view.findViewById<android.widget.EditText>(R.id.inputReps)
             private val btnConfirm  = view.findViewById<MaterialButton>(R.id.buttonConfirm)
             private val green       = ContextCompat.getColor(view.context, R.color.green)
             private val black       = ContextCompat.getColor(view.context, R.color.black)
 
             init {
-                btnSets.setOnClickListener  { toggleMode(true) }
-                btnReps.setOnClickListener  { toggleMode(false) }
-                btnPlus.setOnClickListener  { adjustCount(+1) }
-                btnMinus.setOnClickListener { adjustCount(-1) }
                 btnConfirm.setOnClickListener {
-                    adapterPosition.takeIf { it != RecyclerView.NO_POSITION }
-                        ?.let { onConfirm(items[it]) }
+                    val pos = adapterPosition.takeIf { it != RecyclerView.NO_POSITION } ?: return@setOnClickListener
+                    val ex = items[pos]
+
+                    // Leggi i valori inseriti nei campi
+                    ex.setsCount = inputSets.text.toString().toIntOrNull() ?: 0
+                    ex.repsCount = inputReps.text.toString().toIntOrNull() ?: 0
+                    onConfirmClick(ex)
                 }
                 itemView.setOnClickListener {
                     adapterPosition.takeIf { it != RecyclerView.NO_POSITION }
-                        ?.let { onClick(items[it]) }
+                        ?.let { onCardClick(items[it]) }
                 }
             }
 
@@ -197,31 +194,32 @@ class StretchingFragment : Fragment(R.layout.fragment_stretching) {
                 }
             }
             private fun adjustCount(delta: Int) {
-                adapterPosition.takeIf { it != RecyclerView.NO_POSITION }?.also { pos ->
+                /*adapterPosition.takeIf { it != RecyclerView.NO_POSITION }?.also { pos ->
                     val s = items[pos]
                     if (s.isSetsMode) s.setsCount = (s.setsCount + delta).coerceAtLeast(0)
                     else              s.repsCount = (s.repsCount + delta).coerceAtLeast(0)
                     notifyItemChanged(pos)
-                }
+                }*/
+
+                val pos = adapterPosition.takeIf { it != RecyclerView.NO_POSITION } ?: return
+                val ex = items[pos]
+                if (ex.isSetsMode) ex.setsCount = maxOf(0, ex.setsCount + delta)
+                else ex.repsCount = maxOf(0, ex.repsCount + delta)
+                notifyItemChanged(pos)
             }
 
-            fun bind(s: StretchingViewModel.Stretch) {
-                titleTv.text        = s.title
-                counterSets.text    = s.setsCount.toString()
-                counterReps.text    = s.repsCount.toString()
-                btnSets.isChecked   = s.isSetsMode
-                btnReps.isChecked   = !s.isSetsMode
-                btnSets.backgroundTintList =
-                    android.content.res.ColorStateList.valueOf(if (s.isSetsMode) green else black)
-                btnReps.backgroundTintList =
-                    android.content.res.ColorStateList.valueOf(if (!s.isSetsMode) green else black)
+            fun bind(ex: StretchingViewModel.Stretch) {
+                titleTv.text        = ex.title
+                inputSets.setText(ex.setsCount.takeIf { it > 0 }?.toString() ?: "")
+                inputReps.setText(ex.repsCount.takeIf { it > 0 }?.toString() ?: "")
 
-                val tracking = !selectedDate.isNullOrBlank()
-                listOf(btnSets, btnReps, btnPlus, btnMinus, btnConfirm).forEach {
-                    it.visibility = if (tracking) VISIBLE else GONE
+                val isTracking = !selectedDate.isNullOrBlank()
+                listOf(btnConfirm, inputSets, inputReps).forEach {
+                    it.visibility = if (isTracking) VISIBLE else GONE
                 }
-                counterSets.visibility = if (tracking && s.isSetsMode) VISIBLE else GONE
-                counterReps.visibility = if (tracking && !s.isSetsMode) VISIBLE else GONE
+                itemView.setOnClickListener {
+                    if (!isTracking) onCardClick(ex)
+                }
             }
         }
 

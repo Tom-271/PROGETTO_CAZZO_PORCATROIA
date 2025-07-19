@@ -3,13 +3,17 @@ package com.example.progetto_tosa.ui.home
 
 import android.app.Application
 import android.content.Context
+import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
+import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.auth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
+import com.google.firebase.firestore.firestore
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -20,6 +24,7 @@ class MyAutoScheduleViewModel(
     private val db = FirebaseFirestore.getInstance()
 
     val selectedDateId = MutableLiveData<String>() // data selezionata dinamicamente
+    val isLoadingExercises = MutableLiveData(false)
 
     // --- LiveData per il nome del giorno ("LUNEDÌ", ecc.) ---
     private val _dayName = MutableLiveData<String>()
@@ -37,6 +42,7 @@ class MyAutoScheduleViewModel(
     private val _notifyCompletion = MediatorLiveData<Unit>().apply {
         addSource(_remaining) { if (it == 0) value = Unit }
     }
+
     /** Osserva questo per lanciare la notifica di “scheda completata” */
     val notifyCompletion: LiveData<Unit> = _notifyCompletion
 
@@ -91,17 +97,29 @@ class MyAutoScheduleViewModel(
                         val sets = doc.getLong("numeroSerie")?.toInt() ?: 0
                         val reps = doc.getLong("numeroRipetizioni")?.toInt() ?: 0
                         val peso = doc.getString("peso")
-                        ScheduledExercise(name, cat, doc.id, sets, reps, peso)
+                        val ordine = doc.getLong("ordine")?.toInt() ?: 0
+
+                        ScheduledExercise(
+                            nome = name,
+                            categoria = cat,
+                            docId = doc.id,
+                            sets = sets,
+                            reps = reps,
+                            peso = peso,
+                            ordine = ordine
+                        )
                     }
 
                 categoryData[cat] = listForCat
                 val all = cats.flatMap { categoryData[it].orEmpty() }
                 _exercises.value = all
                 _remaining.value = all.size
+
             }
 
             listenerRegistrations += registration
         }
+
     }
 
     override fun onCleared() {
@@ -158,37 +176,68 @@ class MyAutoScheduleViewModel(
             .addOnFailureListener { onError() }
     }
 
+    fun saveExerciseRecoverTime(
+        category: String,
+        docId: String,
+        weight: String,
+        onSuccess: () -> Unit,
+        onError: () -> Unit
+    ) {
+        val prefs = getApplication<Application>()
+            .getSharedPreferences("user_data", Context.MODE_PRIVATE)
+        val user = prefs.getString("saved_display_name", null) ?: run {
+            onError(); return
+        }
+
+        val docRef = db.collection("schede_giornaliere")
+            .document(user)
+            .collection(selectedDateId.value!!)
+            .document(category)
+            .collection("esercizi")
+            .document(docId)
+
+        docRef.update("peso", weight)
+            .addOnSuccessListener { onSuccess() }
+            .addOnFailureListener { onError() }
+    }
+
     fun updateExerciseOrder(newList: List<ScheduledExercise>) {
         _exercises.value = newList
     }
 
     fun saveReorderedExercises(reorderedList: List<ScheduledExercise>) {
+
         val prefs = getApplication<Application>()
             .getSharedPreferences("user_data", Context.MODE_PRIVATE)
         val user = prefs.getString("saved_display_name", null) ?: return
 
-        val db = FirebaseFirestore.getInstance()
+        val date = selectedDateId.value ?: return
 
-        // raggruppa gli esercizi per categoria
-        val grouped = reorderedList.groupBy { it.categoria }
+        val batch = Firebase.firestore.batch()
 
-        grouped.forEach { (categoria, exercisesInCat) ->
-            val collectionRef = db.collection("schede_giornaliere")
+        reorderedList.forEachIndexed { index, exercise ->
+            val docRef = Firebase.firestore
+                .collection("schede_giornaliere")
                 .document(user)
-                .collection(selectedDateId.value!!)
-                .document(categoria)
+                .collection(date)
+                .document(exercise.categoria)
                 .collection("esercizi")
+                .document(exercise.docId)
 
-            val batch = db.batch()
-
-            exercisesInCat.forEachIndexed { index, exercise ->
-                val docRef = collectionRef.document(exercise.docId)
-                batch.update(docRef, "ordine", index)
-            }
-
-            batch.commit()
+            Log.d("SAVE_ORDER", "Updating ${exercise.nome} ordine=$index")
+            batch.update(docRef, "ordine", index)
         }
+
+        batch.commit()
+            .addOnSuccessListener {
+                Log.d("SAVE_ORDER", "Ordine salvato correttamente.")
+            }
+            .addOnFailureListener {
+                Log.e("SAVE_ORDER", "Errore nel salvataggio ordine", it)
+            }
     }
+
+
 
     private fun unsubscribeFromExercises() {
         listenerRegistrations.forEach { it.remove() }
@@ -200,6 +249,8 @@ class MyAutoScheduleViewModel(
 data class ScheduledExercise(
     val nome: String,
     val categoria: String,
+    val data: Long = 0L, // ← questo serve
+    val ordine: Int = 0,
     val docId: String,
     val sets: Int,
     val reps: Int,

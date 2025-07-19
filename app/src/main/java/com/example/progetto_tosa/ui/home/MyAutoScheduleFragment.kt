@@ -2,7 +2,6 @@ package com.example.progetto_tosa.ui.home
 
 import android.app.NotificationChannel
 import android.app.NotificationManager
-import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -11,10 +10,7 @@ import android.view.View.GONE
 import android.view.View.VISIBLE
 import android.view.ViewGroup
 import android.widget.*
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.cardview.widget.CardView
-import androidx.core.app.NotificationCompat
-import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
@@ -24,11 +20,11 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.progetto_tosa.R
 import com.example.progetto_tosa.databinding.FragmentMyAutoScheduleBinding
-import com.example.progetto_tosa.ui.workout.BodybuildingViewModel
-import com.google.android.material.card.MaterialCardView
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import androidx.core.view.isVisible
+import androidx.core.view.isGone
 
 
 class MyAutoScheduleFragment : Fragment(R.layout.fragment_my_auto_schedule) {
@@ -37,13 +33,9 @@ class MyAutoScheduleFragment : Fragment(R.layout.fragment_my_auto_schedule) {
     private val binding get() = _binding!!
 
     private lateinit var viewModel: MyAutoScheduleViewModel
-    private lateinit var itemTouchHelper: ItemTouchHelper
 
     private var currentDate = Date()
 
-    /*private val notifLauncher = registerForActivityResult(
-        ActivityResultContracts.RequestPermission()
-    ) { granted -> if (granted) sendNotification() }*/
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -72,15 +64,25 @@ class MyAutoScheduleFragment : Fragment(R.layout.fragment_my_auto_schedule) {
             binding.subtitleAllExercises.visibility = VISIBLE
         }
 
-        viewModel.exercises.observe(viewLifecycleOwner) {
-            renderExercises(it)
+        viewModel.exercises.observe(viewLifecycleOwner) { allExercises ->
+            renderExercises(allExercises)
+
+            // passa direttamente la lista (copiata) alla card
+            val trainingQueueList = allExercises.toMutableList()
+
+            setupTrainingQueueCard(
+                trainingQueueCardLayout = binding.trainingQueueCard.trainingQueueCard,
+                recyclerView = binding.recyclerTrainingQueue,
+                scheduledList = trainingQueueList,
+                viewModel = viewModel
+            )
         }
 
-        /*var prevRemaining = viewModel.remaining.value ?: 0
-        viewModel.remaining.observe(viewLifecycleOwner) { rem ->
-            if (prevRemaining > 0 && rem == 0) sendNotification()
-            prevRemaining = rem
-        }*/
+
+        viewModel.isLoadingExercises.observe(viewLifecycleOwner) { isLoading ->
+            binding.recyclerTrainingQueue.visibility = if (isLoading) View.INVISIBLE else View.VISIBLE
+            binding.trainingQueueCard.trainingQueueCard.isEnabled = !isLoading
+        }
 
         binding.chrono.setOnClickListener {
             findNavController().navigate(R.id.action_fragment_my_auto_schedule_to_navigation_cronotimer)
@@ -94,14 +96,21 @@ class MyAutoScheduleFragment : Fragment(R.layout.fragment_my_auto_schedule) {
         }
 
         binding.btnStartTraining.setOnClickListener {
-            val exercises = viewModel.exercises.value ?: emptyList()
+            val allExercises = viewModel.exercises.value ?: emptyList()
 
-            val dialog = TrainingQueueDialogFragment.newInstance(exercises) { reorderedList ->
-                viewModel.updateExerciseOrder(reorderedList) // salva nel ViewModel
+            // ✅ ordina la lista prima di passarla alla dialog
+            val orderedExercises = allExercises.sortedBy { it.ordine }
+
+            val dialog = TrainingQueueDialogFragment.newInstance(orderedExercises, viewModel) { reorderedList ->
+                if (reorderedList != allExercises) {
+                    viewModel.saveReorderedExercises(reorderedList)
+                    viewModel.selectedDateId.value = viewModel.selectedDateId.value
+                }
             }
 
             dialog.show(parentFragmentManager, "training_queue_dialog")
         }
+
 
         binding.arrowLeft.setOnClickListener {
             changeDayBy(-1) // giorno precedente
@@ -141,26 +150,42 @@ class MyAutoScheduleFragment : Fragment(R.layout.fragment_my_auto_schedule) {
     }
 
     private fun setupTrainingQueueCard(
-        trainingQueueCard: MaterialCardView,
+        trainingQueueCardLayout: LinearLayout,
         recyclerView: RecyclerView,
-        data: List<BodybuildingViewModel.Exercise>,
-        convertToScheduled: (BodybuildingViewModel.Exercise) -> ScheduledExercise
+        scheduledList: MutableList<ScheduledExercise>,
+        viewModel: MyAutoScheduleViewModel
     ) {
-        val scheduledList = data.map { convertToScheduled(it) }.toMutableList()
+        lateinit var itemTouchHelper: ItemTouchHelper
+
+        val adapter = TrainingQueueAdapter(scheduledList) { viewHolder ->
+            itemTouchHelper.startDrag(viewHolder)
+        }
 
         recyclerView.apply {
             layoutManager = LinearLayoutManager(requireContext())
-            adapter = TrainingQueueAdapter(scheduledList) { viewHolder ->
-                itemTouchHelper.startDrag(viewHolder)
-            }
+            this.adapter = adapter
         }
 
-        // al click sulla card, mostra o nasconde la lista
-        trainingQueueCard.setOnClickListener {
+        val callback = ItemMoveCallback(adapter)
+        itemTouchHelper = ItemTouchHelper(callback)
+        itemTouchHelper.attachToRecyclerView(recyclerView)
+
+        trainingQueueCardLayout.setOnClickListener {
             recyclerView.visibility =
-                if (recyclerView.visibility == View.VISIBLE) View.GONE else View.VISIBLE
+                if (recyclerView.isVisible) View.GONE else View.VISIBLE
+
+            if (recyclerView.isGone) {
+                val reorderedList = adapter.getCurrentList()
+                if (reorderedList != scheduledList) {
+                    viewModel.saveReorderedExercises(reorderedList)
+                    Toast.makeText(requireContext(), "Ordine salvato", Toast.LENGTH_SHORT).show() // ✅ test
+                } else {
+                    Toast.makeText(requireContext(), "Ordine identico → non salvato", Toast.LENGTH_SHORT).show() // ✅ test
+                }
+            }
         }
     }
+
 
     private fun renderExercises(exs: List<ScheduledExercise>) {
         val container = binding.allExercisesContainer
@@ -230,17 +255,24 @@ class MyAutoScheduleFragment : Fragment(R.layout.fragment_my_auto_schedule) {
         }
 
         val weightInput = cardView.findViewById<EditText>(R.id.cardWeightInput)
+        val RecoverInput = cardView.findViewById<EditText>(R.id.cardRecoverInput)
         val saveButton = cardView.findViewById<Button>(R.id.cardSaveButton)
 
         exercise.peso?.let { weightInput.setText(it) }
 
         saveButton.setOnClickListener {
             val inputText = weightInput.text.toString().trim()
-            if (inputText.isNotEmpty()) {
+            val inputRecover = RecoverInput.text.toString().trim()
+            if (inputText.isNotEmpty() || inputRecover.isNotEmpty()) {
                 viewModel.saveExerciseWeight(exercise.categoria, exercise.docId, inputText, {
                     Toast.makeText(requireContext(), "Peso salvato!", Toast.LENGTH_SHORT).show()
                 }, {
                     Toast.makeText(requireContext(), "Errore salvataggio peso", Toast.LENGTH_SHORT).show()
+                })
+                viewModel.saveExerciseRecoverTime(exercise.categoria, exercise.docId, inputText, {
+                    Toast.makeText(requireContext(), "Tempo di recupero salvato!", Toast.LENGTH_SHORT).show()
+                }, {
+                    Toast.makeText(requireContext(), "Errore salvataggio recupero", Toast.LENGTH_SHORT).show()
                 })
             } else {
                 Toast.makeText(requireContext(), "Inserisci un valore", Toast.LENGTH_SHORT).show()

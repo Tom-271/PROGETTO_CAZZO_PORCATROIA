@@ -50,108 +50,42 @@
                 android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle1"
                 android:textColor="#FFF"/>
 
-            <!-- Toggle Sets / Reps -->
-            <com.google.android.material.button.MaterialButtonToggleGroup
-                android:id="@+id/toggleGroup"
+            <!-- Quadrante -->
+            <!-- Inserimento manuale set e ripetizioni -->
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp">
+                android:orientation="horizontal"
+                android:layout_marginTop="12dp"
+                android:gravity="center">
 
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/toggleSets"
-                    style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                <EditText
+                    android:id="@+id/inputSets"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:textSize="13dp"
-                    android:text="Sets"
-                    android:textColor="@color/white"
-                    app:strokeColor="@color/white"
-                    app:strokeWidth="1dp"/>
+                    android:hint="Set"
+                    android:inputType="number"
+                    android:textColor="#FFF"
+                    android:textColorHint="#AAA"
+                    android:backgroundTint="#2979FF"
+                    android:gravity="center"
+                    android:layout_marginEnd="8dp"/>
 
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/toggleReps"
-                    style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                <EditText
+                    android:id="@+id/inputReps"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="Reps"
-                    android:textSize="13dp"
-
-                    android:textColor="@color/white"
-                    app:strokeColor="@color/white"
-                    app:strokeWidth="1dp"/>
-            </com.google.android.material.button.MaterialButtonToggleGroup>
-
-            <!-- Quadrante -->
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:layout_width="match_parent"
-                android:layout_height="140dp"
-                android:layout_marginTop="8dp">
-
-                <View
-                    android:id="@+id/circleBackground"
-                    android:layout_width="100dp"
-                    android:layout_height="100dp"
-                    android:background="@drawable/circle_background"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"/>
-
-                <TextView
-                    android:id="@+id/counterSets"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="0"
+                    android:hint="Ripetizioni"
+                    android:inputType="number"
                     android:textColor="#FFF"
-                    android:textSize="28sp"
-                    app:layout_constraintBottom_toBottomOf="@id/circleBackground"
-                    app:layout_constraintEnd_toEndOf="@id/circleBackground"
-                    app:layout_constraintStart_toStartOf="@id/circleBackground"
-                    app:layout_constraintTop_toTopOf="@id/circleBackground"/>
+                    android:textColorHint="#AAA"
+                    android:backgroundTint="#2979FF"
+                    android:gravity="center"
+                    android:layout_marginStart="8dp"/>
+            </LinearLayout>
 
-                <TextView
-                    android:id="@+id/counterReps"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="0"
-                    android:textColor="#FFF"
-                    android:textSize="28sp"
-                    android:visibility="gone"
-                    app:layout_constraintBottom_toBottomOf="@id/circleBackground"
-                    app:layout_constraintEnd_toEndOf="@id/circleBackground"
-                    app:layout_constraintStart_toStartOf="@id/circleBackground"
-                    app:layout_constraintTop_toTopOf="@id/circleBackground"/>
-
-                <com.google.android.material.floatingactionbutton.FloatingActionButton
-                    android:id="@+id/buttonMinus"
-                    android:layout_width="32dp"
-                    android:layout_height="32dp"
-                    app:fabCustomSize="32dp"
-                    app:useCompatPadding="false"
-                    app:layout_constraintBottom_toBottomOf="@id/circleBackground"
-                    app:layout_constraintEnd_toStartOf="@id/circleBackground"
-                    app:layout_constraintTop_toTopOf="@id/circleBackground"
-                    android:translationX="25dp"
-                    app:backgroundTint="#3E3E3E"
-                    app:srcCompat="@drawable/ic_minus"
-                    app:tint="#FFF"/>
-
-                <com.google.android.material.floatingactionbutton.FloatingActionButton
-                    android:id="@+id/buttonPlus"
-                    android:layout_width="32dp"
-                    android:layout_height="32dp"
-                    app:fabCustomSize="32dp"
-                    app:useCompatPadding="false"
-                    app:layout_constraintBottom_toBottomOf="@id/circleBackground"
-                    app:layout_constraintStart_toEndOf="@id/circleBackground"
-                    app:layout_constraintTop_toTopOf="@id/circleBackground"
-                    android:translationX="-25dp"
-                    app:backgroundTint="#2979FF"
-                    app:srcCompat="@drawable/ic_plus"
-                    app:tint="#FFF"/>
-            </androidx.constraintlayout.widget.ConstraintLayout>
 
             <!-- Pulsante Confirm -->
             <com.google.android.material.button.MaterialButton
