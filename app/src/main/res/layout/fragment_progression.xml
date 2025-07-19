@@ -1,26 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/scrollProgression"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fillViewport="true"
-    >
+    android:clipToPadding="false"
+    android:paddingBottom="16dp">
 
-    <LinearLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/progressionContent"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="24dp"
-        android:gravity="center_horizontal">
+        android:padding="24dp">
 
         <!-- CARD OBIETTIVO PESO -->
         <androidx.cardview.widget.CardView
-            android:layout_width="match_parent"
+            android:id="@+id/cardWeightGoal"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             app:cardCornerRadius="16dp"
             app:cardElevation="6dp"
             app:cardUseCompatPadding="true"
-            app:cardBackgroundColor="@color/dark_gray">
+            app:cardBackgroundColor="@color/dark_gray"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -60,14 +65,29 @@
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 
+        <!-- Spacer -->
+        <View
+            android:id="@+id/spacerAfterWeight"
+            android:layout_width="0dp"
+            android:layout_height="16dp"
+            app:layout_constraintTop_toBottomOf="@id/cardWeightGoal"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
         <!-- CARD OBIETTIVO BODYFAT -->
         <androidx.cardview.widget.CardView
-            android:layout_width="match_parent"
+            android:id="@+id/cardBodyFatGoal"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             app:cardCornerRadius="16dp"
             app:cardElevation="6dp"
+            android:clipChildren="false"
+            android:clipToPadding="false"
             app:cardUseCompatPadding="true"
-            app:cardBackgroundColor="@color/dark_gray">
+            app:cardBackgroundColor="@color/dark_gray"
+            app:layout_constraintTop_toBottomOf="@id/spacerAfterWeight"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -107,5 +127,140 @@
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 
-    </LinearLayout>
+        <!-- Divider -->
+        <View
+            android:id="@+id/dividerAfterCards"
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:layout_marginTop="32dp"
+            android:background="@android:color/darker_gray"
+            app:layout_constraintTop_toBottomOf="@id/cardBodyFatGoal"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <!-- Titolo grafico -->
+        <TextView
+            android:id="@+id/titleChart"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:gravity="center"
+            android:textStyle="bold"
+            android:textSize="20sp"
+            android:text="ANDAMENTO MASSA MAGRA GRASSA NEL TEMPO (BF%)"
+            android:textColor="@color/purple_200"
+            app:layout_constraintTop_toBottomOf="@id/dividerAfterCards"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <!-- PANNELLO INSERIMENTO BODYFAT -->
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/panelInsertBodyFat"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            app:layout_constraintTop_toBottomOf="@id/titleChart"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent">
+
+            <TextView
+                android:id="@+id/tvSelectedDate"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Oggi"
+                android:textStyle="bold"
+                android:textSize="14sp"
+                android:textColor="@android:color/white"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent" />
+
+            <EditText
+                android:id="@+id/etBodyFatInput"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="12dp"
+                android:inputType="numberDecimal"
+                android:hint="%"
+                android:maxLines="1"
+                android:imeOptions="actionDone"
+                android:textColor="@android:color/white"
+                android:textColorHint="@android:color/darker_gray"
+                android:backgroundTint="@color/lapis"
+                app:layout_constraintStart_toEndOf="@id/tvSelectedDate"
+                app:layout_constraintEnd_toStartOf="@id/btnPickDate"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent" />
+
+            <ImageButton
+                android:id="@+id/btnPickDate"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_marginStart="8dp"
+                android:contentDescription="Seleziona data"
+                android:src="@android:drawable/ic_menu_my_calendar"
+                android:backgroundTint="@color/lapis"
+                app:layout_constraintStart_toEndOf="@id/etBodyFatInput"
+                app:layout_constraintEnd_toStartOf="@id/btnSaveBodyFat"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent" />
+
+            <ImageButton
+                android:id="@+id/btnSaveBodyFat"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_marginStart="8dp"
+                android:contentDescription="Salva bodyfat"
+                android:src="@android:drawable/ic_menu_save"
+                android:backgroundTint="@color/lapis"
+                app:layout_constraintStart_toEndOf="@id/btnPickDate"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <!-- GRAFICO BODYFAT -->
+        <com.github.mikephil.charting.charts.LineChart
+            android:id="@+id/bodyFatChart"
+            android:layout_width="0dp"
+            android:layout_height="220dp"
+            android:layout_marginTop="24dp"
+            android:layout_marginStart="14dp"
+            android:layout_marginEnd="14dp"
+            android:background="@color/dark_gray"
+            android:clipChildren="false"
+            android:clipToPadding="false"
+            android:contentDescription="Grafico storico percentuale massa grassa"
+            app:layout_constraintTop_toBottomOf="@id/panelInsertBodyFat"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <!-- LABEL ORDINATE indipendente -->
+        <TextView
+            android:id="@+id/ordinate"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="BodyFat %"
+            android:textSize="12sp"
+            android:textColor="@android:color/white"
+            android:rotation="270"
+            android:layout_marginStart="-24dp"
+            app:layout_constraintTop_toTopOf="@id/bodyFatChart"
+            app:layout_constraintBottom_toBottomOf="@id/bodyFatChart"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <!-- LABEL ASCISSE -->
+        <TextView
+            android:id="@+id/ascisse"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="Giorno (gg/mm)"
+            android:textSize="12sp"
+            android:textColor="@android:color/white"
+            app:layout_constraintTop_toBottomOf="@id/bodyFatChart"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </ScrollView>
