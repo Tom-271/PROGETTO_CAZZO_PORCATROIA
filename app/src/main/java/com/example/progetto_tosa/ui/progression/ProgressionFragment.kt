@@ -112,8 +112,8 @@ class ProgressionFragment : Fragment(R.layout.fragment_progression) {
                 lineWidth = 2.5f            // spessore
                 enableDashedLine(0f, 0f, 0f) // linea piena (se vuoi tratteggi: es. 10f,5f,0f)
                 textSize = 10f
-                textColor = Color.RED
-                lineColor = Color.RED
+                textColor = Color.GREEN
+                lineColor = Color.GREEN
                 labelPosition = com.github.mikephil.charting.components.LimitLine.LimitLabelPosition.RIGHT_TOP
             }
 
