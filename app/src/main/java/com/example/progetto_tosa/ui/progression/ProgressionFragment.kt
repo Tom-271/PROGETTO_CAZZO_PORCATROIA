@@ -1,61 +1,69 @@
 package com.example.progetto_tosa.ui.progression
 
 import android.app.DatePickerDialog
-import android.graphics.Color
 import android.os.Bundle
 import android.view.View
 import android.widget.*
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import java.util.Locale
 import com.example.progetto_tosa.R
 import com.example.progetto_tosa.data.BodyFatEntry
-import com.github.mikephil.charting.charts.LineChart
-import com.github.mikephil.charting.components.AxisBase
-import com.github.mikephil.charting.data.Entry
-import com.github.mikephil.charting.data.LineData
-import com.github.mikephil.charting.data.LineDataSet
-import com.github.mikephil.charting.formatter.ValueFormatter
+import com.google.android.material.button.MaterialButtonToggleGroup
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.firestore.SetOptions
 import java.time.LocalDate
 
+/** Fragment padre: gestisce input + toggle + caricamento dati; i grafici sono nei figli */
 class ProgressionFragment : Fragment(R.layout.fragment_progression) {
 
     private val auth = FirebaseAuth.getInstance()
-    private val db = FirebaseFirestore.getInstance()
+    private val db   = FirebaseFirestore.getInstance()
 
+    // UI obiettivi
     private lateinit var tvWeightGoalValue: TextView
     private lateinit var tvBodyFatGoalValue: TextView
+
+    // UI input BodyFat
     private lateinit var etBodyFatInput: EditText
     private lateinit var btnPickDate: ImageButton
     private lateinit var btnSaveBodyFat: ImageButton
     private lateinit var tvSelectedDate: TextView
-    private lateinit var bodyFatChart: LineChart
+    private lateinit var panelInsertBodyFat: View
 
+    // UI input Peso
+    private lateinit var etBodyWeightInput: EditText
+    private lateinit var btnPickDateWeight: ImageButton
+    private lateinit var btnSaveBodyWeight: ImageButton
+    private lateinit var tvSelectedDateWeight: TextView
+    private lateinit var panelInsertWeight: View
+
+    // Toggle + titolo
+    private lateinit var toggle: MaterialButtonToggleGroup
+
+    // ViewModel
     private lateinit var vm: ProgressionViewModel
+
+    // Firestore listener
     private var bodyFatListener: ListenerRegistration? = null
+
     private var selectedDate: LocalDate = LocalDate.now()
     private var uid: String? = null
-    private var targetFatLimitLine: com.github.mikephil.charting.components.LimitLine? = null
-    private var targetFatValue: Float? = null
 
+    // Tag fragment grafici
+    private val pesoTag = "PESO_CHART"
+    private val bfTag   = "BF_CHART"
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        tvWeightGoalValue = view.findViewById(R.id.tvWeightGoalValue)
-        tvBodyFatGoalValue = view.findViewById(R.id.tvBodyFatGoalValue)
-        etBodyFatInput     = view.findViewById(R.id.etBodyFatInput)
-        btnPickDate        = view.findViewById(R.id.btnPickDate)
-        btnSaveBodyFat     = view.findViewById(R.id.btnSaveBodyFat)
-        tvSelectedDate     = view.findViewById(R.id.tvSelectedDate)
-        bodyFatChart       = view.findViewById(R.id.bodyFatChart)
+        bindViews(view)
 
         uid = auth.currentUser?.uid
         if (uid == null) {
-            Toast.makeText(requireContext(), "Devi effettuare il login", Toast.LENGTH_SHORT).show()
+            toast("Devi effettuare il login")
             return
         }
 
@@ -64,15 +72,15 @@ class ProgressionFragment : Fragment(R.layout.fragment_progression) {
             ProgressionVmFactory(requireContext(), uid!!)
         )[ProgressionViewModel::class.java]
 
-        setupChart()
-        observe()
+        observeVm()
         vm.loadBodyFat()
         vm.loadGoals()
-        attachListener()
+        attachCloudListener()
 
-        updateSelectedDateLabel()
-        setupDatePicker()
-        setupSave()
+        updateSelectedDateLabels()
+        setupDatePickers()
+        setupSaveButtons()
+        setupToggleWithFragments(savedInstanceState)
     }
 
     override fun onDestroyView() {
@@ -81,51 +89,39 @@ class ProgressionFragment : Fragment(R.layout.fragment_progression) {
         super.onDestroyView()
     }
 
-    private fun observe() {
-        vm.bodyFatEntries.observe(viewLifecycleOwner) { list ->
-            if (list.isEmpty()) {
-                bodyFatChart.clear()
-            } else updateChart(list)
-        }
+    /* -------------------- UI BIND -------------------- */
+
+    private fun bindViews(v: View) {
+        tvWeightGoalValue     = v.findViewById(R.id.tvWeightGoalValue)
+        tvBodyFatGoalValue    = v.findViewById(R.id.tvBodyFatGoalValue)
+
+        etBodyFatInput        = v.findViewById(R.id.etBodyFatInput)
+        btnPickDate           = v.findViewById(R.id.btnPickDate)
+        btnSaveBodyFat        = v.findViewById(R.id.btnSaveBodyFat)
+        tvSelectedDate        = v.findViewById(R.id.tvSelectedDate)
+        panelInsertBodyFat    = v.findViewById(R.id.panelInsertBodyFat)
+
+        etBodyWeightInput     = v.findViewById(R.id.etBodyWeightInput)
+        btnPickDateWeight     = v.findViewById(R.id.btnPickDateWeight)
+        btnSaveBodyWeight     = v.findViewById(R.id.btnSaveBodyWeight)
+        tvSelectedDateWeight  = v.findViewById(R.id.tvSelectedDateWeight)
+        panelInsertWeight     = v.findViewById(R.id.panelInsertWeight)
+
+        toggle                = v.findViewById(R.id.toggleForGraphs)
+    }
+
+    /* -------------------- OBSERVE -------------------- */
+
+    private fun observeVm() {
         vm.goals.observe(viewLifecycleOwner) { g ->
-            tvWeightGoalValue.text = g.targetLean?.let { v -> String.format("%.1f kg", v) } ?: "—"
-            tvBodyFatGoalValue.text = g.targetFat?.let { v -> String.format("%.1f %%", v) } ?: "—"
-
-            val newTarget = g.targetFat?.toFloat()
-            if (newTarget != null && newTarget != targetFatValue) {
-                targetFatValue = newTarget
-                addOrUpdateTargetLimitLine(newTarget)
-            }
+            tvWeightGoalValue.text  = g.targetLean?.let { String.format(Locale.getDefault(), "%.1f kg", it) } ?: "—"
+            tvBodyFatGoalValue.text = g.targetFat ?.let { String.format(Locale.getDefault(), "%.1f%%", it) } ?: "—"
         }
-
-
     }
 
-    private fun addOrUpdateTargetLimitLine(value: Float) {
-        val yAxis = bodyFatChart.axisLeft
+    /* -------------------- FIRESTORE LISTENER -------------------- */
 
-        // Rimuovi la precedente se esiste
-        targetFatLimitLine?.let { yAxis.removeLimitLine(it) }
-
-        targetFatLimitLine = com.github.mikephil.charting.components.LimitLine(value, "Target")
-            .apply {
-                lineWidth = 2.5f            // spessore
-                enableDashedLine(0f, 0f, 0f) // linea piena (se vuoi tratteggi: es. 10f,5f,0f)
-                textSize = 10f
-                textColor = Color.GREEN
-                lineColor = Color.GREEN
-                labelPosition = com.github.mikephil.charting.components.LimitLine.LimitLabelPosition.RIGHT_TOP
-            }
-
-        yAxis.addLimitLine(targetFatLimitLine)
-        // Porta la linea dietro o davanti (opzionale: yAxis.setDrawLimitLinesBehindData(false))
-        yAxis.setDrawLimitLinesBehindData(false)
-
-        bodyFatChart.invalidate()
-    }
-
-
-    private fun attachListener() {
+    private fun attachCloudListener() {
         val user = auth.currentUser ?: return
         bodyFatListener?.remove()
         bodyFatListener = db.collection("users")
@@ -135,123 +131,179 @@ class ProgressionFragment : Fragment(R.layout.fragment_progression) {
             .addSnapshotListener { snap, err ->
                 if (err != null || snap == null) return@addSnapshotListener
                 val list = snap.documents.mapNotNull { d ->
-                    val epoch = d.getLong("epochDay") ?: return@mapNotNull null
-                    val bf = d.getDouble("bodyFatPercent") ?: return@mapNotNull null
+                    val epoch  = d.getLong("epochDay") ?: return@mapNotNull null
+                    val bf     = d.getDouble("bodyFatPercent") ?: return@mapNotNull null
+                    val weight = d.getDouble("bodyWeightKg")?.toFloat()
                     BodyFatEntry(
                         id = 0,
                         userId = user.uid,
                         epochDay = epoch,
-                        bodyFatPercent = bf.toFloat()
+                        bodyFatPercent = bf.toFloat(),
+                        bodyWeightKg = weight
                     )
                 }
                 vm.replaceAllFromCloud(list)
             }
     }
 
-    private fun setupChart() = bodyFatChart.apply {
-        description.isEnabled = false
-        setNoDataText("Nessun dato")
-        setTouchEnabled(true)
-        setPinchZoom(true)
-        legend.isEnabled = false
-        axisRight.isEnabled = false
-        xAxis.position = com.github.mikephil.charting.components.XAxis.XAxisPosition.BOTTOM
-        xAxis.setDrawGridLines(false)
-        axisLeft.setDrawGridLines(true)
-        xAxis.textColor = Color.LTGRAY
-        axisLeft.textColor = Color.LTGRAY
-        setExtraOffsets(8f,16f,8f,16f)
+    /* -------------------- TOGGLE & CHILD FRAGMENTS -------------------- */
+
+    private fun setupToggleWithFragments(savedState: Bundle?) {
+        val fm = childFragmentManager
+
+        var pesoFrag = fm.findFragmentByTag(pesoTag)
+        var bfFrag   = fm.findFragmentByTag(bfTag)
+
+        if (pesoFrag == null) {
+            pesoFrag = PesoChartFragment()
+            fm.beginTransaction()
+                .add(R.id.chartContainer, pesoFrag, pesoTag)
+                .commitNow()
+        }
+        if (bfFrag == null) {
+            bfFrag = BodyFatChartFragment()
+            fm.beginTransaction()
+                .add(R.id.chartContainer, bfFrag, bfTag)
+                .hide(bfFrag)
+                .commitNow()
+        }
+
+        if (savedState == null) {
+            toggle.check(R.id.btnCronometro) // Peso default
+            panelInsertWeight.visibility = View.VISIBLE
+            panelInsertBodyFat.visibility = View.GONE
+        } else {
+            // Se serve, potresti ripristinare la visibilità in base al bottone selezionato
+            val currentId = toggle.checkedButtonId
+            applyPanelVisibility(currentId)
+        }
+
+        toggle.addOnButtonCheckedListener { _, checkedId, isChecked ->
+            if (!isChecked) return@addOnButtonCheckedListener
+            fm.beginTransaction().apply {
+                when (checkedId) {
+                    R.id.btnCronometro -> { // Peso
+                        show(pesoFrag!!)
+                        hide(bfFrag!!)
+                    }
+                    R.id.btnTimer -> {      // BodyFat
+                        show(bfFrag!!)
+                        hide(pesoFrag!!)
+                    }
+                }
+            }.commit()
+            applyPanelVisibility(checkedId)
+        }
     }
 
-    private fun updateChart(entries: List<BodyFatEntry>) {
-        val sorted = entries.sortedBy { it.epochDay }
-        val mp = sorted.mapIndexed { i, e -> Entry(i.toFloat(), e.bodyFatPercent) }
-        val ds = LineDataSet(mp, "BodyFat").apply {
-            mode = LineDataSet.Mode.CUBIC_BEZIER
-            setDrawValues(false)
-            lineWidth = 2f
-            setDrawCircles(true)
-            circleRadius = 3f
-            color = Color.WHITE
-            setCircleColor(Color.WHITE)
-            highLightColor = Color.YELLOW
-            setDrawFilled(true)
-            fillColor = Color.parseColor("#33FFFFFF")
-            fillAlpha = 60
-        }
-        bodyFatChart.xAxis.valueFormatter = object : ValueFormatter() {
-            override fun getAxisLabel(v: Float, axis: AxisBase?): String {
-                val i = v.toInt()
-                return if (i in sorted.indices) {
-                    val d = LocalDate.ofEpochDay(sorted[i].epochDay)
-                    "${d.dayOfMonth}/${d.monthValue}"
-                } else ""
+    private fun applyPanelVisibility(checkedId: Int) {
+        when (checkedId) {
+            R.id.btnCronometro -> {
+                panelInsertWeight.visibility  = View.VISIBLE
+                panelInsertBodyFat.visibility = View.GONE
+            }
+            R.id.btnTimer -> {
+                panelInsertWeight.visibility  = View.GONE
+                panelInsertBodyFat.visibility = View.VISIBLE
             }
         }
-        bodyFatChart.data = LineData(ds)
-        bodyFatChart.animateX(400)
-        bodyFatChart.invalidate()
     }
 
-    private fun setupDatePicker() {
-        btnPickDate.setOnClickListener {
+    /* -------------------- DATE PICKER -------------------- */
+
+    private fun setupDatePickers() {
+        val pickerListener = DatePickerDialog.OnDateSetListener { _, y, m, d ->
+            selectedDate = LocalDate.of(y, m + 1, d)
+            updateSelectedDateLabels()
+            vm.getMeasurement(selectedDate) { entry ->
+                etBodyFatInput.setText(entry?.bodyFatPercent?.let { "%.1f".format(it) } ?: "")
+                etBodyWeightInput.setText(entry?.bodyWeightKg?.let { "%.1f".format(it) } ?: "")
+            }
+        }
+
+        val openPicker = {
             val d = selectedDate
             DatePickerDialog(
                 requireContext(),
-                { _, y, m, day ->
-                    selectedDate = LocalDate.of(y, m + 1, day)
-                    updateSelectedDateLabel()
-                    vm.getMeasurement(selectedDate) { entry ->
-                        etBodyFatInput.setText(entry?.bodyFatPercent?.let { String.format("%.1f", it) } ?: "")
-                    }
-                },
+                pickerListener,
                 d.year,
                 d.monthValue - 1,
                 d.dayOfMonth
             ).show()
         }
+
+        btnPickDate.setOnClickListener { openPicker() }
+        btnPickDateWeight.setOnClickListener { openPicker() }
     }
 
-    private fun updateSelectedDateLabel() {
-        tvSelectedDate.text =
-            if (selectedDate == LocalDate.now()) "Oggi"
-            else "%02d/%02d/%d".format(selectedDate.dayOfMonth, selectedDate.monthValue, selectedDate.year)
+    private fun updateSelectedDateLabels() {
+        val label = if (selectedDate == LocalDate.now()) "Oggi"
+        else "%02d/%02d/%d".format(selectedDate.dayOfMonth, selectedDate.monthValue, selectedDate.year)
+        tvSelectedDate.text = label
+        tvSelectedDateWeight.text = label
     }
 
-    private fun setupSave() {
+    /* -------------------- SAVE BUTTONS -------------------- */
+
+    private fun setupSaveButtons() {
         btnSaveBodyFat.setOnClickListener {
-            val raw = etBodyFatInput.text.toString().replace(',', '.').trim()
-            val value = raw.toFloatOrNull()
-            if (value == null || value <= 0f || value > 70f) {
-                Toast.makeText(requireContext(), "Valore non valido (0 - 70)", Toast.LENGTH_SHORT).show()
+            val bf = etBodyFatInput.text.toString().replace(',', '.').trim().toFloatOrNull()
+            if (bf == null || bf <= 0f || bf > 70f) {
+                toast("BF% non valida (0-70)")
                 return@setOnClickListener
             }
-            vm.addBodyFat(value, selectedDate)
-            val user = auth.currentUser
-            if (user != null) {
-                val epoch = selectedDate.toEpochDay()
-                db.collection("users").document(user.uid)
-                    .collection("bodyFatEntries").document(epoch.toString())
-                    .set(
-                        mapOf(
-                            "epochDay" to epoch,
-                            "bodyFatPercent" to value,
-                            "updatedAt" to com.google.firebase.Timestamp.now()
-                        ),
-                        SetOptions.merge()
-                    )
-                db.collection("users").document(user.uid)
-                    .set(
-                        mapOf(
-                            "currentBodyFatPercent" to value,
-                            "lastBodyFatEpochDay" to epoch
-                        ),
-                        SetOptions.merge()
-                    )
+            vm.getMeasurement(selectedDate) { existing ->
+                val weight = existing?.bodyWeightKg
+                saveDay(bf, weight)
+                toast("Salvato BF ${"%.1f".format(bf)}%")
             }
-            Toast.makeText(requireContext(),
-                "Salvato ${String.format("%.1f%%", value)} per ${if (selectedDate==LocalDate.now()) "oggi" else tvSelectedDate.text}",
-                Toast.LENGTH_SHORT).show()
+        }
+
+        btnSaveBodyWeight.setOnClickListener {
+            val w = etBodyWeightInput.text.toString().replace(',', '.').trim().toFloatOrNull()
+            if (w == null || w < 25f || w > 400f) {
+                toast("Peso non valido (25-400)")
+                return@setOnClickListener
+            }
+            vm.getMeasurement(selectedDate) { existing ->
+                val bf = existing?.bodyFatPercent ?: 0f
+                saveDay(bf, w)
+                toast("Salvato Peso ${"%.1f".format(w)} kg")
+            }
         }
     }
+
+    private fun saveDay(bf: Float, weight: Float?) {
+        vm.addBodyFat(bf, weight, selectedDate)
+        saveToFirestoreMirror(bf, weight)
+    }
+
+    private fun saveToFirestoreMirror(bf: Float, weight: Float?) {
+        val user = auth.currentUser ?: return
+        val epoch = selectedDate.toEpochDay()
+        val data = mutableMapOf<String, Any>(
+            "epochDay" to epoch,
+            "bodyFatPercent" to bf,
+            "updatedAt" to com.google.firebase.Timestamp.now()
+        )
+        if (weight != null) data["bodyWeightKg"] = weight
+
+        db.collection("users").document(user.uid)
+            .collection("bodyFatEntries").document(epoch.toString())
+            .set(data, SetOptions.merge())
+
+        val summary = mutableMapOf<String, Any>(
+            "currentBodyFatPercent" to bf,
+            "lastBodyFatEpochDay" to epoch
+        )
+        if (weight != null) summary["currentBodyWeightKg"] = weight
+
+        db.collection("users").document(user.uid)
+            .set(summary, SetOptions.merge())
+    }
+
+    /* -------------------- UTILS -------------------- */
+
+    private fun toast(msg: String) =
+        Toast.makeText(requireContext(), msg, Toast.LENGTH_SHORT).show()
 }

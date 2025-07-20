@@ -1,27 +1,27 @@
 package com.example.progetto_tosa.data
 
 import android.content.Context
-import androidx.lifecycle.*
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewModelScope
 import androidx.room.*
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 
-/* ================== ENTITY ================== */
 @Entity(
     tableName = "body_fat_entries",
     indices = [Index(value = ["userId", "epochDay"], unique = true)]
 )
 data class BodyFatEntry(
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
-    val userId: String,          // UID Firebase
-    val epochDay: Long,          // LocalDate.toEpochDay()
-    val bodyFatPercent: Float
+    val userId: String,
+    val epochDay: Long,
+    val bodyFatPercent: Float,
+    val bodyWeightKg: Float? = null            // NEW FIELD
 )
 
-/* ================== DAO ================== */
 @Dao
 interface BodyFatDao {
-
     @Query("SELECT * FROM body_fat_entries WHERE userId = :userId ORDER BY epochDay ASC")
     suspend fun getAll(userId: String): List<BodyFatEntry>
 
@@ -38,8 +38,7 @@ interface BodyFatDao {
     suspend fun insertAll(entries: List<BodyFatEntry>)
 }
 
-/* ================== DB ================== */
-@Database(entities = [BodyFatEntry::class], version = 3, exportSchema = true)
+@Database(entities = [BodyFatEntry::class], version = 4, exportSchema = true)
 abstract class BodyFatDb : RoomDatabase() {
     abstract fun dao(): BodyFatDao
 
@@ -52,26 +51,23 @@ abstract class BodyFatDb : RoomDatabase() {
                     BodyFatDb::class.java,
                     "body_fat_db"
                 )
-                    .fallbackToDestructiveMigration()
+                    .fallbackToDestructiveMigration() // semplice, ricostruisce e ricarichi dal cloud
                     .build()
                     .also { INSTANCE = it }
             }
     }
 }
 
-/* ================== REPOSITORY ================== */
-class BodyFatRepository(
-    private val dao: BodyFatDao,
-    private val userId: String
-) {
+class BodyFatRepository(private val dao: BodyFatDao, private val userId: String) {
     suspend fun all() = dao.getAll(userId)
 
-    suspend fun addOrReplace(percent: Float, date: LocalDate) =
+    suspend fun addOrReplace(percent: Float, weight: Float?, date: LocalDate) =
         dao.upsert(
             BodyFatEntry(
                 userId = userId,
                 epochDay = date.toEpochDay(),
-                bodyFatPercent = percent
+                bodyFatPercent = percent,
+                bodyWeightKg = weight
             )
         )
 
@@ -86,19 +82,15 @@ class BodyFatRepository(
     }
 }
 
-/* ================== VIEWMODEL ================== */
 class BodyFatViewModel(private val repo: BodyFatRepository) : ViewModel() {
+    private val _entries = androidx.lifecycle.MutableLiveData<List<BodyFatEntry>>(emptyList())
+    val entries: androidx.lifecycle.LiveData<List<BodyFatEntry>> = _entries
 
-    private val _entries = MutableLiveData<List<BodyFatEntry>>(emptyList())
-    val entries: LiveData<List<BodyFatEntry>> = _entries
+    fun load() { viewModelScope.launch { _entries.postValue(repo.all()) } }
 
-    fun load() {
-        viewModelScope.launch { _entries.postValue(repo.all()) }
-    }
-
-    fun addMeasurement(percent: Float, date: LocalDate = LocalDate.now()) {
+    fun addMeasurement(percent: Float, weight: Float?, date: LocalDate = LocalDate.now()) {
         viewModelScope.launch {
-            repo.addOrReplace(percent, date)
+            repo.addOrReplace(percent, weight, date)
             _entries.postValue(repo.all())
         }
     }
@@ -115,11 +107,7 @@ class BodyFatViewModel(private val repo: BodyFatRepository) : ViewModel() {
     }
 }
 
-/* ================== FACTORY ================== */
-class BodyFatVmFactory(
-    private val context: Context,
-    private val userId: String
-) : ViewModelProvider.Factory {
+class BodyFatVmFactory(private val context: Context, private val userId: String) : ViewModelProvider.Factory {
     @Suppress("UNCHECKED_CAST")
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         val db = BodyFatDb.get(context)

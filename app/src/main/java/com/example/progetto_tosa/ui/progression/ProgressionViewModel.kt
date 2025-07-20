@@ -10,7 +10,8 @@ import java.time.LocalDate
 data class GoalsUi(
     val targetLean: Double? = null,
     val targetFat: Double? = null,
-    val currentBodyFat: Double? = null
+    val currentBodyFat: Double? = null,
+    val currentBodyWeight: Double? = null
 )
 
 class ProgressionViewModel(
@@ -19,7 +20,7 @@ class ProgressionViewModel(
     private val auth: FirebaseAuth
 ) : ViewModel() {
 
-    val bodyFatEntries = bodyFatVm.entries  // re‑expose
+    val bodyFatEntries = bodyFatVm.entries
 
     private val _goals = MutableLiveData<GoalsUi>()
     val goals: LiveData<GoalsUi> = _goals
@@ -35,21 +36,22 @@ class ProgressionViewModel(
                 _goals.value = GoalsUi(
                     targetLean = snap.getDouble("targetLeanMass"),
                     targetFat = snap.getDouble("targetFatMass"),
-                    currentBodyFat = snap.getDouble("currentBodyFatPercent")
+                    currentBodyFat = snap.getDouble("currentBodyFatPercent"),
+                    currentBodyWeight = snap.getDouble("currentBodyWeightKg")
                 )
             }
     }
 
-    fun addBodyFat(percent: Float, date: LocalDate = LocalDate.now()) {
-        bodyFatVm.addMeasurement(percent, date)
-        // update snapshot
+    fun addBodyFat(percent: Float, weight: Float?, date: LocalDate = LocalDate.now()) {
+        bodyFatVm.addMeasurement(percent, weight, date)
         auth.currentUser?.let { u ->
             val epoch = date.toEpochDay()
-            val data = mapOf(
+            val data = mutableMapOf<String, Any>(
                 "epochDay" to epoch,
                 "bodyFatPercent" to percent,
                 "updatedAt" to com.google.firebase.Timestamp.now()
             )
+            if (weight != null) data["bodyWeightKg"] = weight
             firestore.collection("users").document(u.uid)
                 .collection("bodyFatEntries").document(epoch.toString())
                 .set(data)
@@ -57,19 +59,17 @@ class ProgressionViewModel(
                 .set(
                     mapOf(
                         "currentBodyFatPercent" to percent,
-                        "lastBodyFatEpochDay" to epoch
+                        "lastBodyFatEpochDay" to epoch,
+                        "currentBodyWeightKg" to (weight ?: _goals.value?.currentBodyWeight)
                     ),
                     com.google.firebase.firestore.SetOptions.merge()
                 )
         }
     }
 
-    fun replaceAllFromCloud(list: List<BodyFatEntry>) {
-        bodyFatVm.replaceAll(list)
-    }
+    fun replaceAllFromCloud(list: List<BodyFatEntry>) { bodyFatVm.replaceAll(list) }
 
-    fun getMeasurement(date: LocalDate, cb: (BodyFatEntry?) -> Unit) =
-        bodyFatVm.getMeasurement(date, cb)
+    fun getMeasurement(date: LocalDate, cb: (BodyFatEntry?) -> Unit) = bodyFatVm.getMeasurement(date, cb)
 }
 
 class ProgressionVmFactory(
