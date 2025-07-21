@@ -91,7 +91,7 @@
             android:layout_height="320dp"
             android:layout_marginTop="40dp"
             android:layout_marginHorizontal="8dp"
-            android:backgroundTint="@color/navy_blue"
+            android:backgroundTint="@color/dark_gray"
             app:shapeAppearanceOverlay="@style/ShapeAppearance.BottomRounded"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toTopOf="@+id/cardButtons"
@@ -136,7 +136,7 @@
                         android:text="@{vm.displayName}"
                         android:textAllCaps="true"
                         android:layout_marginTop="30dp"
-                        android:textColor="@color/orange"
+                        android:textColor="@color/purple_200"
                         android:textSize="25sp"
                         android:textStyle="bold" />
 
@@ -158,11 +158,9 @@
             android:layout_width="300dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="280dp"
-            android:layout_marginHorizontal="16dp"
             android:translationZ="7dp"
             android:backgroundTint="@color/light_gray"
             app:cardCornerRadius="20dp"
-            app:cardElevation="0dp"
             android:stateListAnimator="@null"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -172,15 +170,18 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:padding="6dp">
+                android:padding="6dp"
+                android:paddingLeft="5dp"
+                android:paddingRight="5dp">
 
                 <!-- Top two icon-buttons -->
                 <com.google.android.material.card.MaterialCardView
                     android:layout_width="match_parent"
                     android:layout_height="60dp"
-                    android:backgroundTint="@color/light_gray"
-                    app:cardCornerRadius="20dp"
+                    android:backgroundTint="@color/dark_gray"
+                    app:shapeAppearanceOverlay="@style/ShapeAppearance.TopRounded"
                     app:cardElevation="0dp"
+                    android:layout_marginTop="5dp"
                     android:stateListAnimator="@null">
 
                     <LinearLayout
@@ -190,8 +191,10 @@
                         android:showDividers="middle"
                         android:divider="@drawable/vertical_divider"
                         android:dividerPadding="8dp"
+
                         android:gravity="center">
 
+                        <!-- icone dati, QR, fotocamera, impostazioni -->
                         <com.google.android.material.button.MaterialButton
                             android:id="@+id/userData"
                             style="@style/Widget.MaterialComponents.Button.TextButton"
@@ -199,7 +202,7 @@
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             app:icon="@drawable/datos"
-                            app:iconTint="@android:color/black"
+                            app:iconTint="@color/light_gray"
                             app:iconSize="30dp"
                             app:iconGravity="textStart"
                             android:enabled="@{vm.isLoggedIn}"
@@ -212,7 +215,7 @@
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             app:icon="@drawable/newqr"
-                            app:iconTint="@android:color/black"
+                            app:iconTint="@color/light_gray"
                             app:iconSize="30dp"
                             app:iconGravity="textStart"
                             android:enabled="@{vm.isLoggedIn}"
@@ -225,7 +228,7 @@
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             app:icon="@drawable/fotocamera"
-                            app:iconTint="@android:color/black"
+                            app:iconTint="@color/light_gray"
                             app:iconSize="30dp"
                             app:iconGravity="textStart"
                             android:enabled="@{vm.isLoggedIn}"
@@ -239,7 +242,7 @@
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             app:icon="@drawable/ingranagges"
-                            app:iconTint="@android:color/black"
+                            app:iconTint="@color/light_gray"
                             app:iconSize="30dp"
                             app:iconGravity="textStart"
                             android:enabled="@{vm.isLoggedIn}"
@@ -250,38 +253,63 @@
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
 
-                <!-- “I miei programmi” button -->
-                <Button
-                    android:id="@+id/UserProgram"
+                <!-- Row: I miei programmi + Progressi -->
+                <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="110dp"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
                     android:layout_marginTop="4dp"
-                    android:layout_marginHorizontal="16dp"
-                    app:strokeColor="@color/dark_gray"
-                    android:text="I miei programmi"
-                    android:textStyle="bold"
-                    android:textSize="15sp"
-                    android:backgroundTint="@color/orange"
-                    android:textColor="@color/black"
-                    android:enabled="@{vm.isLoggedIn}"
-                    android:alpha="@{vm.isLoggedIn ? 1f : 0.4f}"
-                    android:onClick="@{() -> navController.navigate(R.id.action_navigation_account_to_navigation_home)}" />
+                   >
 
-                <!-- Trainer’s “I TUOI ALLIEVI” -->
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/TrainerAllievs"
-                    android:layout_width="match_parent"
-                    android:layout_height="110dp"
-                    android:layout_marginHorizontal="16dp"
-                    android:visibility="@{vm.isTrainer ? View.VISIBLE : View.GONE}"
-                    style="@style/Widget.MaterialComponents.Button"
-                    app:shapeAppearanceOverlay="@style/ShapeAppearance.BottomRounded"
-                    android:backgroundTint="@color/green"
-                    android:text="I TUOI ALLIEVI"
-                    android:textStyle="bold"
-                    android:textSize="15sp"
-                    android:textColor="@color/black"
-                    android:onClick="@{() -> navController.navigate(R.id.action_navigation_account_to_navigation_allievi)}" />
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/UserProgram"
+                        android:layout_width="0dp"
+                        android:layout_height="110dp"
+                        android:layout_weight="1"
+                        app:icon="@drawable/trainer_schedule_button"
+                        app:iconTint="@color/black"
+                        app:iconSize="24dp"
+                        app:iconGravity="textTop"
+                        app:iconPadding="4dp"
+                        android:gravity="center"
+                        android:text="SCHEDE"
+                        android:textStyle="bold"
+                        android:textSize="15sp"
+                        android:backgroundTint="@color/purple_200"
+                        android:textColor="@color/black"
+                        android:enabled="@{vm.isLoggedIn}"
+                        android:alpha="@{vm.isLoggedIn ? 1f : 0.4f}"
+                        android:onClick="@{() -> navController.navigate(R.id.action_navigation_account_to_navigation_home)}"
+                        app:shapeAppearanceOverlay="@style/ShapeAppearance.LeftBottomRounded" />
+
+                    <Space
+                        android:layout_width="8dp"
+                        android:layout_height="match_parent" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/UserProgress"
+                        android:layout_width="0dp"
+                        android:layout_height="110dp"
+                        android:layout_weight="1"
+                        app:icon="@drawable/baseline_insights_24"
+                        app:iconTint="@color/black"
+                        app:iconSize="24dp"
+                        app:iconGravity="textTop"
+                        app:iconPadding="4dp"
+                        android:gravity="center"
+                        android:text="Progressi"
+                        android:textStyle="bold"
+                        android:textSize="15sp"
+                        android:backgroundTint="@color/purple_200"
+                        android:textColor="@color/black"
+                        android:onClick="@{() -> navController.navigate(R.id.action_navigation_account_to_progressionFragment)}"
+                        android:enabled="@{vm.isLoggedIn}"
+                        android:alpha="@{vm.isLoggedIn ? 1f : 0.4f}"
+
+                        app:shapeAppearanceOverlay="@style/ShapeAppearance.RightBottomRounded" />
+
+                </LinearLayout>
 
                 <!-- Reminder switch -->
                 <LinearLayout
@@ -313,6 +341,25 @@
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
+        <!-- Trainer’s “I TUOI ALLIEVI” -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/TrainerAllievs"
+            android:layout_width="match_parent"
+            android:layout_height="70dp"
+            android:visibility="@{vm.isTrainer ? View.VISIBLE : View.GONE}"
+            style="@style/Widget.MaterialComponents.Button"
+            app:cornerRadius="20dp"
+            android:backgroundTint="@color/green"
+            android:text="I TUOI ALLIEVI"
+            android:textStyle="bold"
+            android:textSize="15sp"
+            android:layout_marginHorizontal="52dp"
+            android:textColor="@color/black"
+            android:onClick="@{() -> navController.navigate(R.id.action_navigation_account_to_navigation_allievi)}"
+            app:layout_constraintTop_toBottomOf="@+id/cardButtons"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"/>
+
         <!-- ImageView per il QR (nascosto finché non viene generato) -->
         <ImageView
             android:id="@+id/imageViewQr"
@@ -341,6 +388,8 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="Logout"
+                android:backgroundTint="@color/light_gray"
+                android:textColor="@color/black"
                 android:visibility="@{vm.isLoggedIn ? View.VISIBLE : View.GONE}"
                 android:onClick="@{() -> vm.onSignOut(navController)}"
                 app:shapeAppearanceOverlay="@style/ShapeAppearance.Rounded" />
@@ -351,7 +400,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="LOGIN"
-                android:backgroundTint="@color/sky"
+                android:backgroundTint="@color/lapis"
                 android:visibility="@{vm.isLoggedIn ? View.GONE : View.VISIBLE}"
                 android:onClick="@{() -> vm.onLoginClick(navController)}"
                 app:shapeAppearanceOverlay="@style/ShapeAppearance.Rounded" />

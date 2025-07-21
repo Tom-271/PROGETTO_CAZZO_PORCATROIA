@@ -20,7 +20,6 @@ import com.example.progetto_tosa.R
 import com.example.progetto_tosa.databinding.FragmentStretchingBinding
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.card.MaterialCardView
-import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 

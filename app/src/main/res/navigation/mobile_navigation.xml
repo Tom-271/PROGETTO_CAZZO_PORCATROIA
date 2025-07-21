@@ -162,6 +162,12 @@
         <action
             android:id="@+id/action_navigation_account_to_navigation_loginWithEmail"
             app:destination="@id/navigation_loginWithEmail" />
+        <action
+            android:id="@+id/action_navigation_account_to_progressionFragment"
+            app:destination="@id/progressionFragment" />
+        <action
+            android:id="@+id/action_navigation_account_to_progressionFragment2"
+            app:destination="@id/progressionFragment" />
     </fragment>
 
     <fragment

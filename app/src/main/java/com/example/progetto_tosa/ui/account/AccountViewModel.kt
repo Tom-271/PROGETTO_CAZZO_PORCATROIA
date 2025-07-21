@@ -197,7 +197,7 @@ class AccountViewModel(application: Application) : AndroidViewModel(application)
         // Aggiorna colore bordo icona in base al ruolo
         iconStrokeColor.set(
             ColorStateList.valueOf(
-                ContextCompat.getColor(ctx, if (pt) R.color.green else R.color.orange)
+                ContextCompat.getColor(ctx, if (pt) R.color.green else R.color.lapis)
             )
         )
     }
