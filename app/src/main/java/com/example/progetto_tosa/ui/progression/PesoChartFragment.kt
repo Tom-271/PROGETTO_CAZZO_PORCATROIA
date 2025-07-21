@@ -23,8 +23,10 @@ class PesoChartFragment : Fragment(R.layout.fragment_chart_peso) {
     private lateinit var chart: LineChart
     private lateinit var vm: ProgressionViewModel
     private var targetLine: LimitLine? = null
+    private var currentEntries: List<BodyFatEntry> = emptyList()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
         chart = view.findViewById(R.id.chartPeso)
         vm = ViewModelProvider(requireParentFragment())[ProgressionViewModel::class.java]
 
@@ -40,61 +42,56 @@ class PesoChartFragment : Fragment(R.layout.fragment_chart_peso) {
         setPinchZoom(true)
         legend.isEnabled = false
         axisRight.isEnabled = false
+
         xAxis.position = XAxis.XAxisPosition.BOTTOM
         xAxis.setDrawGridLines(false)
         axisLeft.setDrawGridLines(true)
+
         xAxis.textColor = Color.LTGRAY
         axisLeft.textColor = Color.LTGRAY
-        setExtraOffsets(8f,16f,8f,16f)
+
+        setExtraOffsets(8f, 16f, 8f, 16f)
     }
 
     private fun observeData() {
         vm.bodyFatEntries.observe(viewLifecycleOwner) { list ->
-            updateChart(list)
+            currentEntries = list.filter { it.bodyWeightKg != null }
+            updateChart(currentEntries)
         }
     }
 
     private fun observeGoals() {
         vm.goals.observe(viewLifecycleOwner) { g ->
-            val target = g.targetLean?.toFloat() ?: return@observe
-            val yAxis = chart.axisLeft
-            targetLine?.let { yAxis.removeLimitLine(it) }
-            targetLine = LimitLine(target, "Target Weight").apply {
+            updateTargetLine(g.targetLean?.toFloat())
+            updateChart(currentEntries)
+        }
+    }
+
+    private fun updateTargetLine(target: Float?) {
+        targetLine?.let { chart.axisLeft.removeLimitLine(it) }
+        target?.let { targetValue ->
+            targetLine = LimitLine(targetValue, "Target Peso").apply {
                 lineWidth = 2f
                 textSize = 10f
                 lineColor = Color.GREEN
                 textColor = Color.GREEN
                 labelPosition = LimitLine.LimitLabelPosition.RIGHT_TOP
             }
-            yAxis.addLimitLine(targetLine)
-            chart.invalidate()
+            chart.axisLeft.addLimitLine(targetLine)
         }
-    }
-
-    private fun applyTargetLine() {
-        val target = vm.goals.value?.targetLean?.toFloat() ?: return
-        val yAxis = chart.axisLeft
-        // se fuori range axis verrà corretto in updateChart, ma se lo chiami dopo updateChart è ok
-        targetLine?.let { yAxis.removeLimitLine(it) }
-        targetLine = LimitLine(target, "Target Peso").apply {
-            lineWidth = 2f
-            textSize = 10f
-            lineColor = Color.GREEN
-            textColor = Color.GREEN
-            labelPosition = LimitLine.LimitLabelPosition.RIGHT_TOP
-        }
-        yAxis.addLimitLine(targetLine)
     }
 
     private fun updateChart(entries: List<BodyFatEntry>) {
-        val valid = entries.filter { it.bodyWeightKg != null }
-        if (valid.isEmpty()) {
+        if (entries.isEmpty()) {
             chart.clear()
+            chart.invalidate()
             return
         }
-        val sorted = valid.sortedBy { it.epochDay }
 
-        val pts = sorted.mapIndexed { i, e -> Entry(i.toFloat(), e.bodyWeightKg!!) }
+        val sorted = entries.sortedBy { it.epochDay }
+        val pts = sorted.mapIndexed { i, e ->
+            Entry(i.toFloat(), e.bodyWeightKg ?: 0f)
+        }
 
         val ds = LineDataSet(pts, "Peso (kg)").apply {
             axisDependency = YAxis.AxisDependency.LEFT
@@ -104,11 +101,11 @@ class PesoChartFragment : Fragment(R.layout.fragment_chart_peso) {
             lineWidth = 2f
             setDrawCircles(true)
             circleRadius = 3f
-            color = Color.CYAN
-            setCircleColor(Color.CYAN)
-            highLightColor = Color.MAGENTA
+            color = Color.WHITE
+            setCircleColor(Color.WHITE)
+            highLightColor = Color.YELLOW
             setDrawFilled(true)
-            fillColor = Color.parseColor("#3324B5FF")
+            fillColor = Color.parseColor("#33FFFFFF")
             fillAlpha = 60
         }
 
@@ -122,25 +119,25 @@ class PesoChartFragment : Fragment(R.layout.fragment_chart_peso) {
             }
         }
 
-        val minW = sorted.minOf { it.bodyWeightKg!! }
-        val maxW = sorted.maxOf { it.bodyWeightKg!! }
-        val target = vm.goals.value?.targetLean?.toFloat()
+        // Calcola la scala Y considerando anche la linea target
+        val maxWeight = sorted.maxOf { it.bodyWeightKg ?: 0f }
+        val minWeight = sorted.minOf { it.bodyWeightKg ?: 0f }
+        val targetWeight = vm.goals.value?.targetLean?.toFloat() ?: 0f
+        val maxYValue = maxOf(maxWeight + 5f, targetWeight + 5f)
+        val minYValue = minOf(minWeight - 5f, targetWeight - 5f).coerceAtLeast(0f)
 
-        var axisMin = (minW - 2f).coerceAtLeast(0f)
-        var axisMax = maxW + 2f
-        if (target != null) {
-            if (target < axisMin) axisMin = target - 1f
-            if (target > axisMax) axisMax = target + 1f
+        chart.axisLeft.apply {
+            axisMinimum = minYValue
+            axisMaximum = maxYValue
+            // Riaggiungi la linea target se esiste
+            targetLine?.let {
+                removeLimitLine(it)
+                addLimitLine(it)
+            }
         }
 
-        chart.axisLeft.axisMinimum = axisMin
-        chart.axisLeft.axisMaximum = axisMax
-
         chart.data = LineData(ds)
-
-        applyTargetLine()
-
-        chart.animateX(300)
+        chart.notifyDataSetChanged()
         chart.invalidate()
     }
 }

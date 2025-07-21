@@ -23,10 +23,11 @@ class BodyFatChartFragment : Fragment(R.layout.fragment_chart_bodyfat) {
     private lateinit var chart: LineChart
     private lateinit var vm: ProgressionViewModel
     private var targetLine: LimitLine? = null
+    private var currentEntries: List<BodyFatEntry> = emptyList()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
         chart = view.findViewById(R.id.chartBodyFat)
-        // ViewModel condiviso con il parent (ProgressionFragment)
         vm = ViewModelProvider(requireParentFragment())[ProgressionViewModel::class.java]
 
         setupChart()
@@ -41,45 +42,55 @@ class BodyFatChartFragment : Fragment(R.layout.fragment_chart_bodyfat) {
         setPinchZoom(true)
         legend.isEnabled = false
         axisRight.isEnabled = false
+
         xAxis.position = XAxis.XAxisPosition.BOTTOM
         xAxis.setDrawGridLines(false)
         axisLeft.setDrawGridLines(true)
+
         xAxis.textColor = Color.LTGRAY
         axisLeft.textColor = Color.LTGRAY
+
         setExtraOffsets(8f, 16f, 8f, 16f)
     }
 
     private fun observeData() {
         vm.bodyFatEntries.observe(viewLifecycleOwner) { list ->
+            currentEntries = list
             updateChart(list)
         }
     }
 
     private fun observeGoals() {
         vm.goals.observe(viewLifecycleOwner) { g ->
-            val target = g.targetFat?.toFloat() ?: return@observe
-            val yAxis = chart.axisLeft
-            targetLine?.let { yAxis.removeLimitLine(it) }
-            targetLine = LimitLine(target, "Target BF").apply {
+            // Rimuovi tutte le linee esistenti prima di aggiungere la nuova
+            chart.axisLeft.removeAllLimitLines()
+            updateTargetLine(g.targetFat?.toFloat())
+            updateChart(currentEntries)
+        }
+    }
+
+    private fun updateTargetLine(target: Float?) {
+        target?.let { targetValue ->
+            targetLine = LimitLine(targetValue, "Target BF").apply {
                 lineWidth = 2f
                 textSize = 10f
                 lineColor = Color.GREEN
                 textColor = Color.GREEN
                 labelPosition = LimitLine.LimitLabelPosition.RIGHT_TOP
             }
-            yAxis.addLimitLine(targetLine)
+            chart.axisLeft.addLimitLine(targetLine)
             chart.invalidate()
         }
     }
 
-
     private fun updateChart(entries: List<BodyFatEntry>) {
         if (entries.isEmpty()) {
             chart.clear()
+            chart.invalidate()
             return
         }
-        val sorted = entries.sortedBy { it.epochDay }
 
+        val sorted = entries.sortedBy { it.epochDay }
         val pts = sorted.mapIndexed { i, e -> Entry(i.toFloat(), e.bodyFatPercent) }
 
         val ds = LineDataSet(pts, "BodyFat %").apply {
@@ -108,14 +119,25 @@ class BodyFatChartFragment : Fragment(R.layout.fragment_chart_bodyfat) {
             }
         }
 
-        // Range dinamico
+        // Calcola la scala Y considerando anche la linea target
         val maxBf = sorted.maxOf { it.bodyFatPercent }
-        chart.axisLeft.axisMinimum = 0f
-        chart.axisLeft.axisMaximum = (maxBf + 5f).coerceAtLeast(30f)
+        val targetBf = vm.goals.value?.targetFat?.toFloat() ?: 0f
+        val maxYValue = maxOf(maxBf + 5f, targetBf + 5f).coerceAtLeast(30f)
+
+        chart.axisLeft.apply {
+            axisMinimum = 0f
+            axisMaximum = maxYValue
+        }
+
+        // Riaggiungi la linea target se esiste
+        vm.goals.value?.targetFat?.toFloat()?.let { currentTarget ->
+            if (targetLine == null || targetLine?.limit != currentTarget) {
+                updateTargetLine(currentTarget)
+            }
+        }
 
         chart.data = LineData(ds)
-
-        chart.animateX(300)
+        chart.notifyDataSetChanged()
         chart.invalidate()
     }
 }

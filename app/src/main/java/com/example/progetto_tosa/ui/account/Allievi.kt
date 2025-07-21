@@ -4,11 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.EditText
-import android.widget.ImageButton
-import android.widget.LinearLayout
-import android.widget.TextView
-import android.widget.Toast
+import android.widget.*
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.DividerItemDecoration
@@ -46,6 +42,7 @@ class Allievi : Fragment() {
             return
         }
 
+        // Carica utenti e poi filtra gli atleti del PT
         db.collection("users").get()
             .addOnSuccessListener { usersSnap ->
                 val usersMap = usersSnap.documents.associate { doc ->
@@ -75,20 +72,16 @@ class Allievi : Fragment() {
                         if (list.isEmpty()) {
                             Toast.makeText(requireContext(), "Non hai ancora atleti.", Toast.LENGTH_SHORT).show()
                         }
-                        recycler.adapter = AthletesAdapter(
-                            db = db,
-                            athletes = list,
-                            onAthleteClick = { user ->
-                                val bundle = Bundle().apply {
-                                    putString("selectedUser", "${user.firstName} ${user.lastName}")
-                                    putString("athleteUid", user.uid)
-                                }
-                                findNavController().navigate(
-                                    R.id.action_navigation_allievi_to_navigation_ptSchedule,
-                                    bundle
-                                )
+                        recycler.adapter = AthletesAdapter(db, list) { user ->
+                            val bundle = Bundle().apply {
+                                putString("selectedUser", "${user.firstName} ${user.lastName}")
+                                putString("athleteUid", user.uid)
                             }
-                        )
+                            findNavController().navigate(
+                                R.id.action_navigation_allievi_to_navigation_ptSchedule,
+                                bundle
+                            )
+                        }
                     }
                     .addOnFailureListener { e ->
                         Toast.makeText(requireContext(), "Errore atleti: ${e.message}", Toast.LENGTH_SHORT).show()
@@ -139,18 +132,18 @@ class Allievi : Fragment() {
             fun bind(u: User) {
                 currentUid = u.uid
                 val fullName = "${u.firstName} ${u.lastName}".trim()
-                tvTitle.text = "${u.nickname} - $fullName".trim().replace(Regex("^ - "), "")
+                tvTitle.text = "${u.nickname} - $fullName".replace(Regex("^ - "), "")
                 tvEmail.text = "Email: ${u.email}"
                 tvBirth.text = "Data di nascita: ${u.birthday}"
                 tvHeight.text = "Altezza: ${u.height}"
                 tvWeight.text = "Peso attuale: ${u.weight}"
-                tvBodyFat.text = "Body Fat attuale: ${u.bodyFat?.let { "${it} %" } ?: "-"}"
+                tvBodyFat.text = "Body Fat attuale: ${u.bodyFat?.let { "$it %" } ?: "-"}"
 
                 tvTitle.setOnClickListener { onAthleteClick(u) }
                 itemView.setOnClickListener { onAthleteClick(u) }
 
-                val fatText = u.targetFat?.toString() ?: ""
-                val leanText = u.targetLean?.toString() ?: ""
+                val fatText = u.targetFat?.toString().orEmpty()
+                val leanText = u.targetLean?.toString().orEmpty()
                 if (etTargetFat.text.toString() != fatText) etTargetFat.setText(fatText)
                 if (etTargetLean.text.toString() != leanText) etTargetLean.setText(leanText)
                 originalFat = fatText
@@ -206,11 +199,12 @@ class Allievi : Fragment() {
 
                 btnSave.isEnabled = false
 
+                // Correggo il campo per il target magro: deve essere "targetLeanMass"
                 db.collection("users").document(u.uid)
                     .update(
                         mapOf(
                             "targetFatMass" to fatVal,
-                            "targetWeight" to leanVal
+                            "targetLeanMass" to leanVal
                         )
                     )
                     .addOnSuccessListener {

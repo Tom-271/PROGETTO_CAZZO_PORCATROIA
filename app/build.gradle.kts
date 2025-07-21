@@ -45,7 +45,6 @@ android {
 }
 
 dependencies {
-
     /* --- Desugaring --- */
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.4")
 
@@ -96,6 +95,9 @@ dependencies {
     /* --- ZXing --- */
     implementation("com.journeyapps:zxing-android-embedded:4.3.0")
     implementation("com.google.zxing:core:3.4.1")
+
+    /* --- Swipe-to-refresh --- */
+    implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
 
     /* --- Test --- */
     testImplementation(libs.junit)
