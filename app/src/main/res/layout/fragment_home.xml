@@ -385,5 +385,34 @@
         app:iconTint="@android:color/black"
         app:iconPadding="8dp"
         app:iconGravity="textStart"
+        android:shadowColor="@color/white"
+        android:shadowRadius="2"
         app:backgroundTint="@color/yellow"/>
+
+    <LinearLayout
+        android:id="@+id/buttonForChatGPT"
+        android:layout_width="72dp"
+        android:layout_height="72dp"
+        android:layout_gravity="bottom|start"
+        android:layout_margin="16dp"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:background="@drawable/ai_message"
+        android:padding="12dp"
+        android:clickable="true"
+        android:focusable="true">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:text="AI"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:layout_marginStart="10dp"
+
+            android:textColor="@color/black"/>
+    </LinearLayout>
+
+
 </FrameLayout>

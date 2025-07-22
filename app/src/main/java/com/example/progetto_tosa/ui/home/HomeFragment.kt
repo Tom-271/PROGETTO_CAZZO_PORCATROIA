@@ -3,17 +3,19 @@ package com.example.progetto_tosa.ui.home
 import android.content.Context
 import android.content.res.ColorStateList
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.core.view.isVisible   // assicurati di avere questo import
+
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import com.example.progetto_tosa.R
 import com.example.progetto_tosa.databinding.FragmentHomeBinding
+import com.example.progetto_tosa.chat.* // ChatOverlay, ChatViewModel, ChatVMFactory, ChatRepository, Secrets
 import com.google.android.gms.tasks.Tasks
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
@@ -29,9 +31,12 @@ class HomeFragment : Fragment() {
 
     private val auth = FirebaseAuth.getInstance()
     private val db = FirebaseFirestore.getInstance()
-    private val TAG = "HomeFragment"
 
     private var currentDate = Date()
+
+    // Chat
+    private lateinit var chatOverlay: ChatOverlay
+    private lateinit var chatVM: ChatViewModel
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -44,6 +49,20 @@ class HomeFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        /* -------- CHAT SETUP -------- */
+        val repo = ChatRepository.create(apiKey = Secrets.GEMINI_KEY)
+        chatVM = ViewModelProvider(this, ChatVMFactory(repo))[ChatViewModel::class.java]
+        chatOverlay = ChatOverlay(view as ViewGroup, chatVM, viewLifecycleOwner).apply {
+            // aggiungi toggle nel modulo se non l'hai già fatto
+            // fun toggle() { if (overlayRoot.isVisible) hide() else show() }
+        }
+        binding.buttonForChatGPT.setOnClickListener {
+            // se hai implementato toggle():
+            chatOverlay.toggle()
+        }
+        /* ---------------------------- */
+
 
         setupBannerDate()
         binding.fabBannerStatus.hide()
@@ -87,8 +106,8 @@ class HomeFragment : Fragment() {
         binding.Myprogression.setOnClickListener {
             findNavController().navigate(R.id.action_navigation_home_to_progressionFragment)
         }
-
     }
+
 
     private fun setupBannerDate() {
         val dayNameFmt = SimpleDateFormat("EEEE", Locale.getDefault())
@@ -152,9 +171,7 @@ class HomeFragment : Fragment() {
 
         binding.buttonForTheScheduleIDid.setOnClickListener {
             val selectedDate = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(currentDate)
-            val bundle = Bundle().apply {
-                putString("selectedDate", selectedDate)
-            }
+            val bundle = Bundle().apply { putString("selectedDate", selectedDate) }
             findNavController().navigate(
                 R.id.action_navigation_home_to_fragment_my_auto_schedule,
                 bundle
@@ -184,11 +201,12 @@ class HomeFragment : Fragment() {
         binding.buttonForTheSchedulePersonalTrainerDid.visibility = View.GONE
 
         binding.buttonForPersonalTrainer.setOnClickListener {
-            val today = java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.getDefault()).format(java.util.Date())
-            val bundle = Bundle().apply {
-                putString("selectedDate", today)
-            }
-            findNavController().navigate(R.id.action_navigation_home_to_fragment_my_auto_schedule, bundle)
+            val today = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
+            val bundle = Bundle().apply { putString("selectedDate", today) }
+            findNavController().navigate(
+                R.id.action_navigation_home_to_fragment_my_auto_schedule,
+                bundle
+            )
         }
     }
 
