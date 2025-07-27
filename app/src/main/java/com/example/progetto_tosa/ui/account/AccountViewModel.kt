@@ -30,7 +30,8 @@ class AccountViewModel(application: Application) : AndroidViewModel(application)
     private val ctx: Context get() = getApplication()
 
     // --- Observable properties for DataBinding ---
-    val displayName     = ObservableField("Effettua il login")
+    val displayName     = ObservableField("Utente non loggato")
+    val nickname        = ObservableField("")
     val roleText        = ObservableField("")
     val iconStrokeColor = ObservableField(
         ColorStateList.valueOf(ContextCompat.getColor(ctx, R.color.yellow))
@@ -67,7 +68,8 @@ class AccountViewModel(application: Application) : AndroidViewModel(application)
             isTrainer.set(false)
             reminderEnabled.set(false)
             showSettings.set(false)
-            displayName.set("Effettua il login")
+            displayName.set("Utente non Loggato")
+            nickname.set("")                              // <--- clear nickname
             roleText.set("")
             iconStrokeColor.set(
                 ColorStateList.valueOf(ContextCompat.getColor(ctx, R.color.yellow))
@@ -113,13 +115,16 @@ class AccountViewModel(application: Application) : AndroidViewModel(application)
      */
     fun updateUI() {
         if (alreadyInitialized) return
+
         val user = auth.currentUser
         if (user == null) {
             preloadFromPrefs()
             alreadyInitialized = true
             return
         }
+
         val uid = user.uid
+
         // 1) Try PT node
         db.collection("personal_trainers").document(uid).get()
             .addOnSuccessListener { ptDoc ->
@@ -127,6 +132,7 @@ class AccountViewModel(application: Application) : AndroidViewModel(application)
                     bindData(
                         ptDoc.getString("firstName"),
                         ptDoc.getString("lastName"),
+                        ptDoc.getString("nickname"),             // <--- read nickname
                         ptDoc.getBoolean("isPersonalTrainer") == true
                     )
                     alreadyInitialized = true
@@ -138,6 +144,7 @@ class AccountViewModel(application: Application) : AndroidViewModel(application)
                                 bindData(
                                     doc.getString("firstName"),
                                     doc.getString("lastName"),
+                                    doc.getString("nickname"),       // <--- read nickname
                                     doc.getBoolean("isPersonalTrainer") == true
                                 )
                             } else {
@@ -157,17 +164,30 @@ class AccountViewModel(application: Application) : AndroidViewModel(application)
             }
     }
 
-    /** Bind retrieved Firestore data into observables */
-    private fun bindData(first: String?, last: String?, pt: Boolean) {
+    /**
+     * Bind retrieved Firestore data into observables
+     */
+    private fun bindData(
+        first: String?,
+        last: String?,
+        nick: String?,
+        pt: Boolean
+    ) {
+        // Full name or email fallback
         val name = if (!first.isNullOrBlank()) "$first ${last.orEmpty()}"
         else auth.currentUser?.email.orEmpty()
+
         displayName.set(name)
+        nickname.set(nick.orEmpty())                           // <--- set nickname
         roleText.set(if (pt) "Personal Trainer" else "Atleta")
         isTrainer.set(pt)
         isLoggedIn.set(true)
 
+        // Save to SharedPreferences
         ctx.getSharedPreferences("user_data", Context.MODE_PRIVATE)
-            .edit().putString("saved_display_name", name)
+            .edit()
+            .putString("saved_display_name", name)
+            .putString("saved_nickname", nick)
             .putBoolean("is_trainer", pt)
             .apply()
 
@@ -181,9 +201,12 @@ class AccountViewModel(application: Application) : AndroidViewModel(application)
     private fun preloadFromPrefs() {
         val prefs = ctx.getSharedPreferences("user_data", Context.MODE_PRIVATE)
         val name  = prefs.getString("saved_display_name", null)
+        val nick  = prefs.getString("saved_nickname", null)
         val pt    = prefs.getBoolean("is_trainer", false)
+
         if (!name.isNullOrBlank()) {
             displayName.set(name)
+            nickname.set(nick.orEmpty())
             roleText.set(if (pt) "Personal Trainer" else "Atleta")
             isTrainer.set(pt)
             isLoggedIn.set(true)
@@ -193,12 +216,14 @@ class AccountViewModel(application: Application) : AndroidViewModel(application)
                 )
             )
         } else {
-            displayName.set("Effettua il login")
+            // Not logged in
+            displayName.set("Utente non Loggato")
+            nickname.set("")
             roleText.set("")
             isTrainer.set(false)
             isLoggedIn.set(false)
             iconStrokeColor.set(
-                ColorStateList.valueOf(ContextCompat.getColor(ctx, R.color.yellow))
+                ColorStateList.valueOf(ContextCompat.getColor(ctx, R.color.purple_200))
             )
         }
     }
@@ -209,16 +234,18 @@ class AccountViewModel(application: Application) : AndroidViewModel(application)
                 ctx, android.Manifest.permission.POST_NOTIFICATIONS
             ) != PackageManager.PERMISSION_GRANTED
         ) {
-            // gestito dal Fragment
+            // handled by Fragment
         } else scheduleNotifications()
     }
 
     private fun scheduleNotifications() {
-        scheduleNotification(10, 0, 1,
+        scheduleNotification(
+            10, 0, 1,
             "Buongiorno!", "Ricordati di bere abbastanza acqua durante la giornata.",
             "morningNotification"
         )
-        scheduleNotification(18, 0, 2,
+        scheduleNotification(
+            18, 0, 2,
             "È ora di allenarsi!", "Non saltare la tua scheda di oggi 💪",
             "eveningNotification"
         )
@@ -247,6 +274,7 @@ class AccountViewModel(application: Application) : AndroidViewModel(application)
             .setInitialDelay(delay, TimeUnit.MILLISECONDS)
             .setInputData(input)
             .build()
+
         WorkManager.getInstance(ctx)
             .enqueueUniquePeriodicWork(workName, ExistingPeriodicWorkPolicy.REPLACE, req)
     }

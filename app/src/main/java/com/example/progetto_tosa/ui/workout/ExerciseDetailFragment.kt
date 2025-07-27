@@ -1,6 +1,5 @@
 package com.example.progetto_tosa.ui.workout
 
-import android.content.Context
 import android.graphics.Color
 import android.graphics.drawable.ShapeDrawable
 import android.graphics.drawable.shapes.OvalShape
@@ -19,7 +18,6 @@ import android.widget.TextView
 import android.content.Intent
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.DialogFragment
-import androidx.fragment.app.FragmentActivity
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
 import com.example.progetto_tosa.R

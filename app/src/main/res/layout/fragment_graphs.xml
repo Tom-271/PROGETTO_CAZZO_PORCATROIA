@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="16dp">
+
+    <!-- Titolo -->
+    <TextView
+        android:id="@+id/titoloForGraphs"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="PERCENTUALE MASSA GRASSA RAGGIUNTA:"
+        android:textSize="14sp"
+        android:textStyle="bold"
+        android:textColor="@color/lapis"
+        android:gravity="start"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- Valore attuale BF% -->
+    <TextView
+        android:id="@+id/tvCurrentBfValue"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="— %"
+        android:textSize="40sp"
+        android:textStyle="bold"
+        android:textColor="@color/white"
+        app:layout_constraintTop_toBottomOf="@id/titoloForGraphs"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginTop="8dp" />
+
+    <!-- Data ultima registrazione -->
+    <TextView
+        android:id="@+id/tvCurrentBfDate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="—/—/—"
+        android:textSize="14sp"
+        android:textColor="@android:color/darker_gray"
+        app:layout_constraintTop_toBottomOf="@id/tvCurrentBfValue"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginTop="4dp" />
+
+    <!-- Fragment grafico -->
+    <FrameLayout
+        android:id="@+id/fragment_graphs_container"
+        android:layout_width="0dp"
+        android:layout_height="220dp"
+        android:layout_marginTop="16dp"
+        android:background="@color/dark_gray"
+        app:layout_constraintTop_toBottomOf="@id/tvCurrentBfDate"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- Etichetta asse X -->
+    <TextView
+        android:id="@+id/ascisse"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="Giorno (gg/mm)"
+        android:textSize="12sp"
+        android:textColor="@android:color/white"
+        app:layout_constraintTop_toBottomOf="@id/fragment_graphs_container"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- Card BodyFat -->
+    <androidx.cardview.widget.CardView
+        android:id="@+id/cardInsertBodyFat"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        android:layout_margin="6dp"
+        app:cardCornerRadius="30dp"
+        app:cardBackgroundColor="@color/dark_gray"
+        android:layout_gravity="bottom"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/panelInsertBodyFat"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="12dp">
+
+            <!-- Titolo -->
+            <TextView
+                android:id="@+id/tvTitleBodyFat"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Inserisci il tuo BF in data:"
+                android:textSize="28sp"
+                android:textStyle="bold|italic"
+                android:textColor="@color/purple_200"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent" />
+
+            <!-- Data ("Oggi") -->
+            <TextView
+                android:id="@+id/tvSelectedDate"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Oggi"
+                android:textStyle="bold"
+                android:textSize="18sp"
+                android:textColor="@android:color/white"
+                app:layout_constraintTop_toBottomOf="@id/tvTitleBodyFat"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                android:layout_marginTop="4dp" />
+
+            <!-- Campo input -->
+            <EditText
+                android:id="@+id/etBodyFatInput"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:hint="%"
+                android:inputType="numberDecimal"
+                android:maxLines="1"
+                android:gravity="center_horizontal"
+                android:imeOptions="actionDone"
+                android:textColor="@android:color/white"
+                android:textColorHint="@android:color/darker_gray"
+                android:backgroundTint="@color/lapis"
+                app:layout_constraintTop_toBottomOf="@id/tvSelectedDate"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent" />
+
+            <!-- Pulsanti allineati in riga -->
+            <ImageButton
+                android:id="@+id/btnPickDate"
+                android:layout_width="0dp"
+                android:layout_height="40dp"
+                android:layout_marginTop="16dp"
+                android:layout_marginEnd="4dp"
+                android:contentDescription="Seleziona data"
+                android:src="@android:drawable/ic_menu_my_calendar"
+                android:backgroundTint="@color/lapis"
+                app:layout_constraintTop_toBottomOf="@id/etBodyFatInput"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toStartOf="@id/btnSaveBodyFat" />
+
+            <ImageButton
+                android:id="@+id/btnSaveBodyFat"
+                android:layout_width="0dp"
+                android:layout_height="40dp"
+                android:layout_marginTop="16dp"
+                android:layout_marginStart="4dp"
+                android:contentDescription="Salva bodyfat"
+                android:src="@android:drawable/ic_menu_save"
+                android:backgroundTint="@color/lapis"
+                app:layout_constraintTop_toBottomOf="@id/etBodyFatInput"
+                app:layout_constraintStart_toEndOf="@id/btnPickDate"
+                app:layout_constraintEnd_toEndOf="parent" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.cardview.widget.CardView>
+
+    <!-- Bottone Aggiungi -->
+    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+        android:id="@+id/efabAggiungi"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Aggiungi"
+        android:textAllCaps="true"
+        android:layout_margin="16dp"
+        android:gravity="center"
+        android:backgroundTint="@color/lapis"
+        android:textColor="@android:color/white"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

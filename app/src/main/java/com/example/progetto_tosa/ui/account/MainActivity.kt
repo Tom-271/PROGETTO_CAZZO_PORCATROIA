@@ -1,43 +1,34 @@
 package com.example.progetto_tosa.ui.account
 
 import android.Manifest
-import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
-import android.view.View
-import android.view.WindowInsets
-import android.view.WindowInsetsController
+import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import androidx.core.view.WindowCompat
-import com.example.progetto_tosa.R
-import com.example.progetto_tosa.databinding.ActivityMainBinding
-import com.google.android.material.bottomnavigation.BottomNavigationView
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
-import androidx.core.app.NotificationCompat
-import androidx.core.app.NotificationManagerCompat
-import android.app.NotificationChannel
-import android.app.NotificationManager
+import com.example.progetto_tosa.R
+import com.example.progetto_tosa.databinding.ActivityMainBinding
+import com.example.progetto_tosa.workers.NotificationUtils
+import com.example.progetto_tosa.workers.WeightReminderScheduler
+import com.google.android.material.bottomnavigation.BottomNavigationView
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
-    private val CHANNEL_ID = "default_channel"
-    private val notificationId = 1
+    private val REQUEST_NOTIF = 100
 
     override fun onCreate(savedInstanceState: Bundle?) {
-
-        //imposta tema scuro o chiaro
+        // Tema
         val prefs = getSharedPreferences("settings", MODE_PRIVATE)
-        val isDarkMode = prefs.getBoolean("darkMode", true)
         AppCompatDelegate.setDefaultNightMode(
-            if (isDarkMode) AppCompatDelegate.MODE_NIGHT_YES
+            if (prefs.getBoolean("darkMode", true)) AppCompatDelegate.MODE_NIGHT_YES
             else AppCompatDelegate.MODE_NIGHT_NO
         )
 
@@ -45,41 +36,38 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        //setup BottomNavigationView e NavController
+        // Nav
         val navView: BottomNavigationView = binding.navView
         val navController = findNavController(R.id.nav_host_fragment_activity_main)
         val appBarConfiguration = AppBarConfiguration(
             setOf(
                 R.id.navigation_home,
-                R.id.navigation_workout     //in questa sezione sto praticamnete selezionando i framgnet "permanentni", coloro che nella toolbar non hanno la freccia per tornare indietro al precedente
-            )                               //per esempio qui prima c'era cronofragment ma non aveva senso perche se ero nella scheda giornaliera e aprivo il cronometro dovevo fare il giro largo per tornare alla shceda
+                R.id.navigation_workout
+            )
         )
         setupActionBarWithNavController(navController, appBarConfiguration)
         navView.setupWithNavController(navController)
 
-        //gestisce selezione manuale
-        navView.setOnItemSelectedListener { item ->
+        navView.setOnItemSelectedListener { item: MenuItem ->
             when (item.itemId) {
-                R.id.navigation_home      -> { navController.navigate(R.id.navigation_home); true }
-                R.id.navigation_workout   -> { navController.navigate(R.id.fragment_workout); true }
-                R.id.navigation_cronotimer-> { navController.navigate(R.id.navigation_cronotimer); true }
-                R.id.navigation_account   -> { navController.navigate(R.id.navigation_account); true }
-                else                      -> false
+                R.id.navigation_home        -> { navController.navigate(R.id.navigation_home); true }
+                R.id.navigation_workout     -> { navController.navigate(R.id.fragment_workout); true }
+                R.id.navigation_cronotimer  -> { navController.navigate(R.id.navigation_cronotimer); true }
+                R.id.navigation_account     -> { navController.navigate(R.id.navigation_account); true }
+                else -> false
             }
         }
 
-        //se l'Intent contiene "navigateTo" = "account", seleziona Account
-        intent.getStringExtra("navigateTo")?.let { dest ->
-            if (dest == "account") {
-                //imposta il bottom nav sulla voce Account
-                navView.selectedItemId = R.id.navigation_account
-            }
-        }
+        // Deep link dalla notifica
+        intent.getStringExtra("navigateTo")?.let { if (it == "account") navView.selectedItemId = R.id.navigation_account }
 
-        //notifiche
-        createNotificationChannel()
-        requestNotificationPermission()
-        sendNotification()
+        // Notifiche
+        NotificationUtils.createNotificationChannel(this)
+        askPostNotificationPermissionIfNeeded()
+        // Schedula solo se abbiamo (o non serve) il permesso
+        if (NotificationUtils.canPostNotifications(this)) {
+            WeightReminderScheduler.scheduleDaily(this, hour = 17, minute = 0)
+        }
     }
 
     override fun onSupportNavigateUp(): Boolean {
@@ -87,54 +75,30 @@ class MainActivity : AppCompatActivity() {
         return navController.navigateUp() || super.onSupportNavigateUp()
     }
 
-    private fun createNotificationChannel() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val name = "Notification Channel"
-            val descriptionText = "Channel for notifications"
-            val importance = NotificationManager.IMPORTANCE_HIGH
-            val channel = NotificationChannel(CHANNEL_ID, name, importance).apply {
-                description = descriptionText
-            }
-            val notificationManager =
-                getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-            notificationManager.createNotificationChannel(channel)
-        }
-    }
-
-    private fun requestNotificationPermission() {
+    private fun askPostNotificationPermissionIfNeeded() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
-            ActivityCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS)
+            ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS)
             != PackageManager.PERMISSION_GRANTED
         ) {
             ActivityCompat.requestPermissions(
                 this,
                 arrayOf(Manifest.permission.POST_NOTIFICATIONS),
-                0
+                REQUEST_NOTIF
             )
         }
     }
 
-    private fun sendNotification() {
-        val builder = NotificationCompat.Builder(this, CHANNEL_ID)
-            .setSmallIcon(R.drawable.ic_notification)
-            .setContentTitle("Notifica di prova")
-            .setContentText("Benvenuto nell'app!")
-            .setPriority(NotificationCompat.PRIORITY_HIGH)
-
-        if (ActivityCompat.checkSelfPermission(
-                this,
-                Manifest.permission.POST_NOTIFICATIONS
-            ) == PackageManager.PERMISSION_GRANTED
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == REQUEST_NOTIF &&
+            grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED
         ) {
-            NotificationManagerCompat.from(this).notify(notificationId, builder.build())
-        }
-    }
-
-    private fun deleteNotificationChannel() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val notificationManager =
-                getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-            notificationManager.deleteNotificationChannel(CHANNEL_ID)
+            // Ora che il permesso è concesso, schedula
+            WeightReminderScheduler.scheduleDaily(this, 20, 0)
         }
     }
 }

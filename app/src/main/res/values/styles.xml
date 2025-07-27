@@ -26,6 +26,19 @@
         <item name="android:windowNoTitle">true</item>
     </style>
 
+    <!-- Neumorphic-style per tutte le Card -->
+    <style name="NeumorphicCard" parent="Widget.MaterialComponents.CardView">
+        <!-- Angoli morbidi -->
+        <item name="cardCornerRadius">24dp</item>
+        <!-- Elevazione leggera per ombra soft -->
+        <item name="cardElevation">8dp</item>
+        <!-- Usa padding compatibile per l’ombreggiatura -->
+        <item name="cardUseCompatPadding">true</item>
+        <!-- Disabilita animazione elevation default su MaterialCardView -->
+        <item name="android:stateListAnimator">@null</item>
+        <!-- Sfondo trasparente: ci pensa il drawable di background -->
+        <item name="android:backgroundTint">@android:color/transparent</item>
+    </style>
 
     <!-- ShapeAppearance con angoli piccoli -->
     <style name="ShapeAppearance.FabSmall" parent="">

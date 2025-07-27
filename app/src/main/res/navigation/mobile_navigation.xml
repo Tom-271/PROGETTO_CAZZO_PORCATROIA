@@ -54,6 +54,20 @@
         </action>
     </fragment>
 
+    <fragment
+        android:id="@+id/graphsFragment"
+        android:name="com.example.progetto_tosa.ui.progression.GraphsFragment"
+        tools:layout="@layout/fragment_graphs">
+        <!-- qui dichiari l'argomento -->
+        <argument
+            android:name="graphType"
+            app:argType="string" />
+    </fragment>
+
+
+
+
+
     <!-- Workout container -->
     <fragment
         android:id="@+id/fragment_workout"
@@ -350,6 +364,10 @@
         android:id="@+id/progressionFragment"
         android:name="com.example.progetto_tosa.ui.progression.ProgressionFragment"
         android:label="I miei progressi"
-        tools:layout="@layout/fragment_progression" />
+        tools:layout="@layout/fragment_progression" >
+        <action
+            android:id="@+id/action_progressionFragment_to_graphsFragment"
+            app:destination="@id/graphsFragment" />
+    </fragment>
 
 </navigation>

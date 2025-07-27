@@ -19,220 +19,208 @@
             android:text="SELEZIONA L'ALLENAMENTO!"
             android:layout_marginTop="30dp"
             android:textColor="@color/sky"
-            android:textSize="20sp"
+            android:textSize="26sp"
             android:textStyle="bold"
             android:paddingTop="16dp"
             android:paddingBottom="16dp"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"/>
-
-        <!-- Flow: dispone le 4 card in 2 colonne×2 righe con gap omogenei -->
-        <androidx.constraintlayout.helper.widget.Flow
-            android:id="@+id/flow"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            app:constraint_referenced_ids="btnItem4,btnItem3,btnItem1,btnItem2"
-            app:flow_wrapMode="chain"
-            app:flow_maxElementsWrap="2"
-            app:flow_horizontalGap="8dp"
-            app:flow_verticalGap="8dp"
-            app:layout_constraintTop_toBottomOf="@id/titoloMain"
-            app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent" />
 
-        <!-- CARD: STRETCHING -->
-        <com.google.android.material.card.MaterialCardView
-            android:id="@+id/btnItem4"
-            android:layout_width="0dp"
-            android:layout_height="250dp"
-            android:clickable="true"
-            android:focusable="true"
-            app:cardCornerRadius="20dp"
-            app:strokeWidth="1dp"
-            app:strokeColor="@color/dark_gray"
-            app:cardBackgroundColor="@android:color/transparent">
-
-            <ImageButton
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:scaleType="centerCrop"
-                android:background="@drawable/stretching"
-                android:contentDescription="STRETCHING"
-                android:clickable="false"
-                android:focusable="false" />
-
-            <FrameLayout
-                android:layout_width="match_parent"
-                android:layout_height="100dp"
-                android:alpha="0.6"
-                android:layout_gravity="center_vertical"
-                android:background="@color/dark_gray">
-
-                <View
-                    android:id="@+id/separatorStretching"
-                    android:layout_width="120dp"
-                    android:layout_height="2dp"
-                    android:layout_gravity="top|center_horizontal"
-                    android:layout_marginTop="80dp"
-                    android:background="@color/light_gray" />
-            </FrameLayout>
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:gravity="center"
-                android:text="STRETCHING"
-                android:textColor="@android:color/white"
-                android:letterSpacing="0.1"
-                android:textSize="18sp"
-                android:textStyle="bold" />
-        </com.google.android.material.card.MaterialCardView>
-
-        <!-- CARD: CARDIO -->
-        <com.google.android.material.card.MaterialCardView
-            android:id="@+id/btnItem3"
-            android:layout_width="0dp"
-            android:layout_height="250dp"
-            android:clickable="true"
-            android:focusable="true"
-            app:cardCornerRadius="20dp"
-            app:strokeWidth="1dp"
-            app:strokeColor="@color/dark_gray"
-            app:cardBackgroundColor="@android:color/transparent">
-
-            <ImageButton
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:scaleType="centerCrop"
-                android:background="@drawable/cardio"
-                android:contentDescription="CARDIO"
-                android:clickable="false"
-                android:focusable="false" />
-
-            <FrameLayout
-                android:layout_width="match_parent"
-                android:layout_height="100dp"
-                android:alpha="0.6"
-                android:layout_gravity="center_vertical"
-                android:background="@color/dark_gray">
-
-                <View
-                    android:id="@+id/separatorCardio"
-                    android:layout_width="120dp"
-                    android:layout_height="2dp"
-                    android:layout_gravity="top|center_horizontal"
-                    android:layout_marginTop="80dp"
-                    android:background="@color/light_gray" />
-            </FrameLayout>
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:gravity="center"
-                android:text="CARDIO"
-                android:letterSpacing="0.1"
-                android:textColor="@android:color/white"
-                android:textSize="18sp"
-                android:textStyle="bold" />
-        </com.google.android.material.card.MaterialCardView>
-
-        <!-- CARD: PESI -->
+        <!-- 1ª RIGA: SINISTRA (icona a SINISTRA) -->
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/btnItem1"
             android:layout_width="0dp"
-            android:layout_height="250dp"
+            android:layout_height="120dp"
             android:clickable="true"
             android:focusable="true"
-            app:cardCornerRadius="20dp"
-            app:strokeWidth="1dp"
-            app:strokeColor="@color/dark_gray"
-            app:cardBackgroundColor="@android:color/transparent">
+            style="@style/MyRightRoundedButton"
+            app:cardBackgroundColor="@color/dark_gray"
+            app:layout_constraintTop_toBottomOf="@id/titoloMain"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0"
+            app:layout_constraintWidth_percent="0.8">
 
-            <ImageButton
+            <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:scaleType="centerCrop"
-                android:background="@drawable/manubrio"
-                android:contentDescription="PESI"
-                android:clickable="false"
-                android:focusable="false" />
+                android:padding="16dp">
 
-            <FrameLayout
-                android:layout_width="match_parent"
-                android:layout_height="100dp"
-                android:alpha="0.6"
-                android:layout_gravity="center_vertical"
-                android:background="@color/dark_gray">
+                <ImageView
+                    android:id="@+id/iconPesi"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:src="@drawable/pesimanichino"
+                    android:contentDescription="Icona PESI"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"/>
 
-                <View
-                    android:id="@+id/separatorPesi"
-                    android:layout_width="120dp"
-                    android:layout_height="2dp"
-                    android:layout_gravity="top|center_horizontal"
-                    android:layout_marginTop="80dp"
-                    android:background="@color/light_gray" />
-            </FrameLayout>
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:gravity="center"
-                android:text="PESI"
-                android:letterSpacing="0.1"
-                android:textColor="@android:color/white"
-                android:textSize="18sp"
-                android:textStyle="bold" />
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:text="BODYBUILDING"
+                    android:textColor="@color/purple_200"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    android:textAlignment="center"
+                    android:letterSpacing="0.1"
+                    app:layout_constraintStart_toEndOf="@id/iconPesi"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    android:layout_marginStart="12dp"/>
+            </androidx.constraintlayout.widget.ConstraintLayout>
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- CARD: CORPO LIBERO -->
+        <!-- 2ª RIGA: DESTRA (icona a DESTRA) -->
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/btnItem2"
             android:layout_width="0dp"
-            android:layout_height="250dp"
+            android:layout_height="120dp"
             android:clickable="true"
             android:focusable="true"
-            app:cardCornerRadius="20dp"
-            app:strokeWidth="1dp"
-            app:strokeColor="@color/dark_gray"
-            app:cardBackgroundColor="@android:color/transparent">
+            style="@style/MyLeftRoundedButton"
+            app:cardBackgroundColor="@color/dark_gray"
+            app:layout_constraintTop_toBottomOf="@id/btnItem1"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="1"
+            app:layout_constraintWidth_percent="0.8"
+            android:layout_marginTop="16dp">
 
-            <ImageButton
+            <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:scaleType="centerCrop"
-                android:background="@drawable/pallamedica"
-                android:contentDescription="CORPO LIBERO"
-                android:clickable="false"
-                android:focusable="false" />
+                android:padding="16dp">
 
-            <FrameLayout
-                android:layout_width="match_parent"
-                android:layout_height="100dp"
-                android:alpha="0.6"
-                android:layout_gravity="center_vertical"
-                android:background="@color/dark_gray">
+                <ImageView
+                    android:id="@+id/iconCorpo"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:src="@drawable/crunchmanichino"
+                    android:contentDescription="Icona CORPO LIBERO"
+                    android:textAlignment="center"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"/>
 
-                <View
-                    android:id="@+id/separatorCorpo"
-                    android:layout_width="120dp"
-                    android:layout_height="2dp"
-                    android:layout_gravity="top|center_horizontal"
-                    android:layout_marginTop="80dp"
-                    android:background="@color/light_gray" />
-            </FrameLayout>
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:gravity="center"
-                android:text="CORPO LIBERO"
-                android:letterSpacing="0.1"
-                android:textColor="@android:color/white"
-                android:textSize="18sp"
-                android:textStyle="bold" />
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:text="CORPO LIBERO"
+                    android:textAlignment="center"
+                    android:textColor="@color/purple_200"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    android:letterSpacing="0.1"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toStartOf="@id/iconCorpo"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    android:layout_marginEnd="12dp"/>
+            </androidx.constraintlayout.widget.ConstraintLayout>
         </com.google.android.material.card.MaterialCardView>
 
+        <!-- 3ª RIGA: SINISTRA (icona a SINISTRA) -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/btnItem3"
+            android:layout_width="0dp"
+            android:layout_height="120dp"
+            android:clickable="true"
+            android:focusable="true"
+            style="@style/MyRightRoundedButton"
+            app:cardBackgroundColor="@color/dark_gray"
+            app:layout_constraintTop_toBottomOf="@id/btnItem2"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0"
+            app:layout_constraintWidth_percent="0.8"
+            android:layout_marginTop="16dp">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:padding="16dp">
+
+                <ImageView
+                    android:id="@+id/iconCardio"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:src="@drawable/corsamanichino"
+                    android:contentDescription="Icona CARDIO"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"/>
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:text="CARDIO"
+                    android:textColor="@color/purple_200"
+                    android:textSize="18sp"
+                    android:textAlignment="center"
+
+                    android:textStyle="bold"
+                    android:letterSpacing="0.1"
+                    app:layout_constraintStart_toEndOf="@id/iconCardio"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    android:layout_marginStart="12dp"/>
+            </androidx.constraintlayout.widget.ConstraintLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- 4ª RIGA: DESTRA (icona a DESTRA) -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/btnItem4"
+            android:layout_width="0dp"
+            android:layout_height="120dp"
+            android:clickable="true"
+            android:focusable="true"
+            style="@style/MyLeftRoundedButton"
+            app:cardBackgroundColor="@color/dark_gray"
+            app:layout_constraintTop_toBottomOf="@id/btnItem3"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="1"
+            app:layout_constraintWidth_percent="0.8"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="24dp">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:padding="16dp">
+
+                <ImageView
+                    android:id="@+id/iconStretching"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:src="@drawable/stretchingmanichino"
+                    android:contentDescription="Icona STRETCHING"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"/>
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:text="STRETCHING"
+                    android:textColor="@color/purple_200"
+                    android:textSize="18sp"
+                    android:textAlignment="center"
+
+                    android:textStyle="bold"
+                    android:letterSpacing="0.1"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toStartOf="@id/iconStretching"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    android:layout_marginEnd="12dp"/>
+            </androidx.constraintlayout.widget.ConstraintLayout>
+        </com.google.android.material.card.MaterialCardView>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </ScrollView>

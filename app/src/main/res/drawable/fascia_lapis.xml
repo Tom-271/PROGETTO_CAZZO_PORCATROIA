@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- Sfondo dark_gray -->
+    <item>
+        <shape android:shape="rectangle">
+            <solid android:color="@color/dark_gray" />
+        </shape>
+    </item>
+
+    <!-- Banda diagonale lapis a 45° -->
+    <item>
+        <rotate
+            android:fromDegrees="45"
+            android:toDegrees="45"
+            android:pivotX="50%"
+            android:pivotY="50%">
+            <shape android:shape="rectangle">
+                <!-- Larghezza molto ampia per coprire tutta la card quando ruotata -->
+                <size
+                    android:width="400dp"
+                    android:height="60dp" />
+                <solid android:color="@color/lapis" />
+            </shape>
+        </rotate>
+    </item>
+
+</layer-list>

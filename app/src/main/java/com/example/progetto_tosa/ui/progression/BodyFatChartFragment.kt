@@ -16,6 +16,7 @@ import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
 import com.github.mikephil.charting.formatter.ValueFormatter
+import com.google.firebase.auth.FirebaseAuth
 import java.time.LocalDate
 
 class BodyFatChartFragment : Fragment(R.layout.fragment_chart_bodyfat) {
@@ -28,7 +29,14 @@ class BodyFatChartFragment : Fragment(R.layout.fragment_chart_bodyfat) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         chart = view.findViewById(R.id.chartBodyFat)
-        vm = ViewModelProvider(requireParentFragment())[ProgressionViewModel::class.java]
+
+        // Creo il ViewModel usando la factory
+        val uid = FirebaseAuth.getInstance().currentUser?.uid
+            ?: throw IllegalStateException("Devi effettuare il login")
+        vm = ViewModelProvider(
+            requireParentFragment(),
+            ProgressionVmFactory(requireContext(), uid)
+        )[ProgressionViewModel::class.java]
 
         setupChart()
         observeData()
@@ -62,7 +70,6 @@ class BodyFatChartFragment : Fragment(R.layout.fragment_chart_bodyfat) {
 
     private fun observeGoals() {
         vm.goals.observe(viewLifecycleOwner) { g ->
-            // Rimuovi tutte le linee esistenti prima di aggiungere la nuova
             chart.axisLeft.removeAllLimitLines()
             updateTargetLine(g.targetFat?.toFloat())
             updateChart(currentEntries)
@@ -70,8 +77,8 @@ class BodyFatChartFragment : Fragment(R.layout.fragment_chart_bodyfat) {
     }
 
     private fun updateTargetLine(target: Float?) {
-        target?.let { targetValue ->
-            targetLine = LimitLine(targetValue, "Target BF").apply {
+        target?.let { tv ->
+            targetLine = LimitLine(tv, "Target BF").apply {
                 lineWidth = 2f
                 textSize = 10f
                 lineColor = Color.GREEN
@@ -111,28 +118,27 @@ class BodyFatChartFragment : Fragment(R.layout.fragment_chart_bodyfat) {
 
         chart.xAxis.valueFormatter = object : ValueFormatter() {
             override fun getAxisLabel(value: Float, axis: AxisBase?): String {
-                val i = value.toInt()
-                return if (i in sorted.indices) {
-                    val d = LocalDate.ofEpochDay(sorted[i].epochDay)
+                val idx = value.toInt()
+                return if (idx in sorted.indices) {
+                    val d = LocalDate.ofEpochDay(sorted[idx].epochDay)
                     "${d.dayOfMonth}/${d.monthValue}"
                 } else ""
             }
         }
 
-        // Calcola la scala Y considerando anche la linea target
         val maxBf = sorted.maxOf { it.bodyFatPercent }
-        val targetBf = vm.goals.value?.targetFat?.toFloat() ?: 0f
-        val maxYValue = maxOf(maxBf + 5f, targetBf + 5f).coerceAtLeast(30f)
+        val tgt = vm.goals.value?.targetFat?.toFloat() ?: 0f
+        val maxY = maxOf(maxBf + 5f, tgt + 5f).coerceAtLeast(30f)
 
         chart.axisLeft.apply {
             axisMinimum = 0f
-            axisMaximum = maxYValue
+            axisMaximum = maxY
         }
 
-        // Riaggiungi la linea target se esiste
-        vm.goals.value?.targetFat?.toFloat()?.let { currentTarget ->
-            if (targetLine == null || targetLine?.limit != currentTarget) {
-                updateTargetLine(currentTarget)
+        // Re-add target line if changed
+        vm.goals.value?.targetFat?.toFloat()?.let { newTgt ->
+            if (targetLine == null || targetLine?.limit != newTgt) {
+                updateTargetLine(newTgt)
             }
         }
 
