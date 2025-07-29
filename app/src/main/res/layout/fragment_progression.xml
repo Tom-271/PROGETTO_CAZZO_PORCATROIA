@@ -20,23 +20,23 @@
             android:layout_height="wrap_content"
             android:padding="0dp">
 
+            <!-- Titolo principale -->
             <TextView
                 android:id="@+id/TitleForProgression"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="20dp"
+                android:layout_marginStart="12dp"
                 android:text="MONITORA I TUOI PROGRESSI NEL TEMPO:"
                 android:textStyle="bold|italic"
                 android:textColor="@color/lapis"
                 android:textSize="22sp"
                 android:gravity="start"
-                android:layout_marginStart="12dp"
-
+                app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                app:layout_constraintEnd_toEndOf="parent" />
 
-            <!-- Divider sopra il testo -->
+            <!-- Divider sopra il testo introduttivo -->
             <View
                 android:id="@+id/dividerBeforeText"
                 android:layout_width="0dp"
@@ -49,17 +49,18 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent" />
 
+            <!-- Testo introduttivo -->
             <TextView
                 android:id="@+id/testointroduzione"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:text="Monitora i tuoi progressi nel tempo\ngrazie ai grafici interattivi.\nVisualizza l’evoluzione delle tue performance,\nconfronta i dati delle ultime settimane\ne ottieni una panoramica chiara dei tuoi miglioramenti."
-                android:textSize="18sp"
-                android:lineSpacingExtra="2dp"
                 android:layout_marginTop="10dp"
-                android:gravity="center"
                 android:paddingStart="16dp"
                 android:paddingEnd="16dp"
+                android:gravity="center"
+                android:lineSpacingExtra="2dp"
+                android:text="Monitora i tuoi progressi nel tempo\ngrazie ai grafici interattivi.\nVisualizza l'evoluzione delle tue performance,\nconfronta i dati delle ultime settimane\ne ottieni una panoramica chiara dei tuoi miglioramenti."
+                android:textSize="18sp"
                 app:layout_constraintTop_toBottomOf="@id/dividerBeforeText"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent" />
@@ -76,6 +77,7 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent" />
 
+            <!-- Spacer -->
             <View
                 android:id="@+id/spacerAfterText"
                 android:layout_width="0dp"
@@ -84,16 +86,17 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent" />
 
-            <!-- CARD OBIETTIVO PESO -->
+            <!-- CARD OBIETTIVO PESO CORPOREO -->
             <androidx.cardview.widget.CardView
                 android:id="@+id/cardWeightGoal"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:layout_marginHorizontal="16dp"
                 app:cardCornerRadius="16dp"
                 app:cardElevation="6dp"
                 app:cardUseCompatPadding="true"
                 app:cardBackgroundColor="@color/dark_gray"
-                app:layout_constraintTop_toBottomOf="@+id/spacerAfterText"
+                app:layout_constraintTop_toBottomOf="@id/spacerAfterText"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent">
 
@@ -108,34 +111,35 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="IL TUO OBIETTIVO DI PESO"
-                        android:textStyle="bold"
                         android:textAllCaps="true"
+                        android:textStyle="bold"
                         android:textSize="14sp"
                         android:letterSpacing="0.05"
                         android:textColor="@color/lapis" />
 
                     <EditText
-                        android:id="@+id/tvWeightGoalValue"
+                        android:id="@+id/etWeightGoalValue"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
                         android:text="—"
                         android:textSize="28sp"
                         android:textStyle="bold"
-                        android:layout_marginTop="8dp"
                         android:textColor="@android:color/white" />
 
                     <TextView
                         android:id="@+id/tvWeightGoalSubtitle"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
                         android:text="(kg obiettivo)"
                         android:textSize="12sp"
-                        android:layout_marginTop="2dp"
                         android:textColor="@android:color/darker_gray" />
+
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
 
-            <!-- Spacer -->
+            <!-- Spacer dopo peso -->
             <View
                 android:id="@+id/spacerAfterWeight"
                 android:layout_width="0dp"
@@ -144,18 +148,79 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent" />
 
+            <!-- CARD OBIETTIVO MASSA MAGRA -->
+            <androidx.cardview.widget.CardView
+                android:id="@+id/cardLeanGoal"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="16dp"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="6dp"
+                app:cardUseCompatPadding="true"
+                app:cardBackgroundColor="@color/dark_gray"
+                app:layout_constraintTop_toBottomOf="@id/spacerAfterWeight"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="20dp">
+
+                    <TextView
+                        android:id="@+id/tvLeanGoalTitle"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="IL TUO OBIETTIVO DI MASSA MAGRA"
+                        android:textAllCaps="true"
+                        android:textStyle="bold"
+                        android:textSize="14sp"
+                        android:letterSpacing="0.05"
+                        android:textColor="@color/lapis" />
+
+                    <EditText
+                        android:id="@+id/etLeanGoalValue"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:text="—"
+                        android:textSize="28sp"
+                        android:textStyle="bold"
+                        android:textColor="@android:color/white" />
+
+                    <TextView
+                        android:id="@+id/tvLeanGoalSubtitle"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:text="(kg obiettivo)"
+                        android:textSize="12sp"
+                        android:textColor="@android:color/darker_gray" />
+
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <!-- Spacer dopo massa magra -->
+            <View
+                android:id="@+id/spacerAfterLeanGoal"
+                android:layout_width="0dp"
+                android:layout_height="16dp"
+                app:layout_constraintTop_toBottomOf="@id/cardLeanGoal"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent" />
+
             <!-- CARD OBIETTIVO BODYFAT -->
             <androidx.cardview.widget.CardView
                 android:id="@+id/cardBodyFatGoal"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:layout_marginHorizontal="16dp"
                 app:cardCornerRadius="16dp"
                 app:cardElevation="6dp"
-                android:clipChildren="false"
-                android:clipToPadding="false"
                 app:cardUseCompatPadding="true"
                 app:cardBackgroundColor="@color/dark_gray"
-                app:layout_constraintTop_toBottomOf="@id/spacerAfterWeight"
+                app:layout_constraintTop_toBottomOf="@id/spacerAfterLeanGoal"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent">
 
@@ -170,40 +235,44 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="IL TUO OBIETTIVO DI BODYFAT"
-                        android:textStyle="bold"
                         android:textAllCaps="true"
+                        android:textStyle="bold"
                         android:textSize="14sp"
                         android:letterSpacing="0.05"
                         android:textColor="@color/lapis" />
 
                     <EditText
-                        android:id="@+id/tvBodyFatGoalValue"
+                        android:id="@+id/etBodyFatGoalValue"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
                         android:text="—"
                         android:textSize="28sp"
                         android:textStyle="bold"
-                        android:layout_marginTop="8dp"
                         android:textColor="@android:color/white" />
 
                     <TextView
                         android:id="@+id/tvBodyFatGoalSubtitle"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
                         android:text="(% obiettivo)"
                         android:textSize="12sp"
-                        android:layout_marginTop="2dp"
                         android:textColor="@android:color/darker_gray" />
+
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
 
+            <!-- Pulsante Conferma obiettivi -->
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/buttonConfirm"
                 android:layout_width="wrap_content"
                 android:layout_height="60dp"
-                app:cornerRadius="16dp"
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="32dp"
                 android:backgroundTint="@color/purple_200"
-                android:text="modify"
+                app:cornerRadius="16dp"
+                android:text="modifica parametri"
                 app:layout_constraintTop_toBottomOf="@id/cardBodyFatGoal"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent" />
@@ -213,97 +282,38 @@
                 android:id="@+id/dividerAfterCards"
                 android:layout_width="0dp"
                 android:layout_height="1dp"
-                android:layout_marginTop="32dp"
                 android:layout_marginHorizontal="30dp"
                 android:background="@color/dark_gray"
                 app:layout_constraintTop_toBottomOf="@id/buttonConfirm"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent" />
 
+            <!-- Titolo sezione composizione corporea -->
             <TextView
                 android:id="@+id/titleforbuttons"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
                 android:layout_marginTop="20dp"
-                app:layout_constraintTop_toBottomOf="@id/dividerAfterCards"
-                android:text="Composizione corporea :"
                 android:layout_marginStart="15dp"
+                android:layout_marginEnd="15dp"
+                android:text="Composizione corporea :"
                 android:textSize="25sp"
                 android:textStyle="bold|italic"
-                android:textColor="@color/light_gray"/>
+                android:textColor="@color/light_gray"
+                app:layout_constraintTop_toBottomOf="@id/dividerAfterCards"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent" />
 
-            <!-- PULSANTE BODY FAT (CardView personalizzato) -->
+            <!-- CARD PESO (grafico) a tutta larghezza -->
             <com.google.android.material.card.MaterialCardView
-                android:id="@+id/buttonForBF"
-                android:layout_width="match_parent"
+                android:id="@+id/buttonForWEIGHT"
+                android:layout_width="0dp"
                 android:layout_height="100dp"
                 android:layout_margin="20dp"
                 app:cardCornerRadius="12dp"
                 app:cardElevation="4dp"
                 app:cardBackgroundColor="@color/dark_gray"
                 app:layout_constraintTop_toBottomOf="@id/titleforbuttons"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent">
-
-                <androidx.constraintlayout.widget.ConstraintLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:padding="16dp">
-
-                    <TextView
-                        android:id="@+id/bfTitle"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:text="BODY FAT CORPOREO"
-                        android:textStyle="bold"
-                        android:textColor="@color/purple_200"
-                        android:textSize="14sp"
-                        app:layout_constraintTop_toTopOf="parent"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintEnd_toStartOf="@+id/bfArrow"
-                        app:layout_constraintHorizontal_bias="0" />
-
-                    <TextView
-                        android:id="@+id/bfSubtitle"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:text="- kg"
-                        android:layout_marginStart="12dp"
-                        android:textColor="@color/white"
-                        android:textSize="27sp"
-                        android:textStyle="bold|italic"
-                        android:maxLines="2"
-                        app:layout_constraintTop_toBottomOf="@id/bfTitle"
-                        app:layout_constraintStart_toStartOf="@id/bfTitle"
-                        app:layout_constraintEnd_toStartOf="@+id/bfArrow"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintVertical_bias="0.2" />
-
-                    <ImageView
-                        android:id="@+id/bfArrow"
-                        android:layout_width="24dp"
-                        android:layout_height="24dp"
-                        android:src="@drawable/baseline_navigate_next_24"
-                        app:layout_constraintTop_toTopOf="parent"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintHorizontal_bias="1" />
-
-                </androidx.constraintlayout.widget.ConstraintLayout>
-            </com.google.android.material.card.MaterialCardView>
-
-            <!-- PULSANTE PESO (CardView personalizzato) -->
-            <com.google.android.material.card.MaterialCardView
-                android:id="@+id/buttonForWEIGHT"
-                android:layout_width="match_parent"
-                android:layout_height="100dp"
-                android:layout_margin="20dp"
-                app:cardCornerRadius="12dp"
-                app:cardElevation="4dp"
-                app:cardBackgroundColor="@color/dark_gray"
-                app:layout_constraintTop_toBottomOf="@id/buttonForBF"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent">
 
@@ -329,11 +339,11 @@
                         android:id="@+id/pesoSubtitle"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:text="- %"
                         android:layout_marginStart="12dp"
-                        android:textColor="@color/white"
+                        android:text="- kg"
                         android:textSize="27sp"
                         android:textStyle="bold|italic"
+                        android:textColor="@color/white"
                         android:maxLines="2"
                         app:layout_constraintTop_toBottomOf="@id/pesoTitle"
                         app:layout_constraintStart_toStartOf="@id/pesoTitle"
@@ -343,6 +353,138 @@
 
                     <ImageView
                         android:id="@+id/pesoArrow"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:src="@drawable/baseline_navigate_next_24"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintHorizontal_bias="1" />
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Guideline verticale al 50% -->
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/guideline_half"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:layout_constraintGuide_percent="0.5" />
+
+            <!-- CARD BODY FAT (metà sinistra) -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/buttonForBF"
+                android:layout_width="0dp"
+                android:layout_height="100dp"
+                android:layout_marginStart="20dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginEnd="5dp"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="4dp"
+                app:cardBackgroundColor="@color/dark_gray"
+                app:layout_constraintTop_toBottomOf="@id/buttonForWEIGHT"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toStartOf="@id/guideline_half">
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:padding="16dp">
+
+                    <TextView
+                        android:id="@+id/bfTitle"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:text="BODY FAT"
+                        android:textStyle="bold"
+                        android:textColor="@color/purple_200"
+                        android:textSize="14sp"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintEnd_toStartOf="@+id/bfArrow"
+                        app:layout_constraintHorizontal_bias="0" />
+
+                    <TextView
+                        android:id="@+id/bfSubtitle"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="12dp"
+                        android:text="- %"
+                        android:textSize="27sp"
+                        android:textStyle="bold|italic"
+                        android:textColor="@color/white"
+                        android:maxLines="2"
+                        app:layout_constraintTop_toBottomOf="@id/bfTitle"
+                        app:layout_constraintStart_toStartOf="@id/bfTitle"
+                        app:layout_constraintEnd_toStartOf="@+id/bfArrow"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintVertical_bias="0.2" />
+
+                    <ImageView
+                        android:id="@+id/bfArrow"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:src="@drawable/baseline_navigate_next_24"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintHorizontal_bias="1" />
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- CARD MASSA MAGRA (metà destra) -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/buttonForMassaMagra"
+                android:layout_width="0dp"
+                android:layout_height="100dp"
+                android:layout_marginStart="5dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginEnd="20dp"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="4dp"
+                app:cardBackgroundColor="@color/dark_gray"
+                app:layout_constraintTop_toBottomOf="@id/buttonForWEIGHT"
+                app:layout_constraintStart_toEndOf="@id/guideline_half"
+                app:layout_constraintEnd_toEndOf="parent">
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:padding="16dp">
+
+                    <TextView
+                        android:id="@+id/weightTitle"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:text="MASSA MAGRA"
+                        android:textStyle="bold"
+                        android:textColor="@color/purple_200"
+                        android:textSize="14sp"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintEnd_toStartOf="@+id/weightArrow"
+                        app:layout_constraintHorizontal_bias="0" />
+
+                    <TextView
+                        android:id="@+id/weightSubtitle"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="12dp"
+                        android:text="- kg"
+                        android:textSize="27sp"
+                        android:textStyle="bold|italic"
+                        android:textColor="@color/white"
+                        android:maxLines="2"
+                        app:layout_constraintTop_toBottomOf="@id/weightTitle"
+                        app:layout_constraintStart_toStartOf="@id/weightTitle"
+                        app:layout_constraintEnd_toStartOf="@+id/weightArrow"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintVertical_bias="0.2" />
+
+                    <ImageView
+                        android:id="@+id/weightArrow"
                         android:layout_width="24dp"
                         android:layout_height="24dp"
                         android:src="@drawable/baseline_navigate_next_24"

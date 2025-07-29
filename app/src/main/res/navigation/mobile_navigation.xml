@@ -52,6 +52,9 @@
             <argument android:name="selectedUser" app:argType="string" />
             <argument android:name="selectedDate"   app:argType="string" />
         </action>
+        <action
+            android:id="@+id/action_navigation_home_to_navigation_login"
+            app:destination="@id/navigation_login" />
     </fragment>
 
     <fragment

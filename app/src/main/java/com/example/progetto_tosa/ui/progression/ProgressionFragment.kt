@@ -12,8 +12,6 @@ import androidx.navigation.fragment.findNavController
 import androidx.core.os.bundleOf
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.example.progetto_tosa.R
-import com.example.progetto_tosa.ui.progression.ProgressionVmFactory
-import com.example.progetto_tosa.ui.progression.ProgressionViewModel
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
@@ -29,20 +27,21 @@ class ProgressionFragment : Fragment(R.layout.fragment_progression) {
 
     // UI obiettivi
     private lateinit var etWeightGoalValue: EditText
+    private lateinit var etLeanGoalValue: EditText
     private lateinit var etBodyFatGoalValue: EditText
     private lateinit var btnConfirm: TextView
 
-    // Subtitle dinamici: ultima misura registrata per giorno (anche futura)
+    // Subtitle dinamici
     private lateinit var bfSubtitle: TextView
     private lateinit var pesoSubtitle: TextView
+    private lateinit var leanSubtitle: TextView
 
-    // Bottoni per mostrare grafici
+    // Bottoni per grafici
     private lateinit var buttonForBF: CardView
     private lateinit var buttonForWEIGHT: CardView
+    private lateinit var buttonForMassaMagra: CardView
 
-    // ViewModel
     private lateinit var vm: ProgressionViewModel
-
     private var uid: String? = null
     private var isPtUser = false
     private var editingGoals = false
@@ -74,73 +73,100 @@ class ProgressionFragment : Fragment(R.layout.fragment_progression) {
     }
 
     private fun bindViews(v: View) {
-        swipeRefresh         = v.findViewById(R.id.swipeRefresh)
-        etWeightGoalValue    = v.findViewById(R.id.tvWeightGoalValue)
-        etBodyFatGoalValue   = v.findViewById(R.id.tvBodyFatGoalValue)
-        btnConfirm           = v.findViewById(R.id.buttonConfirm)
-        bfSubtitle           = v.findViewById(R.id.bfSubtitle)
-        pesoSubtitle         = v.findViewById(R.id.pesoSubtitle)
-        buttonForBF          = v.findViewById(R.id.buttonForBF)
-        buttonForWEIGHT      = v.findViewById(R.id.buttonForWEIGHT)
+        swipeRefresh        = v.findViewById(R.id.swipeRefresh)
 
-        // Disabilito editing di default
-        etWeightGoalValue.isEnabled = false
-        etBodyFatGoalValue.isEnabled = false
-        btnConfirm.visibility = View.GONE
+        etWeightGoalValue   = v.findViewById(R.id.etWeightGoalValue)
+        etLeanGoalValue     = v.findViewById(R.id.etLeanGoalValue)
+        etBodyFatGoalValue  = v.findViewById(R.id.etBodyFatGoalValue)
+        btnConfirm          = v.findViewById(R.id.buttonConfirm)
+
+        bfSubtitle          = v.findViewById(R.id.bfSubtitle)
+        pesoSubtitle        = v.findViewById(R.id.pesoSubtitle)
+        leanSubtitle        = v.findViewById(R.id.weightSubtitle)
+
+        buttonForBF         = v.findViewById(R.id.buttonForBF)
+        buttonForWEIGHT     = v.findViewById(R.id.buttonForWEIGHT)
+        buttonForMassaMagra = v.findViewById(R.id.buttonForMassaMagra)
+
+        etWeightGoalValue.isEnabled   = false
+        etLeanGoalValue.isEnabled     = false
+        etBodyFatGoalValue.isEnabled  = false
+        btnConfirm.visibility         = View.GONE
     }
 
-    /**
-     * Carica l'ultima misura (bodyFat% e peso) ordinata per giorno (epochDay) in ordine decrescente,
-     * prendendo il documento con il giorno più recente, anche se futuro.
-     * Per il peso, effettua una query limitata e trova client-side la prima entry con peso non nullo.
-     */
     private fun loadLatestMeasurements() {
         val userDoc = db.collection("users").document(uid!!)
 
-        // BODYFAT: ordina per epochDay discendente, prendi il più recente
+        // BODYFAT
         userDoc.collection("bodyFatEntries")
             .orderBy("epochDay", Query.Direction.DESCENDING)
             .limit(1)
-            .get()
-            .addOnSuccessListener { snaps ->
-                val doc = snaps.documents.firstOrNull()
-                val bf  = doc?.getDouble("bodyFatPercent")?.toFloat()
-                bfSubtitle.text = bf?.let { String.format("%.1f%%", it) } ?: "—"
+            .get().addOnSuccessListener { snaps ->
+                val bf = snaps.documents
+                    .firstOrNull()
+                    ?.getDouble("bodyFatPercent")
+                    ?.toFloat()
+                bfSubtitle.text = bf?.let { "%.1f %%".format(it) } ?: "—"
             }
 
-        // PESO: ordina per epochDay discendente, limito a 10 e cerco la prima entry con bodyWeightKg presente
+        // PESO
         userDoc.collection("bodyFatEntries")
             .orderBy("epochDay", Query.Direction.DESCENDING)
-            .limit(10)
-            .get()
-            .addOnSuccessListener { snaps ->
-                val doc = snaps.documents.firstOrNull { it.contains("bodyWeightKg") }
-                val w   = doc?.getDouble("bodyWeightKg")?.toFloat()
-                pesoSubtitle.text = w?.let { String.format("%.1f kg", it) } ?: "—"
+            .limit(1)
+            .get().addOnSuccessListener { snaps ->
+                val w = snaps.documents
+                    .firstOrNull { it.contains("bodyWeightKg") }
+                    ?.getDouble("bodyWeightKg")
+                    ?.toFloat()
+                pesoSubtitle.text = w?.let { "%.1f kg".format(it) } ?: "—"
             }
+
+        // MASSA MAGRA
+        userDoc.collection("bodyFatEntries")
+            .orderBy("epochDay", Query.Direction.DESCENDING)
+            .limit(1)  // prendi solo l'ultimo
+            .get().addOnSuccessListener { snaps ->
+                val doc = snaps.documents.firstOrNull { it.contains("leanMassKg") }
+                val lean = doc
+                    ?.getDouble("leanMassKg")
+                    ?.toFloat()
+                leanSubtitle.text = lean?.let { "%.1f kg".format(it) } ?: "—"
+            }
+
     }
 
     private fun loadGoals() {
         db.collection("personal_trainers").document(uid!!)
             .get().addOnSuccessListener { snap ->
                 isPtUser = snap.getBoolean("isPersonalTrainer") == true
+
+                // 1) Mostra/nascondi il pulsante in base a isPtUser
+                btnConfirm.visibility = if (isPtUser) View.VISIBLE else View.GONE
+
                 if (isPtUser) {
+                    // da PT: legge direttamente da personal_trainers/doc
+                    snap.getDouble("targetWeight")
+                        ?.let { etWeightGoalValue.setText("%.1f".format(it)) }
                     snap.getDouble("targetLeanMass")
-                        ?.let { etWeightGoalValue.setText(String.format("%.1f", it)) }
+                        ?.let { etLeanGoalValue.setText("%.1f".format(it)) }
                     snap.getDouble("targetFatMass")
-                        ?.let { etBodyFatGoalValue.setText(String.format("%.1f", it)) }
+                        ?.let { etBodyFatGoalValue.setText("%.1f".format(it)) }
                 } else {
+                    // da USER: legge da users/doc
                     db.collection("users").document(uid!!)
                         .get().addOnSuccessListener { uSnap ->
+                            uSnap.getDouble("targetWeight")
+                                ?.let { etWeightGoalValue.setText("%.1f".format(it)) }
                             uSnap.getDouble("targetLeanMass")
-                                ?.let { etWeightGoalValue.setText(String.format("%.1f", it)) }
+                                ?.let { etLeanGoalValue.setText("%.1f".format(it)) }
                             uSnap.getDouble("targetFatMass")
-                                ?.let { etBodyFatGoalValue.setText(String.format("%.1f", it)) }
+                                ?.let { etBodyFatGoalValue.setText("%.1f".format(it)) }
                         }
                 }
                 swipeRefresh.isRefreshing = false
             }
     }
+
 
     private fun setupConfirmButton() {
         btnConfirm.text = if (!editingGoals) "modifica parametri" else "salva obiettivi"
@@ -148,32 +174,38 @@ class ProgressionFragment : Fragment(R.layout.fragment_progression) {
             if (!editingGoals) {
                 editingGoals = true
                 btnConfirm.text = "salva obiettivi"
-                etWeightGoalValue.apply {
-                    isEnabled = true; isFocusable = true; isFocusableInTouchMode = true; imeOptions = EditorInfo.IME_ACTION_DONE
-                }
-                etBodyFatGoalValue.apply {
-                    isEnabled = true; isFocusable = true; isFocusableInTouchMode = true; imeOptions = EditorInfo.IME_ACTION_DONE
-                }
+                etWeightGoalValue.isEnabled   = true
+                etLeanGoalValue.isEnabled     = true
+                etBodyFatGoalValue.isEnabled  = true
+                etWeightGoalValue.imeOptions  = EditorInfo.IME_ACTION_DONE
+                etLeanGoalValue.imeOptions    = EditorInfo.IME_ACTION_DONE
+                etBodyFatGoalValue.imeOptions = EditorInfo.IME_ACTION_DONE
             } else {
-                val lean = etWeightGoalValue.text.toString().replace(',', '.').toDoubleOrNull()
-                val fat  = etBodyFatGoalValue.text.toString().replace(',', '.').toDoubleOrNull()
+                val w    = etWeightGoalValue.text
+                    .toString().replace(',', '.').toDoubleOrNull()
+                val lean = etLeanGoalValue.text
+                    .toString().replace(',', '.').toDoubleOrNull()
+                val fat  = etBodyFatGoalValue.text
+                    .toString().replace(',', '.').toDoubleOrNull()
                 when {
-                    lean == null -> toast("Kg obiettivo non valido")
+                    w    == null -> toast("Peso obiettivo non valido")
+                    lean == null -> toast("M. magra obiettivo non valida")
                     fat  == null -> toast("% grasso obiettivo non valido")
                     else -> {
-                        vm.updateGoals(newLean = lean, newFat = fat)
+                        vm.updateGoals(newWeight = w, newLean = lean, newFat = fat)
                         val targetRef = if (isPtUser)
                             db.collection("personal_trainers").document(uid!!)
                         else
                             db.collection("users").document(uid!!)
                         targetRef.set(mapOf(
-                            "targetLeanMass" to lean,
-                            "targetFatMass" to fat
+                            "targetWeight"     to w,
+                            "targetLeanMass"   to lean,
+                            "targetFatMass"    to fat
                         ), SetOptions.merge())
-
                         toast("Obiettivi salvati")
-                        etWeightGoalValue.isEnabled = false
-                        etBodyFatGoalValue.isEnabled = false
+                        etWeightGoalValue.isEnabled   = false
+                        etLeanGoalValue.isEnabled     = false
+                        etBodyFatGoalValue.isEnabled  = false
                         editingGoals = false
                         btnConfirm.text = "modifica parametri"
                     }
@@ -194,6 +226,12 @@ class ProgressionFragment : Fragment(R.layout.fragment_progression) {
             nav.navigate(
                 R.id.action_progressionFragment_to_graphsFragment,
                 bundleOf("graphType" to "weight")
+            )
+        }
+        buttonForMassaMagra.setOnClickListener {
+            nav.navigate(
+                R.id.action_progressionFragment_to_graphsFragment,
+                bundleOf("graphType" to "lean")
             )
         }
     }

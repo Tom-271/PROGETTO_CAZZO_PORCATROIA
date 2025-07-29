@@ -34,7 +34,7 @@ class AccountViewModel(application: Application) : AndroidViewModel(application)
     val nickname        = ObservableField("")
     val roleText        = ObservableField("")
     val iconStrokeColor = ObservableField(
-        ColorStateList.valueOf(ContextCompat.getColor(ctx, R.color.yellow))
+        ColorStateList.valueOf(ContextCompat.getColor(ctx, R.color.black))
     )
     val isTrainer       = ObservableBoolean(false)
     val isLoggedIn      = ObservableBoolean(auth.currentUser != null)
@@ -223,7 +223,7 @@ class AccountViewModel(application: Application) : AndroidViewModel(application)
             isTrainer.set(false)
             isLoggedIn.set(false)
             iconStrokeColor.set(
-                ColorStateList.valueOf(ContextCompat.getColor(ctx, R.color.purple_200))
+                ColorStateList.valueOf(ContextCompat.getColor(ctx, R.color.black))
             )
         }
     }

@@ -196,13 +196,20 @@ class ChatRepository(
 
 class ChatViewModel(private val repo: ChatRepository) : ViewModel() {
 
-    private val _messages = MutableLiveData<List<ChatMessage>>(emptyList())
+    // PRE‑POPOLA la lista dei messaggi col primo messaggio dell'assistente
+    private val _messages = MutableLiveData<List<ChatMessage>>(
+        listOf(
+            ChatMessage(
+                role    = ChatMessage.Role.ASSISTANT,
+                content = "Ciao, come posso esserti d'aiuto oggi?"
+            )
+        )
+    )
     val messages: LiveData<List<ChatMessage>> = _messages
 
     fun send(text: String) {
         if (text.isBlank()) return
 
-        // niente filtro pre‑invio (solo avviso se vuoi)
         add(ChatMessage(role = ChatMessage.Role.USER, content = text))
 
         viewModelScope.launch {
@@ -219,6 +226,7 @@ class ChatViewModel(private val repo: ChatRepository) : ViewModel() {
         _messages.value = (_messages.value ?: emptyList()) + m
     }
 }
+
 
 class ChatVMFactory(private val repo: ChatRepository) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(c: Class<T>): T {

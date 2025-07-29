@@ -19,7 +19,7 @@ import com.github.mikephil.charting.formatter.ValueFormatter
 import com.google.firebase.auth.FirebaseAuth
 import java.time.LocalDate
 
-class PesoChartFragment : Fragment(R.layout.fragment_chart_peso) {
+class MassaMagraChartFragment : Fragment(R.layout.fragment_chart_massamagra) {
 
     private lateinit var chart: LineChart
     private lateinit var vm: ProgressionViewModel
@@ -28,15 +28,14 @@ class PesoChartFragment : Fragment(R.layout.fragment_chart_peso) {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        chart = view.findViewById(R.id.chartPeso)
+        chart = view.findViewById(R.id.chartMassaMagra)
 
-        // inizializzo ViewModel
         val uid = FirebaseAuth.getInstance().currentUser?.uid
             ?: throw IllegalStateException("Devi effettuare il login")
         vm = ViewModelProvider(
             requireParentFragment(),
             ProgressionVmFactory(requireContext(), uid)
-        )[ProgressionViewModel::class.java]
+        ).get(ProgressionViewModel::class.java)
 
         setupChart()
         observeData()
@@ -45,7 +44,7 @@ class PesoChartFragment : Fragment(R.layout.fragment_chart_peso) {
 
     private fun setupChart() = chart.apply {
         description.isEnabled = false
-        setNoDataText("Nessun dato Peso Corporeo")
+        setNoDataText("Nessun dato Massa Magra")
         setTouchEnabled(true)
         setPinchZoom(true)
         legend.isEnabled = false
@@ -56,7 +55,6 @@ class PesoChartFragment : Fragment(R.layout.fragment_chart_peso) {
         axisLeft.setDrawGridLines(true)
         xAxis.textColor = Color.LTGRAY
         axisLeft.textColor = Color.LTGRAY
-
         setExtraOffsets(8f, 16f, 8f, 16f)
     }
 
@@ -70,14 +68,14 @@ class PesoChartFragment : Fragment(R.layout.fragment_chart_peso) {
     private fun observeGoals() {
         vm.goals.observe(viewLifecycleOwner) { g ->
             chart.axisLeft.removeAllLimitLines()
-            g.targetWeight?.toFloat()?.let { updateTargetLine(it) }
+            g.targetLean?.toFloat()?.let { updateTargetLine(it) }
             updateChart(currentEntries)
         }
     }
 
     private fun updateTargetLine(target: Float) {
         targetLine?.let { chart.axisLeft.removeLimitLine(it) }
-        targetLine = LimitLine(target, "Target Peso").apply {
+        targetLine = LimitLine(target, "Target Massa Magra").apply {
             lineWidth = 2f
             textSize = 10f
             lineColor = Color.CYAN
@@ -88,20 +86,19 @@ class PesoChartFragment : Fragment(R.layout.fragment_chart_peso) {
     }
 
     private fun updateChart(entries: List<BodyFatEntry>) {
-        // Ordino per data e prendo solo bodyWeightKg espliciti
+        // solo leanMass espliciti
         val sorted = entries.sortedBy { it.epochDay }
         val pts = sorted.mapIndexedNotNull { i, e ->
-            e.bodyWeightKg?.let { Entry(i.toFloat(), it) }
+            e.leanMassKg?.let { Entry(i.toFloat(), it) }
         }
 
-        // Se non ci sono dati di peso, pulisco e torno
         if (pts.isEmpty()) {
             chart.clear()
             chart.invalidate()
             return
         }
 
-        val ds = LineDataSet(pts, "Peso Corporeo (kg)").apply {
+        val ds = LineDataSet(pts, "Massa Magra (kg)").apply {
             axisDependency = YAxis.AxisDependency.LEFT
             mode = LineDataSet.Mode.CUBIC_BEZIER
             cubicIntensity = 0.2f
@@ -117,7 +114,6 @@ class PesoChartFragment : Fragment(R.layout.fragment_chart_peso) {
             fillAlpha = 60
         }
 
-        // Formattazione asse X: gg/mm
         chart.xAxis.valueFormatter = object : ValueFormatter() {
             override fun getAxisLabel(value: Float, axis: AxisBase?): String {
                 val idx = value.toInt()
@@ -128,13 +124,12 @@ class PesoChartFragment : Fragment(R.layout.fragment_chart_peso) {
             }
         }
 
-        // Imposto limiti Y in base a dati e target
-        val maxWt = pts.maxOf { it.y }
-        val tgt = vm.goals.value?.targetWeight?.toFloat() ?: 0f
-        val maxY = (maxOf(maxWt, tgt) + 5f).coerceAtLeast(10f)
+        val maxLean = pts.maxOf { it.y }
+        val tgt = vm.goals.value?.targetLean?.toFloat() ?: 0f
+        val maxY = maxOf(maxLean, tgt) + 5f
         chart.axisLeft.apply {
             axisMinimum = 0f
-            axisMaximum = maxY
+            axisMaximum = maxY.coerceAtLeast(10f)
         }
 
         chart.data = LineData(ds)

@@ -17,7 +17,8 @@ data class BodyFatEntry(
     val userId: String,
     val epochDay: Long,
     val bodyFatPercent: Float,
-    val bodyWeightKg: Float? = null            // NEW FIELD
+    val bodyWeightKg: Float? = null,
+    val leanMassKg: Float? = null
 )
 
 @Dao
@@ -51,7 +52,7 @@ abstract class BodyFatDb : RoomDatabase() {
                     BodyFatDb::class.java,
                     "body_fat_db"
                 )
-                    .fallbackToDestructiveMigration() // semplice, ricostruisce e ricarichi dal cloud
+                    .fallbackToDestructiveMigration()
                     .build()
                     .also { INSTANCE = it }
             }
@@ -61,7 +62,8 @@ abstract class BodyFatDb : RoomDatabase() {
 class BodyFatRepository(private val dao: BodyFatDao, private val userId: String) {
     suspend fun all() = dao.getAll(userId)
 
-    suspend fun addOrReplace(percent: Float, weight: Float?, date: LocalDate) =
+    /** Aggiunge o aggiorna body fat% e peso */
+    suspend fun addOrReplace(percent: Float, weight: Float?, date: LocalDate) {
         dao.upsert(
             BodyFatEntry(
                 userId = userId,
@@ -70,13 +72,33 @@ class BodyFatRepository(private val dao: BodyFatDao, private val userId: String)
                 bodyWeightKg = weight
             )
         )
+    }
+
+    /** Aggiunge o aggiorna solo la lean mass per la data indicata */
+    suspend fun addOrReplaceLean(lean: Float, date: LocalDate) {
+        val epoch = date.toEpochDay()
+        val existing = dao.getByDay(userId, epoch)
+        val bf   = existing?.bodyFatPercent ?: 0f
+        val wt   = existing?.bodyWeightKg
+        dao.upsert(
+            BodyFatEntry(
+                userId = userId,
+                epochDay = epoch,
+                bodyFatPercent = bf,
+                bodyWeightKg = wt,
+                leanMassKg = lean
+            )
+        )
+    }
 
     suspend fun get(date: LocalDate) = dao.getByDay(userId, date.toEpochDay())
 
     suspend fun replaceAll(entries: List<BodyFatEntry>) {
         dao.clearUser(userId)
         if (entries.isNotEmpty()) {
-            val normalized = entries.map { if (it.userId == userId) it else it.copy(userId = userId) }
+            val normalized = entries.map {
+                if (it.userId == userId) it else it.copy(userId = userId)
+            }
             dao.insertAll(normalized)
         }
     }
@@ -86,7 +108,11 @@ class BodyFatViewModel(private val repo: BodyFatRepository) : ViewModel() {
     private val _entries = androidx.lifecycle.MutableLiveData<List<BodyFatEntry>>(emptyList())
     val entries: androidx.lifecycle.LiveData<List<BodyFatEntry>> = _entries
 
-    fun load() { viewModelScope.launch { _entries.postValue(repo.all()) } }
+    fun load() {
+        viewModelScope.launch {
+            _entries.postValue(repo.all())
+        }
+    }
 
     fun addMeasurement(percent: Float, weight: Float?, date: LocalDate = LocalDate.now()) {
         viewModelScope.launch {
@@ -95,8 +121,18 @@ class BodyFatViewModel(private val repo: BodyFatRepository) : ViewModel() {
         }
     }
 
+    /** Aggiunge o aggiorna la lean mass e ricarica i dati */
+    fun addLeanMass(lean: Float, date: LocalDate = LocalDate.now()) {
+        viewModelScope.launch {
+            repo.addOrReplaceLean(lean, date)
+            _entries.postValue(repo.all())
+        }
+    }
+
     fun getMeasurement(date: LocalDate, callback: (BodyFatEntry?) -> Unit) {
-        viewModelScope.launch { callback(repo.get(date)) }
+        viewModelScope.launch {
+            callback(repo.get(date))
+        }
     }
 
     fun replaceAll(list: List<BodyFatEntry>) {

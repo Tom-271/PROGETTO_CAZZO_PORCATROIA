@@ -34,7 +34,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="@color/lapis"
-                android:paddingVertical="12dp"
+                android:paddingVertical="10dp"
                 android:paddingHorizontal="16dp">
 
                 <TextView
@@ -90,6 +90,15 @@
                     android:layout_gravity="end"
                     app:cornerRadius="20dp"
                     android:text="invia" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="start"
+                    android:textSize="11dp"
+                    android:textStyle="italic"
+                    android:text="Powered by: Gemini (Google)"
+                    />
             </LinearLayout>
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>

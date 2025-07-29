@@ -148,16 +148,16 @@ class HomeFragment : Fragment() {
     }
 
     private fun showLoginPrompt() {
-        binding.buttonForTheScheduleIDid.visibility = View.GONE
-        binding.buttonForTheSchedulePersonalTrainerDid.visibility = View.GONE
+        binding.buttonForTheScheduleIDid.visibility = View.VISIBLE
+        binding.buttonForTheScheduleIDid.alpha = 0.2f
+        binding.buttonForTheSchedulePersonalTrainerDid.visibility = View.VISIBLE
+        binding.buttonForTheSchedulePersonalTrainerDid.alpha = 0.2f
         binding.buttonForPersonalTrainer.visibility = View.GONE
         binding.buttonInutile.visibility = View.VISIBLE
-        binding.buttonInutile.strokeColor = ColorStateList.valueOf(
-            ContextCompat.getColor(requireContext(), R.color.orange)
-        )
-        binding.buttonInutile.text = "Effettua il login per accedere al servizio"
+
+        binding.buttonInutile.text = "L'applicazione offre la possibilità di creare delle schede personali di allenamento e di interagire con il proprio personal trainer, accedi al servizio per farlo anche tu!"
         binding.buttonInutile.setOnClickListener {
-            findNavController().navigate(R.id.action_navigation_home_to_navigation_account)
+            findNavController().navigate(R.id.action_navigation_home_to_navigation_login)
         }
     }
 

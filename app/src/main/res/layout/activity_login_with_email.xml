@@ -21,7 +21,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:cardCornerRadius="16dp"
-            app:cardBackgroundColor="@color/lapis"
+            app:cardBackgroundColor="@color/dark_gray"
             app:cardUseCompatPadding="true"
             app:cardElevation="8dp"
             android:layout_margin="8dp">
@@ -43,7 +43,7 @@
                     android:shadowColor="@color/black"
                     android:shadowRadius="2"
                     android:gravity="center"
-                    android:textColor="@color/orange"
+                    android:textColor="@color/lapis"
                     android:layout_marginBottom="16dp"/>
 
                 <EditText

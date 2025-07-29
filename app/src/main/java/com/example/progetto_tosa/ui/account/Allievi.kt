@@ -1,6 +1,7 @@
 package com.example.progetto_tosa.ui.account
 
 import android.os.Bundle
+import android.text.InputType
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -23,18 +24,22 @@ class Allievi : Fragment() {
     private val dateFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
 
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
     ): View = inflater.inflate(R.layout.fragment_allievi, container, false)
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        // RecyclerView setup
         val recycler = view.findViewById<RecyclerView>(R.id.recyclerViewUsers).apply {
             layoutManager = LinearLayoutManager(requireContext())
             addItemDecoration(DividerItemDecoration(context, DividerItemDecoration.VERTICAL))
             setHasFixedSize(false)
         }
 
+        // Assicurati che l'utente sia loggato
         val currentUser = auth.currentUser
         if (currentUser == null) {
             Toast.makeText(requireContext(), "Devi effettuare il login", Toast.LENGTH_SHORT).show()
@@ -42,29 +47,34 @@ class Allievi : Fragment() {
             return
         }
 
-        // Carica utenti e poi filtra gli atleti del PT
+        // Carica tutti gli utenti e li mappa in User
         db.collection("users").get()
             .addOnSuccessListener { usersSnap ->
                 val usersMap = usersSnap.documents.associate { doc ->
-                    val bd = doc.getDate("birthday")?.let { dateFormat.format(it) }.orEmpty()
-                    val ht = doc.getLong("height")?.toInt()?.let { "$it cm" }.orEmpty()
-                    val wt = doc.getDouble("weight")?.let { "${it} kg" }.orEmpty()
-                    val bf = doc.getDouble("bodyFat")
+                    val bd       = doc.getDate("birthday")?.let { dateFormat.format(it) }.orEmpty()
+                    val ht       = doc.getLong("height")?.toInt()?.let { "$it cm" }.orEmpty()
+                    val wt       = doc.getDouble("weight")?.let { "$it kg" }.orEmpty()
+                    val bf       = doc.getDouble("bodyFat")
+                    val tgtFat   = doc.getDouble("targetFatMass")
+                    val tgtLean  = doc.getDouble("targetLeanMass")
+                    val tgtWeight= doc.getDouble("targetWeight")
                     doc.id to User(
-                        uid = doc.id,
-                        nickname = doc.getString("nickname").orEmpty(),
-                        firstName = doc.getString("firstName").orEmpty(),
-                        lastName = doc.getString("lastName").orEmpty(),
-                        email = doc.getString("email").orEmpty(),
-                        birthday = bd,
-                        height = ht,
-                        weight = wt,
-                        bodyFat = bf,
-                        targetFat = doc.getDouble("targetFatMass"),
-                        targetLean = doc.getDouble("targetLeanMass")
+                        uid          = doc.id,
+                        nickname     = doc.getString("nickname").orEmpty(),
+                        firstName    = doc.getString("firstName").orEmpty(),
+                        lastName     = doc.getString("lastName").orEmpty(),
+                        email        = doc.getString("email").orEmpty(),
+                        birthday     = bd,
+                        height       = ht,
+                        weight       = wt,
+                        bodyFat      = bf,
+                        targetFat    = tgtFat,
+                        targetLean   = tgtLean,
+                        targetWeight = tgtWeight
                     )
                 }
 
+                // Recupera soltanto gli atleti associati a questo PT
                 val colName = "atleti_di_${currentUser.uid}"
                 db.collection(colName).get()
                     .addOnSuccessListener { athSnap ->
@@ -73,14 +83,13 @@ class Allievi : Fragment() {
                             Toast.makeText(requireContext(), "Non hai ancora atleti.", Toast.LENGTH_SHORT).show()
                         }
                         recycler.adapter = AthletesAdapter(db, list) { user ->
+                            // click: nav al calendario/programma dell’atleta
                             val bundle = Bundle().apply {
                                 putString("selectedUser", "${user.firstName} ${user.lastName}")
                                 putString("athleteUid", user.uid)
                             }
-                            findNavController().navigate(
-                                R.id.action_navigation_allievi_to_navigation_ptSchedule,
-                                bundle
-                            )
+                            findNavController()
+                                .navigate(R.id.action_navigation_allievi_to_navigation_ptSchedule, bundle)
                         }
                     }
                     .addOnFailureListener { e ->
@@ -103,7 +112,8 @@ class Allievi : Fragment() {
         val weight: String,
         val bodyFat: Double?,
         val targetFat: Double?,
-        val targetLean: Double?
+        val targetLean: Double?,
+        val targetWeight: Double?        // <-- nuovo campo
     )
 
     class AthletesAdapter(
@@ -113,44 +123,63 @@ class Allievi : Fragment() {
     ) : RecyclerView.Adapter<AthletesAdapter.VH>() {
 
         inner class VH(view: View) : RecyclerView.ViewHolder(view) {
-            private val tvTitle: TextView = view.findViewById(R.id.tvAthleteTitle)
-            private val btnToggle: ImageButton = view.findViewById(R.id.btnToggle)
-            private val llDetails: LinearLayout = view.findViewById(R.id.llDetails)
-            private val tvEmail: TextView = view.findViewById(R.id.tvEmail)
-            private val tvBirth: TextView = view.findViewById(R.id.tvBirth)
-            private val tvHeight: TextView = view.findViewById(R.id.tvHeight)
-            private val tvWeight: TextView = view.findViewById(R.id.tvWeight)
-            private val tvBodyFat: TextView = view.findViewById(R.id.tvBodyFat)
-            private val etTargetFat: EditText = view.findViewById(R.id.etTargetFat)
-            private val etTargetLean: EditText = view.findViewById(R.id.etTargetLean)
-            private val btnSave: View = view.findViewById(R.id.btnSaveTargets)
+            private val tvTitle: TextView        = view.findViewById(R.id.tvAthleteTitle)
+            private val btnToggle: ImageButton   = view.findViewById(R.id.btnToggle)
+            private val llDetails: LinearLayout  = view.findViewById(R.id.llDetails)
+            private val tvEmail: TextView        = view.findViewById(R.id.tvEmail)
+            private val tvBirth: TextView        = view.findViewById(R.id.tvBirth)
+            private val tvHeight: TextView       = view.findViewById(R.id.tvHeight)
+            private val tvWeight: TextView       = view.findViewById(R.id.tvWeight)
+            private val tvLeanMass: TextView     = view.findViewById(R.id.tvLeanMass)
+            private val tvBodyFat: TextView      = view.findViewById(R.id.tvBodyFat)
 
-            private var originalFat: String? = null
-            private var originalLean: String? = null
-            private var currentUid: String? = null
+            private val etTargetFat: EditText    = view.findViewById(R.id.etTargetFat)
+            private val etTargetLean: EditText   = view.findViewById(R.id.etTargetLean)
+            private val etTargetWeight: EditText = view.findViewById(R.id.etTargetWeight)
+            private val btnSave: View            = view.findViewById(R.id.btnSaveTargets)
+
+            private var originalFat: String?    = null
+            private var originalLean: String?   = null
+            private var originalWeight: String? = null
+            private var currentUid: String?     = null
 
             fun bind(u: User) {
                 currentUid = u.uid
                 val fullName = "${u.firstName} ${u.lastName}".trim()
                 tvTitle.text = "${u.nickname} - $fullName".replace(Regex("^ - "), "")
-                tvEmail.text = "Email: ${u.email}"
-                tvBirth.text = "Data di nascita: ${u.birthday}"
-                tvHeight.text = "Altezza: ${u.height}"
-                tvWeight.text = "Peso attuale: ${u.weight}"
-                tvBodyFat.text = "Body Fat attuale: ${u.bodyFat?.let { "$it %" } ?: "-"}"
 
+                tvEmail.text    = "Email: ${u.email}"
+                tvBirth.text    = "Data di nascita: ${u.birthday}"
+                tvHeight.text   = "Altezza: ${u.height}"
+                tvWeight.text   = "Peso attuale: ${u.weight}"
+                tvBodyFat.text  = "Body Fat attuale: ${u.bodyFat?.let { String.format("%.1f %%", it) } ?: "-"}"
+
+                // calcola massa magra = peso*(1-BF/100)
+                val leanText = if (u.weight.isNotEmpty() && u.bodyFat != null) {
+                    val wtVal = u.weight.removeSuffix(" kg").toDoubleOrNull()
+                    val lean  = wtVal?.let { it * (1 - u.bodyFat / 100) }
+                    lean?.let { String.format("Massa magra attuale: %.1f kg", it) } ?: "-"
+                } else "-"
+                tvLeanMass.text = leanText
+
+                // navigazione su click
                 tvTitle.setOnClickListener { onAthleteClick(u) }
                 itemView.setOnClickListener { onAthleteClick(u) }
 
-                val fatText = u.targetFat?.toString().orEmpty()
-                val leanText = u.targetLean?.toString().orEmpty()
-                if (etTargetFat.text.toString() != fatText) etTargetFat.setText(fatText)
-                if (etTargetLean.text.toString() != leanText) etTargetLean.setText(leanText)
-                originalFat = fatText
-                originalLean = leanText
+                // popola campi target
+                val fatText    = u.targetFat   ?.toString().orEmpty()
+                val leanTextT  = u.targetLean  ?.toString().orEmpty()
+                val weightText = u.targetWeight?.toString().orEmpty()
+                if (etTargetFat.text.toString()    != fatText)    etTargetFat.setText(fatText)
+                if (etTargetLean.text.toString()   != leanTextT)  etTargetLean.setText(leanTextT)
+                if (etTargetWeight.text.toString() != weightText) etTargetWeight.setText(weightText)
+                originalFat    = fatText
+                originalLean   = leanTextT
+                originalWeight = weightText
 
                 makeEditable(etTargetFat)
                 makeEditable(etTargetLean)
+                makeEditable(etTargetWeight)
                 btnSave.visibility = View.VISIBLE
                 btnSave.isEnabled = true
 
@@ -171,45 +200,46 @@ class Allievi : Fragment() {
                 et.isEnabled = true
                 et.isFocusable = true
                 et.isFocusableInTouchMode = true
+                et.inputType = InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_FLAG_DECIMAL
                 et.isCursorVisible = true
             }
 
             private fun save(u: User) {
                 if (currentUid != u.uid) return
 
-                val fatStr = etTargetFat.text.toString().trim()
-                val leanStr = etTargetLean.text.toString().trim()
+                val fatStr    = etTargetFat.text.toString().trim()
+                val leanStr   = etTargetLean.text.toString().trim()
+                val weightStr = etTargetWeight.text.toString().trim()
 
-                if (fatStr == originalFat && leanStr == originalLean) {
+                if (fatStr == originalFat && leanStr == originalLean && weightStr == originalWeight) {
                     Toast.makeText(itemView.context, "Nessuna modifica", Toast.LENGTH_SHORT).show()
                     return
                 }
 
-                val fatVal = fatStr.ifEmpty { null }?.toDoubleOrNull()
-                val leanVal = leanStr.ifEmpty { null }?.toDoubleOrNull()
+                val fatVal    = fatStr   .ifEmpty { null }?.toDoubleOrNull()
+                val leanVal   = leanStr  .ifEmpty { null }?.toDoubleOrNull()
+                val weightVal = weightStr.ifEmpty { null }?.toDoubleOrNull()
 
-                if (fatStr.isNotEmpty() && (fatVal == null || fatVal < 0 || fatVal > 60)) {
-                    etTargetFat.error = "0-60"
-                    return
-                }
-                if (leanStr.isNotEmpty() && (leanVal == null || leanVal <= 0 || leanVal > 250)) {
-                    etTargetLean.error = "1-250"
-                    return
-                }
+                // validazioni
+                if (fatStr.isNotEmpty()    && (fatVal    == null || fatVal    < 0 || fatVal    > 60))  { etTargetFat.error    = "0–60";    return }
+                if (leanStr.isNotEmpty()   && (leanVal   == null || leanVal   < 0 || leanVal   > 250)) { etTargetLean.error   = "0–250";   return }
+                if (weightStr.isNotEmpty() && (weightVal == null || weightVal <= 0 || weightVal > 300)) { etTargetWeight.error = "1–300";   return }
 
                 btnSave.isEnabled = false
 
-                // Correggo il campo per il target magro: deve essere "targetLeanMass"
+                // aggiorna i tre campi in Firestore
                 db.collection("users").document(u.uid)
                     .update(
                         mapOf(
-                            "targetFatMass" to fatVal,
-                            "targetLeanMass" to leanVal
+                            "targetFatMass"   to fatVal,
+                            "targetLeanMass"  to leanVal,
+                            "targetWeight"    to weightVal
                         )
                     )
                     .addOnSuccessListener {
-                        originalFat = fatStr
-                        originalLean = leanStr
+                        originalFat    = fatStr
+                        originalLean   = leanStr
+                        originalWeight = weightStr
                         Toast.makeText(itemView.context, "Obiettivi salvati", Toast.LENGTH_SHORT).show()
                         btnSave.isEnabled = true
                     }
@@ -225,7 +255,9 @@ class Allievi : Fragment() {
             return VH(v)
         }
 
-        override fun onBindViewHolder(holder: VH, position: Int) = holder.bind(athletes[position])
+        override fun onBindViewHolder(holder: VH, position: Int) =
+            holder.bind(athletes[position])
+
         override fun getItemCount(): Int = athletes.size
     }
 }
