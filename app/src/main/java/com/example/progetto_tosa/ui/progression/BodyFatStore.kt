@@ -5,6 +5,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import androidx.room.*
+import androidx.room.migration.Migration
+import androidx.sqlite.db.SupportSQLiteDatabase
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 
@@ -16,7 +18,7 @@ data class BodyFatEntry(
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
     val userId: String,
     val epochDay: Long,
-    val bodyFatPercent: Float,
+    val bodyFatPercent: Float?,
     val bodyWeightKg: Float? = null,
     val leanMassKg: Float? = null
 )
@@ -39,12 +41,22 @@ interface BodyFatDao {
     suspend fun insertAll(entries: List<BodyFatEntry>)
 }
 
-@Database(entities = [BodyFatEntry::class], version = 4, exportSchema = true)
+@Database(entities = [BodyFatEntry::class], version = 5, exportSchema = true)
 abstract class BodyFatDb : RoomDatabase() {
     abstract fun dao(): BodyFatDao
 
     companion object {
         @Volatile private var INSTANCE: BodyFatDb? = null
+
+        // Migration from version 4 to 5: add nullable columns
+        private val MIGRATION_4_5 = object : Migration(4, 5) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                database.execSQL("ALTER TABLE body_fat_entries ADD COLUMN bodyFatPercent REAL")
+                database.execSQL("ALTER TABLE body_fat_entries ADD COLUMN bodyWeightKg REAL")
+                database.execSQL("ALTER TABLE body_fat_entries ADD COLUMN leanMassKg REAL")
+            }
+        }
+
         fun get(context: Context): BodyFatDb =
             INSTANCE ?: synchronized(this) {
                 INSTANCE ?: Room.databaseBuilder(
@@ -52,7 +64,7 @@ abstract class BodyFatDb : RoomDatabase() {
                     BodyFatDb::class.java,
                     "body_fat_db"
                 )
-                    .fallbackToDestructiveMigration()
+                    .addMigrations(MIGRATION_4_5)
                     .build()
                     .also { INSTANCE = it }
             }

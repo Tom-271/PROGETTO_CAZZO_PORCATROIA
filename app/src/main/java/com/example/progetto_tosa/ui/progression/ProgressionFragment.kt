@@ -95,45 +95,51 @@ class ProgressionFragment : Fragment(R.layout.fragment_progression) {
     }
 
     private fun loadLatestMeasurements() {
-        val userDoc = db.collection("users").document(uid!!)
+        val entriesRef = db
+            .collection("users")
+            .document(uid!!)
+            .collection("bodyFatEntries")
 
-        // BODYFAT
-        userDoc.collection("bodyFatEntries")
+        // Body‐fat
+        entriesRef
             .orderBy("epochDay", Query.Direction.DESCENDING)
-            .limit(1)
-            .get().addOnSuccessListener { snaps ->
+            .limit(10)
+            .get()
+            .addOnSuccessListener { snaps ->
                 val bf = snaps.documents
-                    .firstOrNull()
-                    ?.getDouble("bodyFatPercent")
-                    ?.toFloat()
+                    .firstOrNull { it.contains("bodyFatPercent") }
+                    ?.getDouble("bodyFatPercent")?.toFloat()
                 bfSubtitle.text = bf?.let { "%.1f %%".format(it) } ?: "—"
             }
 
-        // PESO
-        userDoc.collection("bodyFatEntries")
+        // Peso
+        entriesRef
             .orderBy("epochDay", Query.Direction.DESCENDING)
-            .limit(1)
-            .get().addOnSuccessListener { snaps ->
+            .limit(10)
+            .get()
+            .addOnSuccessListener { snaps ->
                 val w = snaps.documents
                     .firstOrNull { it.contains("bodyWeightKg") }
-                    ?.getDouble("bodyWeightKg")
-                    ?.toFloat()
+                    ?.getDouble("bodyWeightKg")?.toFloat()
                 pesoSubtitle.text = w?.let { "%.1f kg".format(it) } ?: "—"
             }
 
-        // MASSA MAGRA
-        userDoc.collection("bodyFatEntries")
+        // Massa magra
+        entriesRef
             .orderBy("epochDay", Query.Direction.DESCENDING)
-            .limit(1)  // prendi solo l'ultimo
-            .get().addOnSuccessListener { snaps ->
-                val doc = snaps.documents.firstOrNull { it.contains("leanMassKg") }
-                val lean = doc
-                    ?.getDouble("leanMassKg")
-                    ?.toFloat()
-                leanSubtitle.text = lean?.let { "%.1f kg".format(it) } ?: "—"
+            .limit(10)
+            .get()
+            .addOnSuccessListener { snaps ->
+                val lm = snaps.documents
+                    .firstOrNull { it.contains("leanMassKg") }
+                    ?.getDouble("leanMassKg")?.toFloat()
+                leanSubtitle.text = lm?.let { "%.1f kg".format(it) } ?: "—"
+                swipeRefresh.isRefreshing = false
             }
-
     }
+
+
+
 
     private fun loadGoals() {
         db.collection("personal_trainers").document(uid!!)

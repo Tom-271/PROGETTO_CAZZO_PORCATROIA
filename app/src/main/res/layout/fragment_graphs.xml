@@ -1,476 +1,565 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
+<FrameLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:padding="16dp">
+    android:layout_height="match_parent">
 
-    <!-- Titolo -->
-    <TextView
-        android:id="@+id/titoloForGraphs"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:text="-"
-        android:textSize="16sp"
-        android:textStyle="bold"
-        android:textColor="@color/lapis"
-        android:gravity="start"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
-
-    <!-- Valore attuale BF% -->
-    <TextView
-        android:id="@+id/tvCurrentBfValue"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="—"
-        android:textSize="46sp"
-        android:textStyle="bold"
-        android:textColor="@color/white"
-        android:layout_marginTop="8dp"
-        app:layout_constraintTop_toBottomOf="@id/titoloForGraphs"
-        app:layout_constraintStart_toStartOf="parent"/>
-
-    <!-- Data ultima registrazione BF -->
-    <TextView
-        android:id="@+id/tvCurrentBfDate"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="—/—/—"
-        android:textSize="14sp"
-        android:textColor="@android:color/darker_gray"
-        android:layout_marginTop="4dp"
-        app:layout_constraintTop_toBottomOf="@id/tvCurrentBfValue"
-        app:layout_constraintStart_toStartOf="parent"/>
-
-    <!-- Valore attuale PESO -->
-    <TextView
-        android:id="@+id/tvCurrentWeightValue"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="— kg"
-        android:textSize="46sp"
-        android:textStyle="bold"
-        android:textColor="@color/white"
-        android:visibility="gone"
-        android:layout_marginTop="8dp"
-        app:layout_constraintTop_toBottomOf="@id/tvCurrentBfDate"
-        app:layout_constraintStart_toStartOf="parent"/>
-
-    <!-- Data ultima registrazione PESO -->
-    <TextView
-        android:id="@+id/tvCurrentWeightDate"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="—/—/—"
-        android:textSize="14sp"
-        android:textColor="@android:color/darker_gray"
-        android:visibility="gone"
-        android:layout_marginTop="4dp"
-        app:layout_constraintTop_toBottomOf="@id/tvCurrentWeightValue"
-        app:layout_constraintStart_toStartOf="parent"/>
-
-    <!-- Valore attuale MASSA MAGRA -->
-    <TextView
-        android:id="@+id/tvCurrentLeanValue"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="— kg"
-        android:textSize="46sp"
-        android:textStyle="bold"
-        android:textColor="@color/white"
-        android:visibility="gone"
-        android:layout_marginTop="8dp"
-        app:layout_constraintTop_toBottomOf="@id/tvCurrentWeightDate"
-        app:layout_constraintStart_toStartOf="parent"/>
-
-    <!-- Data ultima registrazione MASSA MAGRA -->
-    <TextView
-        android:id="@+id/tvCurrentLeanDate"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="—/—/—"
-        android:textSize="14sp"
-        android:textColor="@android:color/darker_gray"
-        android:visibility="gone"
-        android:layout_marginTop="4dp"
-        app:layout_constraintTop_toBottomOf="@id/tvCurrentLeanValue"
-        app:layout_constraintStart_toStartOf="parent"/>
-
-    <!-- Barrier per allineare il grafico sotto l'ultimo dato visibile -->
-    <androidx.constraintlayout.widget.Barrier
-        android:id="@+id/barTop"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:barrierDirection="bottom"
-        app:constraint_referenced_ids="tvCurrentBfDate,tvCurrentWeightDate,tvCurrentLeanDate"/>
-
-    <!-- Contenitore grafico -->
-    <FrameLayout
-        android:id="@+id/fragment_graphs_container"
-        android:layout_width="0dp"
-        android:layout_height="220dp"
-        android:layout_marginTop="16dp"
-        android:background="@color/dark_gray"
-        app:layout_constraintTop_toBottomOf="@id/barTop"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
-
-    <!-- Sottotitolo grafico -->
-    <TextView
-        android:id="@+id/tvSubtitleGraph"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:text="-"
-        android:textSize="27sp"
-        android:textStyle="bold"
-        android:textColor="@color/purple_200"
-        android:visibility="gone"
-        android:layout_marginTop="38dp"
-        app:layout_constraintTop_toBottomOf="@id/fragment_graphs_container"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
-
-    <!-- Divider sotto sottotitolo -->
-    <View
-        android:id="@+id/dividersubtitle"
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="2dp"
-        android:layout_marginEnd="290dp"
-        android:background="@color/purple_200"
-        android:visibility="gone"
-        app:layout_constraintTop_toBottomOf="@id/tvSubtitleGraph"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
-
-    <!-- Descrizione BodyFat -->
-    <TextView
-        android:id="@+id/tvDescBodyFat"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:text="BF è l’acronimo di Body Fat, ovvero la percentuale di grasso corporeo presente nell’individuo. Essa rappresenta il rapporto tra il peso del tessuto adiposo e il peso totale del corpo, fornendo un indicatore più accurato della composizione corporea rispetto al solo peso. Un valore di BF equilibrato è fondamentale per la salute generale e il benessere: percentuali eccessive possono aumentare il rischio di patologie cardiovascolari e metaboliche, mentre percentuali troppo basse possono indicare carenze nutrizionali o problemi ormonali. Monitorare l’andamento della massa grassa nel tempo permette di valutare l’efficacia di diete, programmi di allenamento e abitudini di vita."
-        android:textSize="12sp"
-        android:textColor="@color/light_gray"
-        android:lineSpacingExtra="2dp"
-        android:textStyle="bold|italic"
-        android:visibility="gone"
-        android:layout_marginTop="14dp"
-        app:layout_constraintTop_toBottomOf="@id/dividersubtitle"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
-
-    <!-- Descrizione Massa Magra -->
-    <TextView
-        android:id="@+id/tvDescLean"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:text="La massa magra è tutto ciò che non è grasso corporeo: muscoli, ossa, organi… Monitorane la variazione per valutare forza e composizione."
-        android:textSize="12sp"
-        android:textColor="@color/light_gray"
-        android:lineSpacingExtra="2dp"
-        android:textStyle="bold|italic"
-        android:visibility="gone"
-        android:layout_marginTop="4dp"
-        app:layout_constraintTop_toBottomOf="@id/tvDescBodyFat"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
-
-    <!-- Descrizione Peso -->
-    <TextView
-        android:id="@+id/tvDescWeight"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:text="Peso corporeo (kg) è il peso totale del corpo misurato sulla bilancia. Monitorare la sua variazione nel tempo aiuta a valutare l’efficacia di diete e allenamenti, bilanciando massa magra e grasso per un benessere ottimale."
-        android:textSize="12sp"
-        android:textColor="@color/light_gray"
-        android:lineSpacingExtra="2dp"
-        android:textStyle="bold|italic"
-        android:visibility="gone"
-        android:layout_marginTop="4dp"
-        app:layout_constraintTop_toBottomOf="@id/tvDescLean"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
-
-    <!-- Etichetta asse X -->
-    <TextView
-        android:id="@+id/ascisse"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Giorno (gg/mm)"
-        android:textSize="12sp"
-        android:textColor="@android:color/white"
-        android:layout_marginTop="8dp"
-        app:layout_constraintTop_toBottomOf="@id/tvDescWeight"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
-
-    <!-- Card di inserimento BodyFat -->
-    <androidx.cardview.widget.CardView
-        android:id="@+id/cardInsertBodyFat"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:visibility="gone"
-        app:cardCornerRadius="30dp"
-        app:cardBackgroundColor="@color/dark_gray"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
+        android:layout_height="match_parent">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="280dp"
-            android:padding="15dp">
+            android:layout_height="match_parent"
+            android:padding="16dp">
 
+            <!-- Titolo -->
             <TextView
-                android:id="@+id/tvTitleBodyFat"
-                android:layout_width="wrap_content"
+                android:id="@+id/titoloForGraphs"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:text="Inserisci il tuo BF in data:"
-                android:textSize="28sp"
-                android:textStyle="bold|italic"
-                android:textColor="@color/purple_200"
+                android:text="-"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textColor="@color/lapis"
+                android:gravity="start"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"/>
 
+            <!-- Valore attuale BF% -->
             <TextView
-                android:id="@+id/tvSelectedDate"
+                android:id="@+id/tvCurrentBfValue"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Oggi"
-                android:textSize="18sp"
+                android:text="—"
+                android:textSize="46sp"
                 android:textStyle="bold"
-                android:textColor="@android:color/white"
-                android:layout_marginTop="4dp"
-                app:layout_constraintTop_toBottomOf="@id/tvTitleBodyFat"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"/>
+                android:textColor="@color/white"
+                android:layout_marginTop="8dp"
+                app:layout_constraintTop_toBottomOf="@id/titoloForGraphs"
+                app:layout_constraintStart_toStartOf="parent"/>
 
-            <EditText
-                android:id="@+id/etBodyFatInput"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:hint="%"
-                android:inputType="numberDecimal"
-                android:maxLines="1"
-                android:gravity="center_horizontal"
-                android:imeOptions="actionDone"
-                android:textColor="@android:color/white"
-                android:textColorHint="@android:color/darker_gray"
-                android:backgroundTint="@color/lapis"
-                app:layout_constraintTop_toBottomOf="@id/tvSelectedDate"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"/>
-
-            <ImageButton
-                android:id="@+id/btnPickDate"
-                android:layout_width="0dp"
-                android:layout_height="45dp"
-                android:layout_marginTop="16dp"
-                android:layout_marginEnd="4dp"
-                android:contentDescription="Seleziona data"
-                android:src="@android:drawable/ic_menu_my_calendar"
-                android:backgroundTint="@color/lapis"
-                app:layout_constraintTop_toBottomOf="@id/etBodyFatInput"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toStartOf="@id/btnSaveBodyFat"/>
-
-            <ImageButton
-                android:id="@+id/btnSaveBodyFat"
-                android:layout_width="0dp"
-                android:layout_height="45dp"
-                android:layout_marginTop="16dp"
-                android:layout_marginStart="4dp"
-                android:contentDescription="Salva bodyfat"
-                android:src="@android:drawable/ic_menu_save"
-                android:backgroundTint="@color/lapis"
-                app:layout_constraintTop_toBottomOf="@id/etBodyFatInput"
-                app:layout_constraintStart_toEndOf="@id/btnPickDate"
-                app:layout_constraintEnd_toEndOf="parent"/>
-
-        </androidx.constraintlayout.widget.ConstraintLayout>
-    </androidx.cardview.widget.CardView>
-
-    <!-- Card di inserimento Peso -->
-    <androidx.cardview.widget.CardView
-        android:id="@+id/cardInsertWeight"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:visibility="gone"
-        app:cardCornerRadius="30dp"
-        app:cardBackgroundColor="@color/dark_gray"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
-
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:layout_width="match_parent"
-            android:layout_height="280dp"
-            android:padding="15dp">
-
+            <!-- Data ultima registrazione BF -->
             <TextView
-                android:id="@+id/tvTitleWeight"
+                android:id="@+id/tvCurrentBfDate"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Inserisci il tuo peso in data:"
-                android:textSize="28sp"
-                android:textStyle="bold|italic"
+                android:text="—/—/—"
+                android:textSize="14sp"
+                android:textColor="@android:color/darker_gray"
+                android:layout_marginTop="4dp"
+                app:layout_constraintTop_toBottomOf="@id/tvCurrentBfValue"
+                app:layout_constraintStart_toStartOf="parent"/>
+
+            <!-- Valore attuale PESO -->
+            <TextView
+                android:id="@+id/tvCurrentWeightValue"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="— kg"
+                android:textSize="46sp"
+                android:textStyle="bold"
+                android:textColor="@color/white"
+                android:visibility="gone"
+                android:layout_marginTop="8dp"
+                app:layout_constraintTop_toBottomOf="@id/tvCurrentBfDate"
+                app:layout_constraintStart_toStartOf="parent"/>
+
+            <!-- Data ultima registrazione PESO -->
+            <TextView
+                android:id="@+id/tvCurrentWeightDate"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="—/—/—"
+                android:textSize="14sp"
+                android:textColor="@android:color/darker_gray"
+                android:visibility="gone"
+                android:layout_marginTop="4dp"
+                app:layout_constraintTop_toBottomOf="@id/tvCurrentWeightValue"
+                app:layout_constraintStart_toStartOf="parent"/>
+
+            <!-- Valore attuale MASSA MAGRA -->
+            <TextView
+                android:id="@+id/tvCurrentLeanValue"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="— kg"
+                android:textSize="46sp"
+                android:textStyle="bold"
+                android:textColor="@color/white"
+                android:visibility="gone"
+                android:layout_marginTop="8dp"
+                app:layout_constraintTop_toBottomOf="@id/tvCurrentWeightDate"
+                app:layout_constraintStart_toStartOf="parent"/>
+
+            <!-- Data ultima registrazione MASSA MAGRA -->
+            <TextView
+                android:id="@+id/tvCurrentLeanDate"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="—/—/—"
+                android:textSize="14sp"
+                android:textColor="@android:color/darker_gray"
+                android:visibility="gone"
+                android:layout_marginTop="4dp"
+                app:layout_constraintTop_toBottomOf="@id/tvCurrentLeanValue"
+                app:layout_constraintStart_toStartOf="parent"/>
+
+            <!-- Barrier per allineare il grafico sotto l'ultimo dato visibile -->
+            <androidx.constraintlayout.widget.Barrier
+                android:id="@+id/barTop"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:barrierDirection="bottom"
+                app:constraint_referenced_ids="tvCurrentBfDate,tvCurrentWeightDate,tvCurrentLeanDate"/>
+
+            <!-- Contenitore grafico -->
+            <FrameLayout
+                android:id="@+id/fragment_graphs_container"
+                android:layout_width="0dp"
+                android:layout_height="220dp"
+                android:layout_marginTop="16dp"
+                android:background="@color/dark_gray"
+                app:layout_constraintTop_toBottomOf="@id/barTop"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"/>
+
+            <!-- Sottotitolo grafico -->
+            <TextView
+                android:id="@+id/tvSubtitleGraph"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="-"
+                android:textSize="27sp"
+                android:textStyle="bold"
                 android:textColor="@color/purple_200"
-                app:layout_constraintTop_toTopOf="parent"
+                android:visibility="gone"
+                android:layout_marginTop="38dp"
+                app:layout_constraintTop_toBottomOf="@id/fragment_graphs_container"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"/>
 
+            <!-- Divider sotto sottotitolo -->
+            <View
+                android:id="@+id/dividersubtitle"
+                android:layout_width="match_parent"
+                android:layout_height="2dp"
+                android:layout_marginEnd="290dp"
+                android:background="@color/purple_200"
+                android:visibility="gone"
+                app:layout_constraintTop_toBottomOf="@id/tvSubtitleGraph"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"/>
+
+            <!-- Descrizione BodyFat -->
             <TextView
-                android:id="@+id/tvSelectedDateWeight"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Oggi"
-                android:textSize="18sp"
-                android:textStyle="bold"
-                android:textColor="@android:color/white"
-                android:layout_marginTop="4dp"
-                app:layout_constraintTop_toBottomOf="@id/tvTitleWeight"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"/>
-
-            <EditText
-                android:id="@+id/etWeightInput"
+                android:id="@+id/tvDescBodyFat"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:hint="kg"
-                android:inputType="numberDecimal"
-                android:maxLines="1"
-                android:gravity="center_horizontal"
-                android:imeOptions="actionDone"
-                android:textColor="@android:color/white"
-                android:textColorHint="@android:color/darker_gray"
-                android:backgroundTint="@color/lapis"
-                app:layout_constraintTop_toBottomOf="@id/tvSelectedDateWeight"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"/>
-
-            <ImageButton
-                android:id="@+id/btnPickDateWeight"
-                android:layout_width="0dp"
-                android:layout_height="45dp"
-                android:layout_marginTop="16dp"
-                android:layout_marginEnd="4dp"
-                android:contentDescription="Seleziona data"
-                android:src="@android:drawable/ic_menu_my_calendar"
-                android:backgroundTint="@color/lapis"
-                app:layout_constraintTop_toBottomOf="@id/etWeightInput"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toStartOf="@id/btnSaveWeight"/>
-
-            <ImageButton
-                android:id="@+id/btnSaveWeight"
-                android:layout_width="0dp"
-                android:layout_height="45dp"
-                android:layout_marginTop="16dp"
-                android:layout_marginStart="4dp"
-                android:contentDescription="Salva peso"
-                android:src="@android:drawable/ic_menu_save"
-                android:backgroundTint="@color/lapis"
-                app:layout_constraintTop_toBottomOf="@id/etWeightInput"
-                app:layout_constraintStart_toEndOf="@id/btnPickDateWeight"
-                app:layout_constraintEnd_toEndOf="parent"/>
-
-        </androidx.constraintlayout.widget.ConstraintLayout>
-    </androidx.cardview.widget.CardView>
-
-    <!-- Card di inserimento Massa Magra -->
-    <androidx.cardview.widget.CardView
-        android:id="@+id/cardInsertLean"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:visibility="gone"
-        app:cardCornerRadius="30dp"
-        app:cardBackgroundColor="@color/dark_gray"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
-
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:padding="15dp">
-
-            <TextView
-                android:id="@+id/tvTitleLean"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Inserisci la tua massa magra in data:"
-                android:textSize="28sp"
+                android:text="BF è l'acronimo di Body Fat, ovvero la percentuale di grasso corporeo presente nell'individuo. Essa rappresenta il rapporto tra il peso del tessuto adiposo e il peso totale del corpo, fornendo un indicatore più accurato della composizione corporea rispetto al solo peso. Un valore di BF equilibrato è fondamentale per la salute generale e il benessere: percentuali eccessive possono aumentare il rischio di patologie cardiovascolari e metaboliche, mentre percentuali troppo basse possono indicare carenze nutrizionali o problemi ormonali. Monitorare l'andamento della massa grassa nel tempo permette di valutare l'efficacia di diete, programmi di allenamento e abitudini di vita."
+                android:textSize="12sp"
+                android:textColor="@color/light_gray"
+                android:lineSpacingExtra="2dp"
                 android:textStyle="bold|italic"
-                android:textColor="@color/purple_200"
-                app:layout_constraintTop_toTopOf="parent"
+                android:visibility="gone"
+                android:layout_marginTop="14dp"
+                app:layout_constraintTop_toBottomOf="@id/dividersubtitle"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"/>
 
             <TextView
-                android:id="@+id/tvSelectedDateLean"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Oggi"
-                android:textSize="18sp"
+                android:id="@+id/TitleForRVBodyFat"
                 android:textStyle="bold"
-                android:textColor="@android:color/white"
-                android:layout_marginTop="4dp"
-                app:layout_constraintTop_toBottomOf="@id/tvTitleLean"
+                android:layout_marginTop="50dp"
+                android:text="Ultimi valori registrati:"
+                android:textSize="20sp"
+                android:textColor="@color/white"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"/>
+                app:layout_constraintTop_toBottomOf="@id/tvDescBodyFat"/>
 
-            <EditText
-                android:id="@+id/etLeanInput"
+            <!-- RecyclerView BodyFat: 0–10 -->
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvNumbersBf"
+                android:layout_width="0dp"
+                android:layout_height="144dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginStart="10dp"
+                app:layout_constraintTop_toBottomOf="@id/TitleForRVBodyFat"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                android:visibility="gone"
+                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                />
+
+            <TextView
+                android:id="@+id/tvDescLean"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:hint="kg"
-                android:inputType="numberDecimal"
-                android:maxLines="1"
-                android:gravity="center_horizontal"
-                android:imeOptions="actionDone"
+                android:text="La massa magra include tutto ciò che non è tessuto adiposo: muscoli, ossa, organi, acqua corporea e tessuti connettivi. Aumentare la massa magra significa sviluppare fibra muscolare e migliorare il metabolismo basale, favorendo forza, resistenza e salute delle articolazioni. Monitorarne l'andamento permette di valutare l'efficacia di allenamenti, apporto proteico e strategie nutrizionali, ottimizzando il rapporto tra massa muscolare e grasso corporeo per un benessere duraturo."
+                android:textSize="12sp"
+                android:textColor="@color/light_gray"
+                android:lineSpacingExtra="4dp"
+                android:textStyle="bold|italic"
+                android:visibility="gone"
+                android:layout_marginTop="4dp"
+                app:layout_constraintTop_toBottomOf="@id/tvDescBodyFat"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/TitleForRVLeanMass"
+                android:textStyle="bold"
+                android:layout_marginTop="50dp"
+                android:text="Ultimi valori registrati:"
+                android:textSize="20sp"
+                android:textColor="@color/white"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/tvDescLean"/>
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvNumbersLean"
+                android:layout_width="0dp"
+                android:layout_height="144dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginStart="10dp"
+                app:layout_constraintTop_toBottomOf="@id/TitleForRVLeanMass"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                android:visibility="gone"
+                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                />
+
+            <!-- Descrizione Peso -->
+            <TextView
+                android:id="@+id/tvDescWeight"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="Peso corporeo (kg) è il peso totale del corpo misurato sulla bilancia. Monitorare la sua variazione nel tempo aiuta a valutare l'efficacia di diete e allenamenti, bilanciando massa magra e grasso per un benessere ottimale."
+                android:textSize="12sp"
+                android:textColor="@color/light_gray"
+                android:lineSpacingExtra="2dp"
+                android:textStyle="bold|italic"
+                android:visibility="gone"
+                android:layout_marginTop="4dp"
+                app:layout_constraintTop_toBottomOf="@id/tvDescLean"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/TitleForRVWeight"
+                android:textStyle="bold"
+                android:layout_marginTop="50dp"
+                android:text="Ultimi valori registrati:"
+                android:textSize="20sp"
+                android:textColor="@color/white"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/tvDescWeight"/>
+
+            <!-- RecyclerView Weight: 21–30 -->
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvNumbersWeight"
+                android:layout_width="0dp"
+                android:layout_height="144dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginStart="10dp"
+                app:layout_constraintTop_toBottomOf="@id/TitleForRVWeight"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                android:visibility="gone"
+                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                />
+
+            <!-- Etichetta asse X -->
+            <TextView
+                android:id="@+id/ascisse"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Giorno (gg/mm)"
+                android:textSize="12sp"
                 android:textColor="@android:color/white"
-                android:textColorHint="@android:color/darker_gray"
-                android:backgroundTint="@color/lapis"
-                app:layout_constraintTop_toBottomOf="@id/tvSelectedDateLean"
+                android:layout_marginTop="8dp"
+                app:layout_constraintTop_toBottomOf="@id/fragment_graphs_container"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"/>
 
-            <ImageButton
-                android:id="@+id/btnPickDateLean"
-                android:layout_width="0dp"
-                android:layout_height="45dp"
-                android:layout_marginTop="16dp"
-                android:layout_marginEnd="4dp"
-                android:contentDescription="Seleziona data"
-                android:src="@android:drawable/ic_menu_my_calendar"
-                android:backgroundTint="@color/lapis"
-                app:layout_constraintTop_toBottomOf="@id/etLeanInput"
+            <!-- Card di inserimento BodyFat -->
+            <androidx.cardview.widget.CardView
+                android:id="@+id/cardInsertBodyFat"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:visibility="gone"
+                app:cardCornerRadius="30dp"
+                android:layout_marginBottom="205dp"
+                app:cardBackgroundColor="@color/dark_gray"
+                app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toStartOf="@id/btnSaveLean"/>
+                app:layout_constraintEnd_toEndOf="parent">
 
-            <ImageButton
-                android:id="@+id/btnSaveLean"
-                android:layout_width="0dp"
-                android:layout_height="45dp"
-                android:layout_marginTop="16dp"
-                android:layout_marginStart="4dp"
-                android:contentDescription="Salva massa magra"
-                android:src="@android:drawable/ic_menu_save"
-                android:backgroundTint="@color/lapis"
-                app:layout_constraintTop_toBottomOf="@id/etLeanInput"
-                app:layout_constraintStart_toEndOf="@id/btnPickDateLean"
-                app:layout_constraintEnd_toEndOf="parent"/>
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="15dp">
+
+                    <TextView
+                        android:id="@+id/tvTitleBodyFat"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Inserisci il tuo BF in data:"
+                        android:textSize="28sp"
+                        android:textStyle="bold|italic"
+                        android:textColor="@color/purple_200"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"/>
+
+                    <TextView
+                        android:id="@+id/tvSelectedDate"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Oggi"
+                        android:textSize="18sp"
+                        android:textStyle="bold"
+                        android:textColor="@android:color/white"
+                        android:layout_marginTop="4dp"
+                        app:layout_constraintTop_toBottomOf="@id/tvTitleBodyFat"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"/>
+
+                    <EditText
+                        android:id="@+id/etBodyFatInput"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:hint="%"
+                        android:inputType="numberDecimal"
+                        android:maxLines="1"
+                        android:gravity="center_horizontal"
+                        android:imeOptions="actionDone"
+                        android:textColor="@android:color/white"
+                        android:textColorHint="@android:color/darker_gray"
+                        android:backgroundTint="@color/lapis"
+                        app:layout_constraintTop_toBottomOf="@id/tvSelectedDate"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"/>
+
+                    <ImageButton
+                        android:id="@+id/btnPickDate"
+                        android:layout_width="0dp"
+                        android:layout_height="45dp"
+                        android:layout_marginTop="16dp"
+                        android:layout_marginEnd="4dp"
+                        android:contentDescription="Seleziona data"
+                        android:src="@android:drawable/ic_menu_my_calendar"
+                        android:backgroundTint="@color/lapis"
+                        app:layout_constraintTop_toBottomOf="@id/etBodyFatInput"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintEnd_toStartOf="@id/btnSaveBodyFat"/>
+
+                    <ImageButton
+                        android:id="@+id/btnSaveBodyFat"
+                        android:layout_width="0dp"
+                        android:layout_height="45dp"
+                        android:layout_marginTop="16dp"
+                        android:layout_marginStart="4dp"
+                        android:contentDescription="Salva bodyfat"
+                        android:src="@android:drawable/ic_menu_save"
+                        android:backgroundTint="@color/lapis"
+                        app:layout_constraintTop_toBottomOf="@id/etBodyFatInput"
+                        app:layout_constraintStart_toEndOf="@id/btnPickDate"
+                        app:layout_constraintEnd_toEndOf="parent"/>
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
+            </androidx.cardview.widget.CardView>
+
+            <!-- Card di inserimento Peso -->
+            <androidx.cardview.widget.CardView
+                android:id="@+id/cardInsertWeight"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:visibility="gone"
+                app:cardCornerRadius="30dp"
+                android:layout_marginBottom="100dp"
+                app:cardBackgroundColor="@color/dark_gray"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent">
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="15dp">
+
+                    <TextView
+                        android:id="@+id/tvTitleWeight"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Inserisci il tuo peso in data:"
+                        android:textSize="28sp"
+                        android:textStyle="bold|italic"
+                        android:textColor="@color/purple_200"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"/>
+
+                    <TextView
+                        android:id="@+id/tvSelectedDateWeight"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Oggi"
+                        android:textSize="18sp"
+                        android:textStyle="bold"
+                        android:textColor="@android:color/white"
+                        android:layout_marginTop="4dp"
+                        app:layout_constraintTop_toBottomOf="@id/tvTitleWeight"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"/>
+
+                    <EditText
+                        android:id="@+id/etWeightInput"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:hint="kg"
+                        android:inputType="numberDecimal"
+                        android:maxLines="1"
+                        android:gravity="center_horizontal"
+                        android:imeOptions="actionDone"
+                        android:textColor="@android:color/white"
+                        android:textColorHint="@android:color/darker_gray"
+                        android:backgroundTint="@color/lapis"
+                        app:layout_constraintTop_toBottomOf="@id/tvSelectedDateWeight"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"/>
+
+                    <ImageButton
+                        android:id="@+id/btnPickDateWeight"
+                        android:layout_width="0dp"
+                        android:layout_height="45dp"
+                        android:layout_marginTop="16dp"
+                        android:layout_marginEnd="4dp"
+                        android:contentDescription="Seleziona data"
+                        android:src="@android:drawable/ic_menu_my_calendar"
+                        android:backgroundTint="@color/lapis"
+                        app:layout_constraintTop_toBottomOf="@id/etWeightInput"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintEnd_toStartOf="@id/btnSaveWeight"/>
+
+                    <ImageButton
+                        android:id="@+id/btnSaveWeight"
+                        android:layout_width="0dp"
+                        android:layout_height="45dp"
+                        android:layout_marginTop="16dp"
+                        android:layout_marginStart="4dp"
+                        android:contentDescription="Salva peso"
+                        android:src="@android:drawable/ic_menu_save"
+                        android:backgroundTint="@color/lapis"
+                        app:layout_constraintTop_toBottomOf="@id/etWeightInput"
+                        app:layout_constraintStart_toEndOf="@id/btnPickDateWeight"
+                        app:layout_constraintEnd_toEndOf="parent"/>
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
+            </androidx.cardview.widget.CardView>
+
+            <!-- Card di inserimento Massa Magra -->
+            <androidx.cardview.widget.CardView
+                android:id="@+id/cardInsertLean"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:visibility="gone"
+                app:cardCornerRadius="30dp"
+                android:layout_marginBottom="160dp"
+                app:cardBackgroundColor="@color/dark_gray"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent">
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="15dp">
+
+                    <TextView
+                        android:id="@+id/tvTitleLean"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Inserisci la tua massa magra in data:"
+                        android:textSize="28sp"
+                        android:textStyle="bold|italic"
+                        android:textColor="@color/purple_200"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"/>
+
+                    <TextView
+                        android:id="@+id/tvSelectedDateLean"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Oggi"
+                        android:textSize="18sp"
+                        android:textStyle="bold"
+                        android:textColor="@android:color/white"
+                        android:layout_marginTop="4dp"
+                        app:layout_constraintTop_toBottomOf="@id/tvTitleLean"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"/>
+
+                    <EditText
+                        android:id="@+id/etLeanInput"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:hint="kg"
+                        android:inputType="numberDecimal"
+                        android:maxLines="1"
+                        android:gravity="center_horizontal"
+                        android:imeOptions="actionDone"
+                        android:textColor="@android:color/white"
+                        android:textColorHint="@android:color/darker_gray"
+                        android:backgroundTint="@color/lapis"
+                        app:layout_constraintTop_toBottomOf="@id/tvSelectedDateLean"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"/>
+
+                    <ImageButton
+                        android:id="@+id/btnPickDateLean"
+                        android:layout_width="0dp"
+                        android:layout_height="45dp"
+                        android:layout_marginTop="16dp"
+                        android:layout_marginEnd="4dp"
+                        android:contentDescription="Seleziona data"
+                        android:src="@android:drawable/ic_menu_my_calendar"
+                        android:backgroundTint="@color/lapis"
+                        app:layout_constraintTop_toBottomOf="@id/etLeanInput"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintEnd_toStartOf="@id/btnSaveLean"/>
+
+                    <ImageButton
+                        android:id="@+id/btnSaveLean"
+                        android:layout_width="0dp"
+                        android:layout_height="45dp"
+                        android:layout_marginTop="16dp"
+                        android:layout_marginStart="4dp"
+                        android:contentDescription="Salva massa magra"
+                        android:src="@android:drawable/ic_menu_save"
+                        android:backgroundTint="@color/lapis"
+                        app:layout_constraintTop_toBottomOf="@id/etLeanInput"
+                        app:layout_constraintStart_toEndOf="@id/btnPickDateLean"
+                        app:layout_constraintEnd_toEndOf="parent"/>
+                </androidx.constraintlayout.widget.ConstraintLayout>
+            </androidx.cardview.widget.CardView>
 
         </androidx.constraintlayout.widget.ConstraintLayout>
-    </androidx.cardview.widget.CardView>
+    </ScrollView>
 
-    <!-- Bottone Aggiungi -->
+    <!-- Bottone Aggiungi FISSO in basso a destra -->
     <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
         android:id="@+id/efabAggiungi"
         android:layout_width="wrap_content"
@@ -480,8 +569,7 @@
         android:layout_margin="16dp"
         android:gravity="center"
         android:backgroundTint="@color/lapis"
-        android:textColor="@android:color/white"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
+        android:textColor="@color/white"
+        android:layout_gravity="bottom|end"/>
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+</FrameLayout>

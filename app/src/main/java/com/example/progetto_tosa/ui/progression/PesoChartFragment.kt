@@ -103,8 +103,7 @@ class PesoChartFragment : Fragment(R.layout.fragment_chart_peso) {
 
         val ds = LineDataSet(pts, "Peso Corporeo (kg)").apply {
             axisDependency = YAxis.AxisDependency.LEFT
-            mode = LineDataSet.Mode.CUBIC_BEZIER
-            cubicIntensity = 0.2f
+            mode = LineDataSet.Mode.LINEAR  // LINEAR per linea spezzata
             setDrawValues(false)
             lineWidth = 2f
             setDrawCircles(true)

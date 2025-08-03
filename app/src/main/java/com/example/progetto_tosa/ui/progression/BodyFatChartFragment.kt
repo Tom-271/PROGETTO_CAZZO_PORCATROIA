@@ -18,6 +18,7 @@ import com.github.mikephil.charting.data.LineDataSet
 import com.github.mikephil.charting.formatter.ValueFormatter
 import com.google.firebase.auth.FirebaseAuth
 import java.time.LocalDate
+import kotlin.math.max
 
 class BodyFatChartFragment : Fragment(R.layout.fragment_chart_bodyfat) {
 
@@ -97,13 +98,24 @@ class BodyFatChartFragment : Fragment(R.layout.fragment_chart_bodyfat) {
             return
         }
 
-        val sorted = entries.sortedBy { it.epochDay }
-        val pts = sorted.mapIndexed { i, e -> Entry(i.toFloat(), e.bodyFatPercent) }
+        // Consider only entries with non-null bodyFatPercent
+        val sorted = entries
+            .filter { it.bodyFatPercent != null }
+            .sortedBy { it.epochDay }
+
+        if (sorted.isEmpty()) {
+            chart.clear()
+            chart.invalidate()
+            return
+        }
+
+        val pts = sorted.mapIndexed { i, e ->
+            Entry(i.toFloat(), e.bodyFatPercent!!)
+        }
 
         val ds = LineDataSet(pts, "BodyFat %").apply {
             axisDependency = YAxis.AxisDependency.LEFT
-            mode = LineDataSet.Mode.CUBIC_BEZIER
-            cubicIntensity = 0.2f
+            mode = LineDataSet.Mode.LINEAR      // LINEAR per linea spezzata
             setDrawValues(false)
             lineWidth = 2f
             setDrawCircles(true)
@@ -126,18 +138,23 @@ class BodyFatChartFragment : Fragment(R.layout.fragment_chart_bodyfat) {
             }
         }
 
-        val maxBf = sorted.maxOf { it.bodyFatPercent }
-        val tgt = vm.goals.value?.targetFat?.toFloat() ?: 0f
-        val maxY = maxOf(maxBf + 5f, tgt + 5f).coerceAtLeast(30f)
+        // Calculate max bodyFatPercent safely
+        val maxBf = sorted
+            .mapNotNull { it.bodyFatPercent }
+            .maxOrNull() ?: 0f
+
+        val tgt  = vm.goals.value?.targetFat?.toFloat() ?: 0f
+        val maxY = max(maxBf + 5f, tgt + 5f).coerceAtLeast(30f)
 
         chart.axisLeft.apply {
             axisMinimum = 0f
             axisMaximum = maxY
         }
 
-        // Re-add target line if changed
+        // Re-add or update target line
         vm.goals.value?.targetFat?.toFloat()?.let { newTgt ->
             if (targetLine == null || targetLine?.limit != newTgt) {
+                chart.axisLeft.removeAllLimitLines()
                 updateTargetLine(newTgt)
             }
         }
