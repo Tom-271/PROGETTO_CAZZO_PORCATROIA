@@ -15,6 +15,8 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.progetto_tosa.R
 import com.example.progetto_tosa.data.BodyFatEntry
 import java.time.LocalDate
+import java.time.format.DateTimeFormatter
+import java.util.Locale
 
 /**
  * Adapter per mostrare ultime misurazioni (BF%, Peso, Massa Magra) e gestire rimozioni.
@@ -25,6 +27,11 @@ class NumberAdapter(
 ) : RecyclerView.Adapter<NumberAdapter.VH>() {
 
     enum class EntryType { BODYFAT, WEIGHT, LEAN }
+
+    companion object {
+        private val IT_DATE_FMT: DateTimeFormatter =
+            DateTimeFormatter.ofPattern("d MMMM yyyy", Locale("it", "IT"))
+    }
 
     // Uso una lista mutabile per poter rimuovere elementi dinamicamente
     private val items: MutableList<BodyFatEntry> = entries.toMutableList()
@@ -54,11 +61,9 @@ class NumberAdapter(
                 EntryType.LEAN    -> entry.leanMassKg?.let    { "%.1f kg".format(it) }  ?: "-"
             }
 
-            // 2) data formattata
+            // 2) data formattata in italiano (es: 26 giugno 2025)
             val date = LocalDate.ofEpochDay(entry.epochDay)
-            val rawDate = "%02d/%02d/%04d".format(
-                date.dayOfMonth, date.monthValue, date.year
-            )
+            val rawDate = date.format(IT_DATE_FMT)
 
             // 3) colore grigio da risorse
             val gray = ContextCompat.getColor(itemView.context, R.color.light_gray)
@@ -67,7 +72,9 @@ class NumberAdapter(
             //    - valore in grassetto +20% size
             //    - separator ' – '
             //    - data in corsivo -10% size e colore grigio
-            val combinedText = "\$rawValue  –  \$rawDate".replace("\$rawValue", rawValue).replace("\$rawDate", rawDate)
+            val combinedText = "\$rawValue  –  \$rawDate"
+                .replace("\$rawValue", rawValue)
+                .replace("\$rawDate", rawDate)
             val spannable = SpannableString(combinedText).apply {
                 // grassetto + relativo size per il valore
                 setSpan(StyleSpan(Typeface.BOLD),

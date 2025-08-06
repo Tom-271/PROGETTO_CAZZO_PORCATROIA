@@ -86,6 +86,9 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent" />
 
+
+
+
             <!-- CARD OBIETTIVO PESO CORPOREO -->
             <androidx.cardview.widget.CardView
                 android:id="@+id/cardWeightGoal"
@@ -263,6 +266,120 @@
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
 
+            <View
+                android:id="@+id/dividerForHeart"
+                android:layout_width="0dp"
+                android:layout_height="1dp"
+                android:layout_marginHorizontal="30dp"
+                android:background="@color/dark_gray"
+                app:layout_constraintTop_toBottomOf="@id/cardBodyFatGoal"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent" />
+
+            <TextView
+                android:id="@+id/titleforHeart"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Controlla il tuo battito cardiaco!"
+                android:textStyle="bold"
+                android:textSize="22dp"
+                android:layout_marginTop="20dp"
+                android:textAllCaps="true"
+                android:gravity="center_horizontal"
+                android:textColor="@color/lapis"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/dividerForHeart"
+                />
+
+            <TextView
+                android:id="@+id/descrizioneHeart"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_margin="22dp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/titleforHeart"
+                android:text="Il grafico del battito cardiaco ti consente di visualizzare in tempo reale come il tuo cuore risponde allo sforzo, aiutandoti a mantenere l’intensità giusta per ogni fase dell’allenamento.\n\nLe tre fasce colorate rendono immediata l’interpretazione:\n• Blu (fino al 60 % FC max) – fase di riscaldamento e recupero, ideale per preparare il sistema cardiovascolare o per defaticare senza affaticare il cuore.\n• Verde (60–80 % FC max) – esercizio aerobico ottimale per migliorare resistenza e consumo di grassi, mantenendo un ritmo stabile e sicuro.\n• Rosso (oltre l’80 % FC max) – lavoro anaerobico e sprint, utile per potenziare la capacità esplosiva ma da dosare in brevi ripetute per evitare sovraccarichi.\n\nGrazie a questo monitoraggio costante puoi modulare velocità e pendenza, prevenire picchi eccessivi o cadute di performance, e costruire un allenamento più efficiente e sostenibile.\n\n\n\n Connetti un dispositivo indossabile per usufruire del servizio."/>
+
+
+            <Button
+                android:id="@+id/tvHeartRate"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Effettua la connessione"
+                android:textSize="10sp"
+                android:layout_margin="16dp"
+                app:layout_constraintTop_toBottomOf="@id/descrizioneHeart"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"/>
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/heartAndBpmContainer"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintTop_toBottomOf="@id/tvHeartRate"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                android:layout_marginTop="5dp"
+                android:elevation="20dp"
+                android:layout_marginStart="16dp">
+
+                <!-- Cuore pulsante -->
+                <ImageView
+                    android:id="@+id/ivHeartPulse"
+                    android:layout_width="38dp"
+                    android:layout_height="38dp"
+                    android:visibility="gone"
+                    android:src="@drawable/ic_heart"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"/>
+
+                <!-- TextView dei bpm -->
+                <TextView
+                    android:id="@+id/tvBpmValue"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="-- bpm"
+                    android:textSize="18sp"
+                    android:visibility="gone"
+                    android:layout_marginStart="8dp"
+                    app:layout_constraintStart_toEndOf="@id/ivHeartPulse"
+                    app:layout_constraintTop_toTopOf="@id/ivHeartPulse"
+                    app:layout_constraintBottom_toBottomOf="@id/ivHeartPulse"/>
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <androidx.cardview.widget.CardView
+                android:id="@+id/cardEcg"
+                android:layout_width="0dp"
+                android:layout_height="240dp"
+                android:layout_marginTop="5dp"
+                android:layout_marginStart="30dp"
+                android:layout_marginEnd="30dp"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="6dp"
+                app:layout_constraintTop_toBottomOf="@id/tvHeartRate"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent">
+
+                <!-- wrapper con padding interno -->
+                <FrameLayout
+                    android:id="@+id/containerHeart"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:clipToPadding="false">
+
+                    <com.github.mikephil.charting.charts.LineChart
+                        android:id="@+id/ecgChart"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:clipToPadding="false" />
+
+                </FrameLayout>
+            </androidx.cardview.widget.CardView>
+
+
             <!-- Pulsante Conferma obiettivi -->
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/buttonConfirm"
@@ -273,7 +390,7 @@
                 android:backgroundTint="@color/purple_200"
                 app:cornerRadius="16dp"
                 android:text="modifica parametri"
-                app:layout_constraintTop_toBottomOf="@id/cardBodyFatGoal"
+                app:layout_constraintTop_toBottomOf="@id/cardEcg"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent" />
 

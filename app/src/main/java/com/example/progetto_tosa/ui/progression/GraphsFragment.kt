@@ -9,6 +9,8 @@ import android.widget.TextView
 import androidx.cardview.widget.CardView
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
+import java.text.SimpleDateFormat
+import java.util.Locale
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -484,7 +486,18 @@ class GraphsFragment : Fragment(R.layout.fragment_graphs) {
 
     private fun enableSwipeReveal(recyclerView: RecyclerView) {
         val swipeCallback = object : ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT) {
-            override fun onMove(rv: RecyclerView, vh: RecyclerView.ViewHolder, target: RecyclerView.ViewHolder) = false
+
+            // 1) Completare lo swipe solo oltre il 50% della width
+            override fun getSwipeThreshold(viewHolder: RecyclerView.ViewHolder): Float {
+                return 0.5f
+            }
+
+            override fun onMove(
+                rv: RecyclerView,
+                vh: RecyclerView.ViewHolder,
+                target: RecyclerView.ViewHolder
+            ) = false
+
             override fun onSwiped(vh: RecyclerView.ViewHolder, direction: Int) {
                 val pos = vh.adapterPosition
                 val entry = (recyclerView.adapter as NumberAdapter).getItemAt(pos)
@@ -497,24 +510,52 @@ class GraphsFragment : Fragment(R.layout.fragment_graphs) {
                         recyclerView.adapter?.notifyItemChanged(pos)
                     }
             }
-            override fun onChildDraw(c: Canvas, rv: RecyclerView, vh: RecyclerView.ViewHolder,
-                                     dX: Float, dY: Float, actionState: Int, isActive: Boolean) {
+
+            override fun onChildDraw(
+                c: Canvas,
+                rv: RecyclerView,
+                vh: RecyclerView.ViewHolder,
+                dX: Float,
+                dY: Float,
+                actionState: Int,
+                isActive: Boolean
+            ) {
                 if (actionState == ItemTouchHelper.ACTION_STATE_SWIPE) {
                     val item = vh.itemView
+                    // 2) Calcola metà della width
+                    val half = item.width * 0.5f
+                    // 3) Limita dX tra -half e 0
+                    val clampedDX = dX.coerceIn(-half, 0f)
+
+                    // 4) Disegna sfondo rosso
                     val paint = Paint().apply { color = Color.RED }
-                    c.drawRect(item.right + dX, item.top.toFloat(), item.right.toFloat(), item.bottom.toFloat(), paint)
+                    c.drawRect(
+                        item.right + clampedDX,
+                        item.top.toFloat(),
+                        item.right.toFloat(),
+                        item.bottom.toFloat(),
+                        paint
+                    )
+
+                    // 5) Disegna testo "Elimina"
                     paint.color = Color.WHITE
                     paint.textSize = 16 * rv.resources.displayMetrics.scaledDensity
                     paint.textAlign = Paint.Align.CENTER
-                    val x = item.right - (80 * rv.resources.displayMetrics.density) / 2
+                    val x = item.right - half / 2
                     val y = item.top + (item.height + paint.textSize) / 2
                     c.drawText("Elimina", x, y, paint)
+
+                    // 6) Chiamo la super con il dX limitato
+                    super.onChildDraw(c, rv, vh, clampedDX, dY, actionState, isActive)
+                } else {
+                    super.onChildDraw(c, rv, vh, dX, dY, actionState, isActive)
                 }
-                super.onChildDraw(c, rv, vh, dX, dY, actionState, isActive)
             }
         }
+
         ItemTouchHelper(swipeCallback).attachToRecyclerView(recyclerView)
     }
+
 
     override fun onDestroyView() {
         listener?.remove()

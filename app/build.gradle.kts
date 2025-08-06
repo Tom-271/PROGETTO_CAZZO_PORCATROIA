@@ -32,7 +32,7 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
-        isCoreLibraryDesugaringEnabled = true // per java.time
+        isCoreLibraryDesugaringEnabled = true
     }
     kotlinOptions {
         jvmTarget = "11"
@@ -45,6 +45,18 @@ android {
 }
 
 dependencies {
+    // ————— ANT+ SDK (AAR + JAR) —————
+    // L’AAR sarà risolto via flatDir definito in settings.gradle.kts
+    implementation(files("libs/ANT-Android-SDKs/ANT+_Android_SDK/API/antpluginlib_3-9-0.aar"))
+    implementation(
+        fileTree(
+            mapOf(
+                "dir" to "libs/ANT-Android-SDKs/ANT+_Android_SDK/API",
+                "include" to listOf("*.jar")
+            )
+        )
+    )
+
     /* --- Desugaring --- */
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.4")
 
@@ -53,8 +65,6 @@ dependencies {
     implementation("androidx.room:room-runtime:$roomVersion")
     implementation("androidx.room:room-ktx:$roomVersion")
     ksp("androidx.room:room-compiler:$roomVersion")
-    // (Opzionale) Paging:
-    // implementation("androidx.room:room-paging:$roomVersion")
 
     /* --- MPAndroidChart --- */
     implementation("com.github.PhilJay:MPAndroidChart:v3.1.0")
@@ -83,7 +93,7 @@ dependencies {
     /* --- Effetti UI --- */
     implementation("com.facebook.shimmer:shimmer:0.5.0")
 
-    /* --- Kotlin reflect (solo se ti serve davvero) --- */
+    /* --- Kotlin reflect --- */
     implementation("org.jetbrains.kotlin:kotlin-reflect:1.9.22")
 
     /* --- WorkManager --- */
@@ -91,6 +101,7 @@ dependencies {
 
     /* --- Coroutines --- */
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
 
     /* --- ZXing --- */
     implementation("com.journeyapps:zxing-android-embedded:4.3.0")
@@ -99,18 +110,14 @@ dependencies {
     /* --- Swipe-to-refresh --- */
     implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
 
+    /* --- Retrofit / OkHttp / Gson --- */
+    implementation("com.squareup.retrofit2:retrofit:2.11.0")
+    implementation("com.squareup.retrofit2:converter-gson:2.11.0")
+    implementation("com.squareup.okhttp3:okhttp:4.12.0")
+    implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
+
     /* --- Test --- */
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
-
-    // --- RETROFIT / OKHTTP / GSON ---
-    implementation("com.squareup.retrofit2:retrofit:2.11.0")
-    implementation("com.squareup.retrofit2:converter-gson:2.11.0")
-
-    implementation("com.squareup.okhttp3:okhttp:4.12.0")
-    implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
-
-    // --- Coroutines (già hai android, aggiungi core se manca) ---
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
 }

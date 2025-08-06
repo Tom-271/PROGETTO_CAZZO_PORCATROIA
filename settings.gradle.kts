@@ -1,24 +1,26 @@
 pluginManagement {
+    plugins {
+        id("com.google.devtools.ksp") version "2.0.21-1.0.26"
+    }
     repositories {
-        google {
-            content {
-                includeGroupByRegex("com\\.android.*")
-                includeGroupByRegex("com\\.google.*")
-                includeGroupByRegex("androidx.*")
-            }
-        }
-        mavenCentral()
         gradlePluginPortal()
-        maven { url = uri("https://jitpack.io") } // per MPAndroidChart (opzionale anche qui, ma ok)
+        google()
+        mavenCentral()
+        maven { url = uri("https://jitpack.io") }
     }
 }
 
 dependencyResolutionManagement {
+    // Qui dichiariamo i repository che TUTTI i moduli useranno
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
     repositories {
         google()
         mavenCentral()
-        maven { url = uri("https://jitpack.io") } // necessario per MPAndroidChart
+        maven { url = uri("https://jitpack.io") }
+        // Repository DSI ANT+
+        maven {
+            url = uri("https://dl.bintray.com/dsi-antplus/maven")
+        }
     }
 }
 
