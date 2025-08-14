@@ -9,11 +9,10 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
 import com.google.firebase.Firebase
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.auth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.firestore.firestore
+import java.io.Serializable
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -74,6 +73,8 @@ class MyAutoScheduleViewModel(
         _dayName.value = names[cal.get(Calendar.DAY_OF_WEEK)] ?: ""
     }
 
+
+
     /** Registra un listener Firestore su ciascuna category/esercizi */
     private fun subscribeToExercises(dateId: String) {
         val prefs = getApplication<Application>()
@@ -97,6 +98,8 @@ class MyAutoScheduleViewModel(
                         val sets = doc.getLong("numeroSerie")?.toInt() ?: 0
                         val reps = doc.getLong("numeroRipetizioni")?.toInt() ?: 0
                         val peso = doc.getString("peso")
+                        val recupero = doc.getString("recupero") // 👈 aggiunto
+                        val durata = doc.getString("durata")
                         val ordine = doc.getLong("ordine")?.toInt() ?: 0
 
                         ScheduledExercise(
@@ -106,6 +109,8 @@ class MyAutoScheduleViewModel(
                             sets = sets,
                             reps = reps,
                             peso = peso,
+                            recupero = recupero, // 👈 aggiunto
+                            durata = durata,
                             ordine = ordine
                         )
                     }
@@ -179,7 +184,7 @@ class MyAutoScheduleViewModel(
     fun saveExerciseRecoverTime(
         category: String,
         docId: String,
-        weight: String,
+        recover: String,
         onSuccess: () -> Unit,
         onError: () -> Unit
     ) {
@@ -196,7 +201,7 @@ class MyAutoScheduleViewModel(
             .collection("esercizi")
             .document(docId)
 
-        docRef.update("peso", weight)
+        docRef.update("recupero", recover)
             .addOnSuccessListener { onSuccess() }
             .addOnFailureListener { onError() }
     }
@@ -237,6 +242,31 @@ class MyAutoScheduleViewModel(
             }
     }
 
+    fun saveExerciseDuration(
+        category: String,
+        docId: String,
+        durata: String,
+        onSuccess: () -> Unit,
+        onError: () -> Unit
+    ) {
+        val prefs = getApplication<Application>()
+            .getSharedPreferences("user_data", Context.MODE_PRIVATE)
+        val user = prefs.getString("saved_display_name", null) ?: run {
+            onError(); return
+        }
+
+        val docRef = db.collection("schede_giornaliere")
+            .document(user)
+            .collection(selectedDateId.value!!)
+            .document(category)
+            .collection("esercizi")
+            .document(docId)
+
+        docRef.update("durata", durata)
+            .addOnSuccessListener { onSuccess() }
+            .addOnFailureListener { onError() }
+    }
+
 
 
     private fun unsubscribeFromExercises() {
@@ -249,10 +279,16 @@ class MyAutoScheduleViewModel(
 data class ScheduledExercise(
     val nome: String,
     val categoria: String,
-    val data: Long = 0L, // ← questo serve
+    val data: Long = 0L,
     val ordine: Int = 0,
     val docId: String,
-    val sets: Int,
+    var sets: Int,
     val reps: Int,
-    val peso: String? = null
-)
+    val peso: String? = null,
+    val recupero: String? = null,
+    // nuovi campi opionali
+    val durata: String? = null, // 👈 AGGIUNTO
+    var modificaAbilitata: Boolean = false,
+    val imageName: String? = null,
+    val imageResId: Int = 0
+) : Serializable

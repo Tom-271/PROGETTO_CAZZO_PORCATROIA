@@ -1,5 +1,7 @@
+// StretchingFragment.kt
 package com.example.progetto_tosa.ui.workout
 
+import android.app.AlertDialog
 import android.content.Context
 import android.content.res.Configuration
 import android.os.Bundle
@@ -9,6 +11,8 @@ import android.view.View
 import android.view.View.GONE
 import android.view.View.VISIBLE
 import android.view.ViewGroup
+import android.widget.LinearLayout
+import android.widget.NumberPicker
 import android.widget.TextView
 import android.widget.Toast
 import androidx.core.content.ContextCompat
@@ -22,6 +26,7 @@ import com.google.android.material.button.MaterialButton
 import com.google.android.material.card.MaterialCardView
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
+import java.util.Locale
 
 class StretchingFragment : Fragment(R.layout.fragment_stretching) {
 
@@ -47,24 +52,31 @@ class StretchingFragment : Fragment(R.layout.fragment_stretching) {
         binding.viewModel = vm
         binding.lifecycleOwner = viewLifecycleOwner
 
-        // creo tutte le sezioni
+        // sections
         neckAdapter      = setupSection(binding.cardStretchNeck,      binding.rvStretchNeck,      vm.neck.value!!)
         shouldersAdapter = setupSection(binding.cardStretchShoulders, binding.rvStretchShoulders, vm.shoulders.value!!)
         backAdapter      = setupSection(binding.cardStretchBack,      binding.rvStretchBack,      vm.back.value!!)
         legsAdapter      = setupSection(binding.cardStretchLegs,      binding.rvStretchLegs,      vm.legs.value!!)
         armsAdapter      = setupSection(binding.cardStretchArms,      binding.rvStretchArms,      vm.arms.value!!)
 
-        // osservo i LiveData per ciascuna sezione
+        // observers
         vm.neck.observe(viewLifecycleOwner)      { updateAdapter(neckAdapter, it) }
-        vm.shoulders.observe(viewLifecycleOwner){ updateAdapter(shouldersAdapter, it) }
+        vm.shoulders.observe(viewLifecycleOwner) { updateAdapter(shouldersAdapter, it) }
         vm.back.observe(viewLifecycleOwner)      { updateAdapter(backAdapter, it) }
         vm.legs.observe(viewLifecycleOwner)      { updateAdapter(legsAdapter, it) }
         vm.arms.observe(viewLifecycleOwner)      { updateAdapter(armsAdapter, it) }
 
-        // carico i dati salvati
+        // 1) load stretching catalog
+        vm.loadAnagraficaStretchingFromFirestore()
+
+        // 2) load saved sets (same path as save)
         if (!selectedDate.isNullOrBlank()) {
-            vm.loadSavedStretches(selectedDate) { /* al termine potresti eseguire eventuali animazioni */ }
+            val prefs = requireActivity().getSharedPreferences("user_data", Context.MODE_PRIVATE)
+            val currentUser = prefs.getString("saved_display_name", null)
+            vm.loadSavedStretches(selectedDate, selectedUser, currentUser) { /* no-op */ }
         }
+        // 3) optional seed
+        // seedAllStretchesToFirestore()
     }
 
     private fun setupSection(
@@ -72,7 +84,7 @@ class StretchingFragment : Fragment(R.layout.fragment_stretching) {
         rv: RecyclerView,
         data: List<StretchingViewModel.Stretch>
     ): StretchAdapter {
-        // bordo in dark mode
+        // subtle border in dark mode
         if ((resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK)
             == Configuration.UI_MODE_NIGHT_YES
         ) {
@@ -115,20 +127,22 @@ class StretchingFragment : Fragment(R.layout.fragment_stretching) {
             Toast.makeText(requireContext(), "Seleziona prima una data", Toast.LENGTH_SHORT).show()
             return
         }
-        if (s.setsCount == 0 || s.repsCount == 0) {
-            Toast.makeText(requireContext(), "Imposta almeno 1 serie e 1 ripetizione", Toast.LENGTH_SHORT).show()
+        if (s.setsCount == 0) {
+            Toast.makeText(requireContext(), "Imposta almeno 1 serie", Toast.LENGTH_SHORT).show()
             return
         }
 
         val data = hashMapOf(
-            "nomeEsercizio"     to s.title,
-            "numeroSerie"       to s.setsCount,
-            "numeroRipetizioni" to s.repsCount,
-            "type"              to s.type,
-            "createdAt"         to FieldValue.serverTimestamp()
-        )
-        val prefs = requireActivity()
-            .getSharedPreferences("user_data", Context.MODE_PRIVATE)
+            "nomeEsercizio" to s.title,
+            "numeroSerie"   to s.setsCount,
+            "type"          to s.type,
+            "createdAt"     to FieldValue.serverTimestamp()
+        ).apply {
+            s.durata?.takeIf { it.isNotBlank() }?.let { put("durata", it) }
+        }
+        // Nota: la durata non viene salvata (binding-only). Aggiungila qui se/quando la vorrai persistere.
+
+        val prefs = requireActivity().getSharedPreferences("user_data", Context.MODE_PRIVATE)
         val currentUser = prefs.getString("saved_display_name", null)
 
         val collectionRef = when {
@@ -146,7 +160,7 @@ class StretchingFragment : Fragment(R.layout.fragment_stretching) {
             }
         }
 
-        collectionRef.document(s.type)
+        collectionRef.document(s.title)
             .set(data)
             .addOnSuccessListener {
                 Toast.makeText(requireContext(), "Salvato ${s.title}", Toast.LENGTH_SHORT).show()
@@ -156,78 +170,159 @@ class StretchingFragment : Fragment(R.layout.fragment_stretching) {
             }
     }
 
+    // helper: resId -> nome drawable (seed)
+    private fun resIdToName(resId: Int): String =
+        requireContext().resources.getResourceEntryName(resId)
+
+    /** SEED: scrive tutti gli stretching hardcoded in esercizi/stretching/voci/{docId} */
+    private fun seedAllStretchesToFirestore() {
+        val batch = db.batch()
+        val all = listOf(
+            vm.neck.value.orEmpty(),
+            vm.shoulders.value.orEmpty(),
+            vm.back.value.orEmpty(),
+            vm.legs.value.orEmpty(),
+            vm.arms.value.orEmpty()
+        ).flatten()
+
+        all.forEach { s ->
+            val docId = s.title.lowercase()
+                .replace(" ", "_")
+                .replace("[^a-z0-9_]+".toRegex(), "")
+            val docRef = db.collection("esercizi")
+                .document("stretching")
+                .collection("voci")
+                .document(docId)
+
+            val data = hashMapOf(
+                "category"             to "stretching",
+                "type"                 to s.type,
+                "title"                to s.title,
+                "videoUrl"             to s.videoUrl,
+                "description"          to s.description,
+                "subtitle2"            to s.subtitle2,
+                "description2"         to s.description2,
+                "descriptionImageName" to resIdToName(s.descriptionImage),
+                "detailImage1Name"     to resIdToName(s.detailImage1Res),
+                "detailImage2Name"     to resIdToName(s.detailImage2Res),
+                "descrizioneTotale"    to s.descrizioneTotale,
+                "createdAt"            to FieldValue.serverTimestamp()
+            )
+            batch.set(docRef, data)
+        }
+
+        batch.commit()
+            .addOnSuccessListener { Toast.makeText(requireContext(), "Seed stretching ✅", Toast.LENGTH_SHORT).show() }
+            .addOnFailureListener { e -> Toast.makeText(requireContext(), "Errore seed: ${e.message}", Toast.LENGTH_LONG).show() }
+    }
+
+    // === Time picker (riutilizzabile): opzionale init per precompilare i valori ===
+    private fun showTimePicker(
+        initial: Pair<Int, Int>? = null,
+        onTimeSelected: (String) -> Unit
+    ) {
+        val pickerMin = NumberPicker(requireContext()).apply {
+            minValue = 0; maxValue = 59; value = initial?.first ?: 0
+        }
+        val pickerSec = NumberPicker(requireContext()).apply {
+            minValue = 0; maxValue = 59; value = initial?.second ?: 0
+        }
+
+        val layout = LinearLayout(requireContext()).apply {
+            orientation = LinearLayout.HORIZONTAL
+            val pad = (16 * resources.displayMetrics.density).toInt()
+            setPadding(pad, pad, pad, pad)
+            addView(pickerMin)
+            addView(pickerSec)
+        }
+
+        AlertDialog.Builder(requireContext())
+            .setTitle(R.string.imposta_tempo)
+            .setView(layout)
+            .setPositiveButton(R.string.ok) { _, _ ->
+                val total = pickerMin.value * 60 + pickerSec.value
+                val mm = total / 60
+                val ss = total % 60
+                val formatted = String.format(Locale.getDefault(), "%02d:%02d", mm, ss)
+                onTimeSelected(formatted)
+            }
+            .setNegativeButton(R.string.annulla, null)
+            .show()
+    }
+
+    // ---- Adapter ----
     private inner class StretchAdapter(
         val items: MutableList<StretchingViewModel.Stretch>,
         private val onCardClick: (StretchingViewModel.Stretch) -> Unit,
         private val onConfirmClick: (StretchingViewModel.Stretch) -> Unit
     ) : RecyclerView.Adapter<StretchAdapter.VH>() {
 
+        // title->"MM:SS" picked locally (kept across binds)
+        private val durationByTitle = mutableMapOf<String, String>()
+
         inner class VH(view: View) : RecyclerView.ViewHolder(view) {
-            private val titleTv     = view.findViewById<TextView>(R.id.textViewTitleTop)
+            private val titleTv   = view.findViewById<TextView>(R.id.textViewTitleTop)
             private val inputSets = view.findViewById<android.widget.EditText>(R.id.inputSets)
-            private val inputReps = view.findViewById<android.widget.EditText>(R.id.inputReps)
-            private val btnConfirm  = view.findViewById<MaterialButton>(R.id.buttonConfirm)
-            private val green       = ContextCompat.getColor(view.context, R.color.green)
-            private val black       = ContextCompat.getColor(view.context, R.color.black)
+            private val inputDuration = view.findViewById<TextView>(R.id.cardDurationInput)
+            private val btnConfirm= view.findViewById<MaterialButton>(R.id.buttonConfirm)
 
             init {
                 btnConfirm.setOnClickListener {
                     val pos = adapterPosition.takeIf { it != RecyclerView.NO_POSITION } ?: return@setOnClickListener
                     val ex = items[pos]
-
-                    // Leggi i valori inseriti nei campi
                     ex.setsCount = inputSets.text.toString().toIntOrNull() ?: 0
-                    ex.repsCount = inputReps.text.toString().toIntOrNull() ?: 0
+                    // If you want to save duration later, read it here:
+                    // val pickedDuration = durationByTitle[ex.title]
                     onConfirmClick(ex)
                 }
                 itemView.setOnClickListener {
-                    adapterPosition.takeIf { it != RecyclerView.NO_POSITION }
-                        ?.let { onCardClick(items[it]) }
+                    adapterPosition.takeIf { it != RecyclerView.NO_POSITION }?.let { onCardClick(items[it]) }
                 }
-            }
-
-            private fun toggleMode(isSets: Boolean) {
-                adapterPosition.takeIf { it != RecyclerView.NO_POSITION }?.also { pos ->
-                    items[pos].isSetsMode = isSets
-                    notifyItemChanged(pos)
-                }
-            }
-            private fun adjustCount(delta: Int) {
-                /*adapterPosition.takeIf { it != RecyclerView.NO_POSITION }?.also { pos ->
-                    val s = items[pos]
-                    if (s.isSetsMode) s.setsCount = (s.setsCount + delta).coerceAtLeast(0)
-                    else              s.repsCount = (s.repsCount + delta).coerceAtLeast(0)
-                    notifyItemChanged(pos)
-                }*/
-
-                val pos = adapterPosition.takeIf { it != RecyclerView.NO_POSITION } ?: return
-                val ex = items[pos]
-                if (ex.isSetsMode) ex.setsCount = maxOf(0, ex.setsCount + delta)
-                else ex.repsCount = maxOf(0, ex.repsCount + delta)
-                notifyItemChanged(pos)
             }
 
             fun bind(ex: StretchingViewModel.Stretch) {
-                titleTv.text        = ex.title
+                titleTv.text = ex.title
                 inputSets.setText(ex.setsCount.takeIf { it > 0 }?.toString() ?: "")
-                inputReps.setText(ex.repsCount.takeIf { it > 0 }?.toString() ?: "")
+
+                // === duration binding (no immediate save) ===
+                // === duration binding ===
+                val current = ex.durata ?: durationByTitle[ex.title]
+                inputDuration.text = current ?: "Aggiungi"
+
+                inputDuration.isFocusable = false
+                inputDuration.isClickable = true
+
+                inputDuration.setOnClickListener {
+                    val init = parseDuration(current) // Pair(min,sec) or null
+                    this@StretchingFragment.showTimePicker(init) { formatted ->
+                        inputDuration.text = formatted
+                        durationByTitle[ex.title] = formatted
+                        ex.durata = formatted
+                    }
+                }
+                // === end duration binding ===
 
                 val isTracking = !selectedDate.isNullOrBlank()
-                listOf(btnConfirm, inputSets, inputReps).forEach {
+                listOf(btnConfirm, inputSets).forEach {
                     it.visibility = if (isTracking) VISIBLE else GONE
                 }
-                itemView.setOnClickListener {
-                    if (!isTracking) onCardClick(ex)
-                }
+                itemView.setOnClickListener { if (!isTracking) onCardClick(ex) }
+            }
+
+            private fun parseDuration(value: String?): Pair<Int, Int>? {
+                if (value.isNullOrBlank()) return null
+                val parts = value.split(":")
+                if (parts.size != 2) return null
+                val mm = parts[0].toIntOrNull() ?: return null
+                val ss = parts[1].toIntOrNull() ?: return null
+                return mm.coerceIn(0, 59) to ss.coerceIn(0, 59)
             }
         }
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
-            VH(LayoutInflater.from(parent.context).inflate(R.layout.cards_exercise, parent, false))
+            VH(LayoutInflater.from(parent.context).inflate(R.layout.cards_exercise_duration, parent, false))
 
-        override fun onBindViewHolder(holder: VH, position: Int) =
-            holder.bind(items[position])
-
+        override fun onBindViewHolder(holder: VH, position: Int) = holder.bind(items[position])
         override fun getItemCount(): Int = items.size
     }
 

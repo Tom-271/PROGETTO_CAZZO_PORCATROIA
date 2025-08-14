@@ -125,7 +125,7 @@
                         android:gravity="center" />
 
                     <Button
-                        android:id="@+id/btnStartTraining"
+                        android:id="@+id/btnSetOrder"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
@@ -158,12 +158,40 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content" />
                 </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/cardTrainingLayout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp"
+                    android:visibility="gone">
+
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/recyclerTrainingLayout"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content" />
+                </LinearLayout>
             </LinearLayout>
         </ScrollView>
         <!-- SOTTO ALLO ScrollView -->
         <include
             layout="@layout/card_training_queue"
             android:id="@+id/trainingQueueCard"
+            android:visibility="gone"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:background="@color/dark_gray"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            android:translationZ="10dp"
+            android:elevation="10dp" />
+
+        <include
+            layout="@layout/card_training"
+            android:id="@+id/TrainingLayoutCard"
             android:visibility="gone"
             android:layout_width="0dp"
             android:layout_height="wrap_content"

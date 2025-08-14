@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/infoCard"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -29,21 +30,76 @@
             android:text="Serie: 3  |  Ripetizioni: 10"
             android:layout_marginTop="8dp" />
 
-        <EditText
-            android:id="@+id/cardWeightInput"
+        <LinearLayout
+            android:id="@+id/trainingWeight"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Peso / Durata"
-            android:inputType="numberDecimal"
-            android:layout_marginTop="12dp" />
+            android:weightSum="2"
+            android:orientation="horizontal">
 
-        <EditText
-            android:id="@+id/cardRecoverInput"
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Peso" />
+
+            <Spinner
+                android:id="@+id/cardWeightInput"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginStart="12dp" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/trainingRecover"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Tempo di recupero (in s)"
-            android:inputType="numberDecimal"
-            android:layout_marginTop="12dp" />
+            android:weightSum="2"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Recupero" />
+
+            <TextView
+                android:id="@+id/cardRecoverInput"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:hint="Aggiungi"
+                android:clickable="true"
+                android:textSize="14dp"
+                android:layout_marginStart="12dp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/trainingDuration"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:weightSum="2"
+            android:orientation="horizontal"
+            android:layout_marginTop="12dp">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Durata" />
+
+            <TextView
+                android:id="@+id/cardDurationInput"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:hint="Aggiungi"
+                android:clickable="true"
+                android:textSize="14dp"
+                android:layout_marginStart="12dp" />
+        </LinearLayout>
 
         <Button
             android:id="@+id/cardSaveButton"

@@ -1,3 +1,4 @@
+// CorpoliberoFragment.kt
 package com.example.progetto_tosa.ui.workout
 
 import android.content.res.Configuration
@@ -18,7 +19,6 @@ import com.example.progetto_tosa.R
 import com.example.progetto_tosa.databinding.FragmentCorpoliberoBinding
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.card.MaterialCardView
-import com.google.android.material.floatingactionbutton.FloatingActionButton
 
 class CorpoliberoFragment : Fragment(R.layout.fragment_corpolibero) {
 
@@ -37,21 +37,24 @@ class CorpoliberoFragment : Fragment(R.layout.fragment_corpolibero) {
         _binding = FragmentCorpoliberoBinding.bind(view)
         super.onViewCreated(view, savedInstanceState)
 
-        // Collego il ViewModel al layout
         binding.viewModel = vm
         binding.lifecycleOwner = viewLifecycleOwner
 
-        // Imposto le tre sezioni
-        absAdapter   = setupSection(binding.cardAbs,       binding.rvAbs,       vm.abs.value!!)
-        chestAdapter = setupSection(binding.cardSection1,  binding.rvSection1,  vm.chest.value!!)
-        backAdapter  = setupSection(binding.cardSection3,  binding.rvSection3,  vm.back.value!!)
+        // sections
+        absAdapter   = setupSection(binding.cardAbs,      binding.rvAbs,      vm.abs.value!!)
+        chestAdapter = setupSection(binding.cardSection1, binding.rvSection1, vm.chest.value!!)
+        backAdapter  = setupSection(binding.cardSection3, binding.rvSection3, vm.back.value!!)
 
-        // Osservo le LiveData e aggiorno gli adapter
+        // observe
         vm.abs.observe(viewLifecycleOwner)   { updateAdapter(absAdapter, it) }
         vm.chest.observe(viewLifecycleOwner) { updateAdapter(chestAdapter, it) }
         vm.back.observe(viewLifecycleOwner)  { updateAdapter(backAdapter, it) }
 
-        // Carico eventuali esercizi salvati
+        //seedCorpoLiberoToFirestore()
+
+        vm.loadAnagraficaCorpoLiberoFromFirestore()
+
+        // load saved reps/sets (user-centric path)
         if (!selectedDate.isNullOrBlank()) {
             vm.loadSavedExercises(selectedDate, selectedUser)
         }
@@ -62,7 +65,6 @@ class CorpoliberoFragment : Fragment(R.layout.fragment_corpolibero) {
         rv: RecyclerView,
         data: List<CorpoliberoViewModel.Exercise>
     ): ExerciseAdapter {
-        // stroke dinamico per dark mode
         val night = resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK
         val strokeColor = ContextCompat.getColor(
             requireContext(),
@@ -104,19 +106,11 @@ class CorpoliberoFragment : Fragment(R.layout.fragment_corpolibero) {
 
     private fun onConfirm(ex: CorpoliberoViewModel.Exercise) {
         if (selectedDate.isNullOrBlank() || ex.setsCount == 0 || ex.repsCount == 0) {
-            Toast.makeText(
-                requireContext(),
-                "Seleziona data e imposta serie e ripetizioni",
-                Toast.LENGTH_SHORT
-            ).show()
+            Toast.makeText(requireContext(), "Seleziona data e imposta serie e ripetizioni", Toast.LENGTH_SHORT).show()
             return
         }
         vm.saveExercise(ex, selectedDate, selectedUser)
-        Toast.makeText(
-            requireContext(),
-            "Esercizio \"${ex.title}\" salvato",
-            Toast.LENGTH_SHORT
-        ).show()
+        Toast.makeText(requireContext(), "Esercizio \"${ex.title}\" salvato", Toast.LENGTH_SHORT).show()
     }
 
     private inner class ExerciseAdapter(
@@ -126,19 +120,15 @@ class CorpoliberoFragment : Fragment(R.layout.fragment_corpolibero) {
     ) : RecyclerView.Adapter<ExerciseAdapter.VH>() {
 
         inner class VH(itemView: View) : RecyclerView.ViewHolder(itemView) {
-            private val titleTv     = itemView.findViewById<TextView>(R.id.textViewTitleTop)
+            private val titleTv   = itemView.findViewById<TextView>(R.id.textViewTitleTop)
             private val inputSets = itemView.findViewById<EditText>(R.id.inputSets)
             private val inputReps = itemView.findViewById<EditText>(R.id.inputReps)
-            private val btnConfirm  = itemView.findViewById<MaterialButton>(R.id.buttonConfirm)
-            private val green       = ContextCompat.getColor(itemView.context, R.color.green)
-            private val black       = ContextCompat.getColor(itemView.context, R.color.black)
+            private val btnConfirm= itemView.findViewById<MaterialButton>(R.id.buttonConfirm)
 
             init {
                 btnConfirm.setOnClickListener {
-
                     val pos = adapterPosition.takeIf { it != RecyclerView.NO_POSITION } ?: return@setOnClickListener
                     val ex = items[pos]
-                    // Leggi i valori inseriti nei campi
                     ex.setsCount = inputSets.text.toString().toIntOrNull() ?: 0
                     ex.repsCount = inputReps.text.toString().toIntOrNull() ?: 0
                     onConfirmClick(ex)
@@ -150,48 +140,92 @@ class CorpoliberoFragment : Fragment(R.layout.fragment_corpolibero) {
                 }
             }
 
-            private fun toggleMode(isSets: Boolean) {
-                adapterPosition.takeIf { it != RecyclerView.NO_POSITION }?.also { pos ->
-                    items[pos].isSetsMode = isSets
-                    notifyItemChanged(pos)
-                }
-            }
-
-            private fun adjustCount(delta: Int) {
-                adapterPosition.takeIf { it != RecyclerView.NO_POSITION }?.also { pos ->
-                    val ex = items[pos]
-                    if (ex.isSetsMode) ex.setsCount = maxOf(0, ex.setsCount + delta)
-                    else               ex.repsCount = maxOf(0, ex.repsCount + delta)
-                    notifyItemChanged(pos)
-                }
-            }
-
             fun bind(ex: CorpoliberoViewModel.Exercise) {
-                titleTv.text              = ex.title
+                titleTv.text = ex.title
                 inputSets.setText(ex.setsCount.takeIf { it > 0 }?.toString() ?: "")
                 inputReps.setText(ex.repsCount.takeIf { it > 0 }?.toString() ?: "")
 
                 val isTracking = !selectedDate.isNullOrBlank()
-                listOf(btnConfirm, inputSets, btnConfirm).forEach {
+                // FIX: include inputReps (before c’era btnConfirm ripetuto)
+                listOf(btnConfirm, inputSets, inputReps).forEach {
                     it.visibility = if (isTracking) View.VISIBLE else GONE
                 }
 
-                itemView.setOnClickListener {
-                    if (!isTracking) onCardClick(ex)
-                }
+                itemView.setOnClickListener { if (!isTracking) onCardClick(ex) }
             }
         }
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VH {
-            val view = LayoutInflater.from(parent.context)
-                .inflate(R.layout.cards_exercise, parent, false)
+            val view = LayoutInflater.from(parent.context).inflate(R.layout.cards_exercise, parent, false)
             return VH(view)
         }
 
-        override fun onBindViewHolder(holder: VH, position: Int) =
-            holder.bind(items[position])
-
+        override fun onBindViewHolder(holder: VH, position: Int) = holder.bind(items[position])
         override fun getItemCount(): Int = items.size
+    }
+
+    //--- drawable helpers (se non li hai già in questo file) ---
+    private fun resIdToName(resId: Int): String =
+        requireContext().resources.getResourceEntryName(resId)
+
+    private fun nameToResId(name: String): Int =
+        requireContext().resources.getIdentifier(name, "drawable", requireContext().packageName)
+
+    //--- SEED: scrive tutti gli esercizi di corpo-libero nell'anagrafica ---
+// Struttura: esercizi / corpo-libero (doc) / voci (subcoll) / {slug_esercizio} (doc)
+    private fun seedCorpoLiberoToFirestore() {
+        val db = com.google.firebase.firestore.FirebaseFirestore.getInstance()
+        val batch = db.batch()
+
+        // unisci le tre liste correnti dal ViewModel
+        val all = listOf(
+            vm.abs.value.orEmpty(),
+            vm.chest.value.orEmpty(),
+            vm.back.value.orEmpty()
+        ).flatten()
+
+        all.forEach { ex ->
+            val docId = ex.title.lowercase()
+                .replace(" ", "_")
+                .replace("[^a-z0-9_]+".toRegex(), "")
+
+            val docRef = db.collection("esercizi")
+                .document(ex.category)        // "corpo-libero"
+                .collection("voci")
+                .document(docId)
+
+            // deduci il gruppo in base alla lista di provenienza (fallback su type)
+            val gruppo = when {
+                vm.abs.value.orEmpty().any { it.title == ex.title }   -> "abs"
+                vm.chest.value.orEmpty().any { it.title == ex.title } -> "chest"
+                vm.back.value.orEmpty().any { it.title == ex.title }  -> "back"
+                else -> "abs"
+            }
+
+            val data = hashMapOf(
+                "category"            to ex.category,          // "corpo-libero"
+                "type"                to ex.type,              // es. "plank"
+                "title"               to ex.title,
+                "videoUrl"            to ex.videoUrl,
+                "description"         to ex.description,
+                "benefit"             to ex.benefit,
+                "detailImage1Name"    to resIdToName(ex.detailImage1Res),
+                "detailImage2Name"    to resIdToName(ex.detailImage2Res),
+                "imageResName"        to resIdToName(ex.imageRes),
+                "descrizioneTotale"   to ex.descrizioneTotale,
+                "gruppo"              to gruppo,               // "abs" | "chest" | "back"
+                "createdAt"           to com.google.firebase.firestore.FieldValue.serverTimestamp()
+            )
+            batch.set(docRef, data)
+        }
+
+        batch.commit()
+            .addOnSuccessListener {
+                android.widget.Toast.makeText(requireContext(), "Seed corpo-libero completato ✅", android.widget.Toast.LENGTH_SHORT).show()
+            }
+            .addOnFailureListener { e ->
+                android.widget.Toast.makeText(requireContext(), "Errore seed: ${e.message}", android.widget.Toast.LENGTH_LONG).show()
+            }
     }
 
     override fun onDestroyView() {

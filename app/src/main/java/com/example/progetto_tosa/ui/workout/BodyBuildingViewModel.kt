@@ -1,12 +1,16 @@
 package com.example.progetto_tosa.ui.workout
 
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
 import com.example.progetto_tosa.R
+import androidx.lifecycle.MediatorLiveData
+import com.google.firebase.firestore.CollectionReference
+import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
 
-class BodybuildingViewModel : ViewModel() {
+class BodybuildingViewModel(application: Application) : AndroidViewModel(application) {
 
     data class Exercise(
         val category: String,
@@ -28,7 +32,7 @@ class BodybuildingViewModel : ViewModel() {
 
     private val db = FirebaseFirestore.getInstance()
 
-    // sezioni statiche
+    // Sezioni (fallback statico alla prima apertura)
     private val _section1 = MutableLiveData<List<Exercise>>(loadSection1())
     val section1: LiveData<List<Exercise>> = _section1
 
@@ -44,48 +48,145 @@ class BodybuildingViewModel : ViewModel() {
     private val _section5 = MutableLiveData<List<Exercise>>(loadSection5())
     val section5: LiveData<List<Exercise>> = _section5
 
-    // carica i dati Firestore e aggiorna section1
-    fun loadSavedExercises(selectedDate: String?, onComplete: () -> Unit) {
-        if (selectedDate.isNullOrBlank()) return
-        val currentList = _section1.value!!.toMutableList()
-        val muscoli = currentList.map { it.muscoloPrincipale }.distinct()
-        val snapshotList = mutableListOf<Pair<String, List<Map<String, Any>>>>()
+    //lista unica dei titoli esercizi (derivata da section1..section5)
+    private val _allExerciseTitles = MediatorLiveData<List<String>>().apply { value = emptyList() }
+    val allExerciseTitles: LiveData<List<String>> = _allExerciseTitles
 
-        muscoli.forEach { muscolo ->
-            db.collection("schede_giornaliere")
-                .document(selectedDate)
-                .collection("bodybuilding")
-                .document(muscolo)
-                .collection("esercizi")
-                .orderBy("createdAt")
-                .get()
-                .addOnSuccessListener { snap ->
-                    val esercizi = snap.documents.mapNotNull { doc ->
-                        val title = doc.id
-                        val sets = doc.getLong("numeroSerie")?.toInt() ?: 0
-                        val reps = doc.getLong("numeroRipetizioni")?.toInt() ?: 0
-                        mapOf("title" to title, "sets" to sets, "reps" to reps)
-                    }
-                    snapshotList.add(muscolo to esercizi)
-                    if (snapshotList.size == muscoli.size) {
-                        // aggiorna counts
-                        snapshotList.forEach { (_, list) ->
-                            list.forEach { entry ->
-                                currentList.find { it.title == entry["title"] }?.apply {
-                                    setsCount = entry["sets"] as Int
-                                    repsCount = entry["reps"] as Int
-                                }
-                            }
-                        }
-                        _section1.value = currentList
-                        onComplete()
-                    }
+    init {
+        fun rebuild() {
+            val titles = listOf(
+                _section1.value.orEmpty(),
+                _section2.value.orEmpty(),
+                _section3.value.orEmpty(),
+                _section4.value.orEmpty(),
+                _section5.value.orEmpty()
+            )
+                .flatten()
+                .map { it.title }
+                .distinct()
+                .sorted()
+            _allExerciseTitles.value = titles
+        }
+        _allExerciseTitles.addSource(_section1) { rebuild() }
+        _allExerciseTitles.addSource(_section2) { rebuild() }
+        _allExerciseTitles.addSource(_section3) { rebuild() }
+        _allExerciseTitles.addSource(_section4) { rebuild() }
+        _allExerciseTitles.addSource(_section5) { rebuild() }
+    }
+
+    // ----------------- LOAD: set/rep salvati (PT o utente loggato) -----------------
+    fun loadSavedExercises(
+        selectedDate: String?,
+        selectedUser: String? = null,
+        currentUserName: String? = null,
+        onComplete: () -> Unit = {}
+    ) {
+        if (selectedDate.isNullOrBlank()) {
+            onComplete(); return
+        }
+
+        val ref = getExercisesRef(selectedDate, selectedUser, currentUserName)
+
+        ref.get()
+            .addOnSuccessListener { snap ->
+                val byTitle = snap.documents.associateBy({ it.id }) { doc ->
+                    (doc.getLong("numeroSerie")?.toInt() ?: 0) to
+                            (doc.getLong("numeroRipetizioni")?.toInt() ?: 0)
                 }
-                .addOnFailureListener { /* gestione errore se serve */ }
+
+                fun applyUpdates(list: List<Exercise>) =
+                    list.map { ex ->
+                        byTitle[ex.title]?.let { (s, r) -> ex.copy(setsCount = s, repsCount = r) } ?: ex
+                    }
+
+                _section1.value = applyUpdates(_section1.value ?: emptyList())
+                _section2.value = applyUpdates(_section2.value ?: emptyList())
+                _section3.value = applyUpdates(_section3.value ?: emptyList())
+                _section4.value = applyUpdates(_section4.value ?: emptyList())
+                _section5.value = applyUpdates(_section5.value ?: emptyList())
+
+                onComplete()
+            }
+            .addOnFailureListener { onComplete() }
+    }
+
+    // Path helper
+    private fun getExercisesRef(
+        date: String,
+        selectedUser: String?,
+        currentUserName: String?
+    ): CollectionReference {
+        return if (!selectedUser.isNullOrBlank()) {
+            db.collection("schede_del_pt").document(selectedUser)
+                .collection(date).document("bodybuilding")
+                .collection("esercizi")
+        } else {
+            val user = currentUserName ?: ""
+            db.collection("schede_giornaliere").document(user)
+                .collection(date).document("bodybuilding")
+                .collection("esercizi")
         }
     }
 
-    // helper per la factory delle liste
+    // ----------------- ANAGRAFICA: loader da esercizi/bodybuilding/voci -----------------
+    fun loadAnagraficaBodybuildingFromFirestore(onComplete: () -> Unit = {}) {
+        db.collection("esercizi")
+            .document("bodybuilding")
+            .collection("voci")
+            .get()
+            .addOnSuccessListener { snap ->
+                val all = snap.documents.map { mapDocToExercise(it) }
+
+                _section1.value = all.filter { it.muscoloPrincipale.equals("petto",    true) }
+                _section2.value = all.filter { it.muscoloPrincipale.equals("spalle",   true) }
+                _section3.value = all.filter { it.muscoloPrincipale.equals("schiena",  true) }
+                _section4.value = all.filter { it.muscoloPrincipale.equals("gambe",    true) }
+                _section5.value = all.filter { it.muscoloPrincipale.equals("bicipiti", true) }
+
+                onComplete()
+            }
+            .addOnFailureListener { onComplete() }
+    }
+
+    // Mapping doc anagrafica -> Exercise
+    private fun mapDocToExercise(doc: DocumentSnapshot): Exercise {
+        val category     = doc.getString("category") ?: "bodybuilding"
+        val muscolo      = doc.getString("muscoloPrincipale") ?: ""
+        val title        = doc.getString("title") ?: ""
+        val videoUrl     = doc.getString("videoUrl") ?: ""
+        val description  = doc.getString("description") ?: ""
+        val subtitle2    = doc.getString("subtitle2") ?: ""
+        val description2 = doc.getString("description2") ?: ""
+        val descrTot     = doc.getString("descrizioneTotale") ?: ""
+
+        val descImgRes = nameToResId(doc.getString("descriptionImageName"))
+        val detail1Res = nameToResId(doc.getString("detailImage1Name"))
+        val detail2Res = nameToResId(doc.getString("detailImage2Name"))
+
+        return Exercise(
+            category = category,
+            muscoloPrincipale = muscolo,
+            imageRes = descImgRes,
+            descriptionImage = descImgRes,
+            title = title,
+            videoUrl = videoUrl,
+            description = description,
+            subtitle2 = subtitle2,
+            description2 = description2,
+            detailImage1Res = detail1Res,
+            detailImage2Res = detail2Res,
+            descrizioneTotale = descrTot
+        )
+    }
+
+    // Drawable name -> resId
+    private fun nameToResId(name: String?): Int {
+        if (name.isNullOrBlank()) return 0
+        val r = getApplication<Application>().resources
+        return r.getIdentifier(name, "drawable", getApplication<Application>().packageName)
+    }
+
+    // ----------------- Fallback statico -----------------
     private fun loadSection1() = listOf(
         Exercise(
             category = "bodybuilding",
@@ -550,20 +651,6 @@ class BodybuildingViewModel : ViewModel() {
             imageRes = R.drawable.adductormachine,
             descriptionImage = R.drawable.adductormachine,
             title = "ADDUCTOR MACHINE",
-            videoUrl = "https://www.youtube.com/watch?v=wRSr98kKUsg",
-            description = "Macchinario utile per il petto.",
-            subtitle2 = "MUSCOLI :",
-            description2 = "- Grande pettorale\n- Deltoide anteriore",
-            detailImage1Res = R.drawable.abab,
-            detailImage2Res = R.drawable.ebeb,
-            descrizioneTotale = "3–4 serie da 10–15 ripetizioni"
-        ),
-        Exercise(
-            category = "bodybuilding",
-            muscoloPrincipale = "gambe",
-            imageRes = R.drawable.abductormachine,
-            descriptionImage = R.drawable.abductormachine,
-            title = "ABDUCTOR MACHINE",
             videoUrl = "https://www.youtube.com/watch?v=wRSr98kKUsg",
             description = "Macchinario utile per il petto.",
             subtitle2 = "MUSCOLI :",

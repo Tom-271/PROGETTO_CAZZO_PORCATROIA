@@ -40,6 +40,14 @@ class WorkoutFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        //rimetti la data nella voce precedente dello stack (MyAutoScheduleFragment)
+        selectedDate?.let { dateId ->
+            findNavController().previousBackStackEntry
+                ?.savedStateHandle
+                ?.set("returnDateId", dateId)
+        }
+
+
         // Bodybuilding
         binding.btnItem1.setOnClickListener {
             // Preparo un bundle con eventuali argomenti da passare

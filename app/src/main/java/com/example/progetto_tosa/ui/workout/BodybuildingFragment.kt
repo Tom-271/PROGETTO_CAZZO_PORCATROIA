@@ -1,12 +1,13 @@
+// BodybuildingFragment.kt
 package com.example.progetto_tosa.ui.workout
 
-import android.R.attr.onClick
 import android.content.Context
 import android.content.res.Configuration
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ArrayAdapter
 import android.widget.TextView
 import android.widget.Toast
 import androidx.core.content.ContextCompat
@@ -18,50 +19,47 @@ import com.example.progetto_tosa.R
 import com.example.progetto_tosa.databinding.FragmentBodybuildingBinding
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.card.MaterialCardView
-import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 
-/**
- * Fragment per la selezione e il salvataggio di esercizi di Bodybuilding.
- * Mostra diverse sezioni di esercizi, permette di visualizzare dettagli e di salvare
- * l'esercizio nella scheda giornaliera o del Personal Trainer.
- */
 class BodybuildingFragment : Fragment(R.layout.fragment_bodybuilding) {
 
-    // Binding per il layout fragment_bodybuilding.xml
     private var _binding: FragmentBodybuildingBinding? = null
     private val binding get() = _binding!!
 
-    // ViewModel che gestisce i dati e la logica degli esercizi
     private val vm: BodybuildingViewModel by viewModels()
-
-    // Accesso diretto a Firestore per salvare gli esercizi (evita di esporre vm.db)
     private val db = FirebaseFirestore.getInstance()
 
-    // Opzionali: utente selezionato (PT) e data selezionata dalla schermata precedente
     private val selectedUser: String? by lazy { arguments?.getString("selectedUser") }
     private val selectedDate: String? by lazy { arguments?.getString("selectedDate") }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         _binding = FragmentBodybuildingBinding.bind(view)
         super.onViewCreated(view, savedInstanceState)
-        // Collego il ViewModel per DataBinding
+
         binding.viewModel = vm
         binding.lifecycleOwner = viewLifecycleOwner
 
-        // Inizializza UI (riempi sezioni statiche)
         initUI()
-        // Osservo le modifiche nella sezione1 (esercizi salvati)
         observeData()
 
-        // Se è stata passata una data, carica gli esercizi già salvati
+        //seedAllExercisesToFirestore() // esegui UNA volta per creare esercizi/bodybuilding/voci
+
+        vm.loadAnagraficaBodybuildingFromFirestore()
+
         if (!selectedDate.isNullOrBlank()) {
-            vm.loadSavedExercises(selectedDate) { setupSection1() }
+            vm.loadSavedExercises(
+                selectedDate = selectedDate,
+                selectedUser = selectedUser,
+                currentUserName = getCurrentUserName()
+            ) { setupSection1() }
         }
     }
 
-    // Inizializza le sezioni fisse: applica colori e configura RecyclerView.
+    private fun getCurrentUserName(): String? {
+        val prefs = requireActivity().getSharedPreferences("user_data", Context.MODE_PRIVATE)
+        return prefs.getString("saved_display_name", null)
+    }
 
     private fun initUI() {
         applyStrokeColor(binding.cardSection1)
@@ -71,21 +69,70 @@ class BodybuildingFragment : Fragment(R.layout.fragment_bodybuilding) {
         setupSection(binding.cardSection5, binding.rvSection5, vm.section5.value!!)
     }
 
-    // Osserva la LiveData della sezione1 (Bodybuilding) e aggiorna la UI.
-
     private fun observeData() {
-        vm.section1.observe(viewLifecycleOwner) { list ->
-            setupSection1(list)
-        }
+        vm.section1.observe(viewLifecycleOwner) { list -> setupSection1(list) }
     }
 
-    // Configura dinamicamente la sezione1 con i dati passati o quelli salvati.
+    // resId -> name (per seed)
+    private fun resIdToName(resId: Int): String =
+        requireContext().resources.getResourceEntryName(resId)
+
+    // name -> resId (se ti serve leggere dall’anagrafica)
+    private fun nameToResId(name: String): Int =
+        requireContext().resources.getIdentifier(name, "drawable", requireContext().packageName)
+
+    // SEED: scrive tutte le sezioni in esercizi/bodybuilding/voci/{slug}
+    private fun seedAllExercisesToFirestore() {
+        val db = FirebaseFirestore.getInstance()
+        val batch = db.batch()
+
+        val all = listOf(
+            vm.section1.value.orEmpty(),
+            vm.section2.value.orEmpty(),
+            vm.section3.value.orEmpty(),
+            vm.section4.value.orEmpty(),
+            vm.section5.value.orEmpty()
+        ).flatten()
+
+        all.forEach { ex ->
+            val docId = ex.title.lowercase()
+                .replace(" ", "_")
+                .replace("[^a-z0-9_]+".toRegex(), "")
+
+            val docRef = db.collection("esercizi")
+                .document(ex.category)        // "bodybuilding"
+                .collection("voci")
+                .document(docId)
+
+            val data = hashMapOf(
+                "category" to ex.category,
+                "muscoloPrincipale" to ex.muscoloPrincipale,
+                "title" to ex.title,
+                "videoUrl" to ex.videoUrl,
+                "description" to ex.description,
+                "subtitle2" to ex.subtitle2,
+                "description2" to ex.description2,
+                "descriptionImageName" to resIdToName(ex.descriptionImage),
+                "detailImage1Name" to resIdToName(ex.detailImage1Res),
+                "detailImage2Name" to resIdToName(ex.detailImage2Res),
+                "descrizioneTotale" to ex.descrizioneTotale,
+                "createdAt" to FieldValue.serverTimestamp()
+            )
+            batch.set(docRef, data)
+        }
+
+        batch.commit()
+            .addOnSuccessListener {
+                Toast.makeText(requireContext(), "Seed completato ✅", Toast.LENGTH_SHORT).show()
+            }
+            .addOnFailureListener { e ->
+                Toast.makeText(requireContext(), "Errore seed: ${e.message}", Toast.LENGTH_LONG).show()
+            }
+    }
 
     private fun setupSection1(list: List<BodybuildingViewModel.Exercise> = vm.section1.value!!) {
         setupSection(binding.cardSection1, binding.rvSection1, list)
     }
-
-    // Applica il colore del bordo al MaterialCardView in base al tema (day/night).
 
     private fun applyStrokeColor(card: MaterialCardView) {
         val night = resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK
@@ -93,11 +140,6 @@ class BodybuildingFragment : Fragment(R.layout.fragment_bodybuilding) {
         card.strokeColor = ContextCompat.getColor(requireContext(), colorRes)
     }
 
-    /**
-     * Imposta un RecyclerView con GridLayoutManager a 2 colonne
-     * e associa l'adapter che gestisce click e salvataggio.
-     * Il click sull'header mostra/nasconde la lista.
-     */
     private fun setupSection(
         headerCard: MaterialCardView,
         recyclerView: RecyclerView,
@@ -112,7 +154,6 @@ class BodybuildingFragment : Fragment(R.layout.fragment_bodybuilding) {
         }
     }
 
-    // Mostra un dialog di dettaglio con titolo, video e descrizioni dell'esercizio.
     private fun openDetail(ex: BodybuildingViewModel.Exercise) {
         ExerciseDetailFragment.newInstance(
             ex.title,
@@ -127,12 +168,6 @@ class BodybuildingFragment : Fragment(R.layout.fragment_bodybuilding) {
         ).show(childFragmentManager, "exercise_detail")
     }
 
-    /**
-     * Salva l'esercizio selezionato in Firestore nella raccolta corretta:
-     * - Schede del PT se selectedUser è valorizzato
-     * - Schede giornaliere dell'utente altrimenti
-     * Controlla serie/ripetizioni e mostra messaggi di errore o conferma.
-     */
     private fun saveExercise(ex: BodybuildingViewModel.Exercise) {
         if (selectedDate.isNullOrBlank()) {
             Toast.makeText(requireContext(), "Seleziona prima una data per aggiungere l'esercizio", Toast.LENGTH_SHORT).show()
@@ -143,7 +178,6 @@ class BodybuildingFragment : Fragment(R.layout.fragment_bodybuilding) {
             return
         }
 
-        // Costruisco i dati da salvare
         val data = hashMapOf(
             "category" to ex.category,
             "nomeEsercizio" to ex.title,
@@ -154,11 +188,8 @@ class BodybuildingFragment : Fragment(R.layout.fragment_bodybuilding) {
         )
         val successMessage = "Esercizio \"${ex.title}\" aggiunto con successo"
 
-        // Recupero nome utente salvato in SharedPreferences
-        val prefs = requireActivity().getSharedPreferences("user_data", Context.MODE_PRIVATE)
-        val currentUserName = prefs.getString("saved_display_name", null)
+        val currentUserName = getCurrentUserName()
 
-        // Determino il path della collezione in Firestore
         val collectionRef = when {
             !selectedUser.isNullOrBlank() -> db
                 .collection("schede_del_pt").document(selectedUser!!)
@@ -174,15 +205,11 @@ class BodybuildingFragment : Fragment(R.layout.fragment_bodybuilding) {
             }
         }
 
-        // Salvataggio effettivo e listener di conferma/errore
         collectionRef.document(ex.title)
             .set(data)
             .addOnSuccessListener { Toast.makeText(requireContext(), successMessage, Toast.LENGTH_SHORT).show() }
             .addOnFailureListener { Toast.makeText(requireContext(), "Errore durante il salvataggio", Toast.LENGTH_SHORT).show() }
     }
-
-    // Adapter per visualizzare le card degli esercizi con toggle di serie/ripetizioni
-    // e azione di conferma salvataggio.
 
     private inner class ExerciseAdapter(
         private val items: List<BodybuildingViewModel.Exercise>,
@@ -195,15 +222,11 @@ class BodybuildingFragment : Fragment(R.layout.fragment_bodybuilding) {
             private val inputSets = view.findViewById<android.widget.EditText>(R.id.inputSets)
             private val inputReps = view.findViewById<android.widget.EditText>(R.id.inputReps)
             private val btnConfirm = view.findViewById<MaterialButton>(R.id.buttonConfirm)
-            private val green = ContextCompat.getColor(view.context, R.color.green)
-            private val black = ContextCompat.getColor(view.context, R.color.black)
 
             init {
                 btnConfirm.setOnClickListener {
                     val pos = adapterPosition.takeIf { it != RecyclerView.NO_POSITION } ?: return@setOnClickListener
                     val ex = items[pos]
-
-                    // Leggi i valori inseriti nei campi
                     ex.setsCount = inputSets.text.toString().toIntOrNull() ?: 0
                     ex.repsCount = inputReps.text.toString().toIntOrNull() ?: 0
                     onConfirmClick(ex)
@@ -214,27 +237,8 @@ class BodybuildingFragment : Fragment(R.layout.fragment_bodybuilding) {
                 }
             }
 
-            // Cambia la modalità tra serie e ripetizioni, aggiorna item
-
-            private fun toggleMode(isSets: Boolean) {
-                val pos = adapterPosition.takeIf { it != RecyclerView.NO_POSITION } ?: return
-                items[pos].isSetsMode = isSets
-                notifyItemChanged(pos)
-            }
-
-            // Modifica il conteggio (serie o ripetizioni) con un delta
-            private fun adjustCount(delta: Int) {
-                val pos = adapterPosition.takeIf { it != RecyclerView.NO_POSITION } ?: return
-                val ex = items[pos]
-                if (ex.isSetsMode) ex.setsCount = maxOf(0, ex.setsCount + delta)
-                else ex.repsCount = maxOf(0, ex.repsCount + delta)
-                notifyItemChanged(pos)
-            }
-
-            // Collega i dati dell'esercizio alla UI e gestisce visibilità controll
             fun bind(ex: BodybuildingViewModel.Exercise) {
                 titleTv.text = ex.title
-
                 inputSets.setText(ex.setsCount.takeIf { it > 0 }?.toString() ?: "")
                 inputReps.setText(ex.repsCount.takeIf { it > 0 }?.toString() ?: "")
 
@@ -243,15 +247,12 @@ class BodybuildingFragment : Fragment(R.layout.fragment_bodybuilding) {
                     it.visibility = if (isTracking) View.VISIBLE else View.GONE
                 }
 
-                itemView.setOnClickListener {
-                    if (!isTracking) onCardClick(ex)
-                }
+                itemView.setOnClickListener { if (!isTracking) onCardClick(ex) }
             }
         }
 
-        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) = VH(
-            LayoutInflater.from(parent.context).inflate(R.layout.cards_exercise, parent, false)
-        )
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
+            VH(LayoutInflater.from(parent.context).inflate(R.layout.cards_exercise, parent, false))
 
         override fun onBindViewHolder(holder: VH, position: Int) = holder.bind(items[position])
         override fun getItemCount() = items.size
@@ -259,6 +260,6 @@ class BodybuildingFragment : Fragment(R.layout.fragment_bodybuilding) {
 
     override fun onDestroyView() {
         super.onDestroyView()
-        _binding = null // Previene memory leak liberando il binding
+        _binding = null
     }
 }

@@ -1,12 +1,16 @@
+// StretchingViewModel.kt
 package com.example.progetto_tosa.ui.workout
 
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
 import com.example.progetto_tosa.R
+import com.google.firebase.firestore.CollectionReference
+import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
 
-class StretchingViewModel : ViewModel() {
+class StretchingViewModel(app: Application) : AndroidViewModel(app) {
 
     data class Stretch(
         val type: String,
@@ -21,13 +25,12 @@ class StretchingViewModel : ViewModel() {
         val detailImage2Res: Int,
         val descrizioneTotale: String,
         var setsCount: Int = 0,
-        var repsCount: Int = 0,
+        var durata: String? = null,
         var isSetsMode: Boolean = true
     )
 
     private val db = FirebaseFirestore.getInstance()
 
-    // Sezioni statiche
     private val _neck      = MutableLiveData<List<Stretch>>(loadNeck())
     private val _shoulders = MutableLiveData<List<Stretch>>(loadShoulders())
     private val _back      = MutableLiveData<List<Stretch>>(loadBack())
@@ -40,50 +43,124 @@ class StretchingViewModel : ViewModel() {
     val legs: LiveData<List<Stretch>>      = _legs
     val arms: LiveData<List<Stretch>>      = _arms
 
-    /**
-     * Carica da Firestore i valori già salvati per la sezione "neck"
-     * e aggiorna _neck, poi richiama onComplete().
-     */
+    // --------- Load set/ripetizioni salvati ---------
     fun loadSavedStretches(
         selectedDate: String?,
-        onComplete: () -> Unit
+        selectedUser: String? = null,
+        currentUserName: String? = null,
+        onComplete: () -> Unit = {}
     ) {
-        if (selectedDate.isNullOrBlank()) return
+        if (selectedDate.isNullOrBlank()) {
+            onComplete()
+            return
+        }
 
-        val currentList = _neck.value!!.toMutableList()
-        val types = currentList.map { it.type }
-        val snapshotList = mutableListOf<Pair<String, Pair<Int,Int>>>()
+        val ref = getExercisesRef(selectedDate, selectedUser, currentUserName)
+        ref.get()
+            .addOnSuccessListener { snap ->
+    // id documento -> (sets, durata)
+    val byTitle = snap.documents.associateBy({ it.id }) { doc ->
+        Pair(
+            doc.getLong("numeroSerie")?.toInt() ?: 0,
+            doc.getString("durata") // es. "MM:SS" oppure null
+        )
+    }
 
-        types.forEach { type ->
-            db.collection("schede_giornaliere")
-                .document(selectedDate)
-                .collection("stretching")
-                .document("esercizi")
+    fun apply(list: List<Stretch>) =
+        list.map { s ->
+            byTitle[s.title]?.let { (sets, duration) ->
+                s.copy(
+                    setsCount = sets,
+                    durata = duration ?: s.durata   // non sovrascrivere se null
+                )
+            } ?: s
+        }
+
+    _neck.value      = apply(_neck.value ?: emptyList())
+    _shoulders.value = apply(_shoulders.value ?: emptyList())
+    _back.value      = apply(_back.value ?: emptyList())
+    _legs.value      = apply(_legs.value ?: emptyList())
+    _arms.value      = apply(_arms.value ?: emptyList())
+
+    onComplete()
+}
+            .addOnFailureListener { onComplete() }
+    }
+
+    private fun getExercisesRef(
+        date: String,
+        selectedUser: String?,
+        currentUserName: String?
+    ): CollectionReference {
+        return if (!selectedUser.isNullOrBlank()) {
+            db.collection("schede_del_pt").document(selectedUser)
+                .collection(date).document("stretching")
                 .collection("esercizi")
-                .document(type)
-                .get()
-                .addOnSuccessListener { doc ->
-                    val sets = doc.getLong("numeroSerie")?.toInt() ?: 0
-                    val reps = doc.getLong("numeroRipetizioni")?.toInt() ?: 0
-                    snapshotList += type to (sets to reps)
-                    if (snapshotList.size == types.size) {
-                        snapshotList.forEach { (t, sr) ->
-                            currentList.find { it.type == t }?.apply {
-                                setsCount = sr.first
-                                repsCount = sr.second
-                            }
-                        }
-                        _neck.value = currentList
-                        onComplete()
-                    }
-                }
-                .addOnFailureListener {
-                    // eventuale gestione errori
-                }
+        } else {
+            val user = currentUserName.orEmpty()
+            db.collection("schede_giornaliere").document(user)
+                .collection(date).document("stretching")
+                .collection("esercizi")
         }
     }
 
-    // --- Helpers per le liste statiche ---
+    // --------- ANAGRAFICA: mapping + loader ---------
+
+    private fun nameToResId(name: String?): Int {
+        if (name.isNullOrBlank()) return 0
+        val r = getApplication<Application>().resources
+        return r.getIdentifier(name, "drawable", getApplication<Application>().packageName)
+    }
+
+    private fun mapDocToStretch(doc: DocumentSnapshot): Stretch {
+        val title        = doc.getString("title").orElse("")
+        val type         = doc.getString("type").orElse("")
+        val videoUrl     = doc.getString("videoUrl").orElse("")
+        val description  = doc.getString("description").orElse("")
+        val subtitle2    = doc.getString("subtitle2").orElse("")
+        val description2 = doc.getString("description2").orElse("")
+        val descrTot     = doc.getString("descrizioneTotale").orElse("")
+
+        val descImgRes   = nameToResId(doc.getString("descriptionImageName"))
+        val detail1Res   = nameToResId(doc.getString("detailImage1Name"))
+        val detail2Res   = nameToResId(doc.getString("detailImage2Name"))
+
+        return Stretch(
+            type = type,
+            imageRes = descImgRes,
+            descriptionImage = descImgRes,
+            title = title,
+            videoUrl = videoUrl,
+            description = description,
+            subtitle2 = subtitle2,
+            description2 = description2,
+            detailImage1Res = detail1Res,
+            detailImage2Res = detail2Res,
+            descrizioneTotale = descrTot
+        )
+    }
+
+    /** Legge da esercizi/stretching/voci e popola neck/shoulders/back/legs/arms */
+    fun loadAnagraficaStretchingFromFirestore(onComplete: () -> Unit = {}) {
+        db.collection("esercizi")
+            .document("stretching")
+            .collection("voci")
+            .get()
+            .addOnSuccessListener { snap ->
+                val all = snap.documents.map { mapDocToStretch(it) }
+
+                _neck.value      = all.filter { it.type.startsWith("neck",     true) }
+                _shoulders.value = all.filter { it.type.startsWith("shoulder", true) || it.type.contains("tricep", true) }
+                _back.value      = all.filter { it.type.contains("back", true) || it.type.contains("cat_cow", true) || it.type.contains("child", true) }
+                _legs.value      = all.filter { it.type.contains("leg", true)  || it.type.contains("hamstring", true) || it.type.contains("quad", true) }
+                _arms.value      = all.filter { it.type.contains("wrist", true) || it.type.contains("bicep", true) }
+
+                onComplete()
+            }
+            .addOnFailureListener { onComplete() }
+    }
+
+    // --------- Liste statiche (fallback) ---------
 
     private fun loadNeck() = listOf(
         Stretch(
@@ -229,4 +306,7 @@ class StretchingViewModel : ViewModel() {
             descrizioneTotale  = "Mantieni 20s"
         )
     )
+
+    // piccolo helper per evitare null -> ""
+    private fun String?.orElse(def: String) = this ?: def
 }

@@ -72,18 +72,15 @@
                     android:gravity="center"
                     android:layout_marginEnd="8dp"/>
 
-                <EditText
-                    android:id="@+id/inputReps"
+                <TextView
+                    android:id="@+id/cardDurationInput"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:hint="Ripetizioni"
-                    android:inputType="number"
-                    android:textColor="#FFF"
-                    android:textColorHint="#AAA"
-                    android:backgroundTint="#2979FF"
-                    android:gravity="center"
-                    android:layout_marginStart="8dp"/>
+                    android:hint="Durata"
+                    android:clickable="true"
+                    android:textSize="14dp"
+                    android:layout_marginStart="12dp" />
             </LinearLayout>
 
             <!-- Pulsante Confirm -->

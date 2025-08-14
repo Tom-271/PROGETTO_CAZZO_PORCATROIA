@@ -10,14 +10,16 @@ import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.progetto_tosa.databinding.CardTrainingQueueBinding
 
-class TrainingQueueDialogFragment(
-    private val exercises: MutableList<ScheduledExercise>,
-    private val viewModel: MyAutoScheduleViewModel,
-    private val onExercisesReordered: (List<ScheduledExercise>) -> Unit
-) : DialogFragment() {
+class TrainingQueueDialogFragment : DialogFragment() {
 
     private var _binding: CardTrainingQueueBinding? = null
     private val binding get() = _binding!!
+
+    // campi impostati da newInstance(...)
+    private var exercises: MutableList<ScheduledExercise> = mutableListOf()
+    private lateinit var viewModel: MyAutoScheduleViewModel
+    private var onExercisesReordered: ((List<ScheduledExercise>) -> Unit)? = null
+    private var selectedUser: String? = null  // Aggiungi il campo selectedUser
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -40,18 +42,40 @@ class TrainingQueueDialogFragment(
         itemTouchHelper = ItemTouchHelper(callback)
         itemTouchHelper.attachToRecyclerView(binding.recyclerTrainingQueue)
 
-        binding.buttonExit.setOnClickListener {
+        binding.buttonExit.setOnClickListener { dismiss() }
+
+        binding.SaveOrder.setOnClickListener {
+            val reordered = adapter.getCurrentList()
+            viewModel.saveReorderedExercises(reordered)
+            onExercisesReordered?.invoke(reordered)
+            Toast.makeText(requireContext(), "Ordine salvato", Toast.LENGTH_SHORT).show()
+        }
+
+        binding.StartTraining.setOnClickListener {
+            val reordered = adapter.getCurrentList()
+            viewModel.saveReorderedExercises(reordered)
+            onExercisesReordered?.invoke(reordered)
+
+            val current = adapter.getCurrentList()
+            val date = viewModel.selectedDateId.value
+            if (date.isNullOrBlank()) {
+                Toast.makeText(requireContext(), "Data non valida", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
+            val category = current.firstOrNull()?.categoria ?: "null"
+
+            // Passa l'intera lista degli esercizi, non solo la categoria del primo esercizio
+            val startDialog = TrainingStartDialogFragment.newInstance(
+                selectedDate = date,
+                category = category,
+                exercises = current,  // Lista completa degli esercizi
+                selectedUser = selectedUser
+            )
+            startDialog.show(parentFragmentManager, "start_training_dialog")
             dismiss()
         }
 
-        binding.SaveOrder.setOnClickListener {
-            val reorderedList = adapter.getCurrentList()
-            val context = requireContext().applicationContext
-
-            viewModel.saveReorderedExercises(reorderedList)
-
-            Toast.makeText(context, "Ordine salvato", Toast.LENGTH_SHORT).show()
-        }
 
         return binding.root
     }
@@ -76,7 +100,11 @@ class TrainingQueueDialogFragment(
             viewModel: MyAutoScheduleViewModel,
             onExercisesReordered: (List<ScheduledExercise>) -> Unit
         ): TrainingQueueDialogFragment {
-            return TrainingQueueDialogFragment(exercises.toMutableList(), viewModel, onExercisesReordered)
+            return TrainingQueueDialogFragment().apply {
+                this.exercises = exercises.toMutableList()
+                this.viewModel = viewModel
+                this.onExercisesReordered = onExercisesReordered
+            }
         }
     }
 }
