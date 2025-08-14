@@ -2,27 +2,32 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <!-- Permessi Bluetooth LE -->
-    <uses-permission android:name="android.permission.BLUETOOTH"/>
-    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN"/>
+    <!-- BLE base (vecchi permessi utili < API 31; metti maxSdkVersion per evitare warning) -->
+    <uses-permission android:name="android.permission.BLUETOOTH" android:maxSdkVersion="30"/>
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" android:maxSdkVersion="30"/>
+
+    <!-- BLE moderni (API 31+) -->
     <uses-permission
         android:name="android.permission.BLUETOOTH_SCAN"
         android:usesPermissionFlags="neverForLocation"/>
     <uses-permission android:name="android.permission.BLUETOOTH_CONNECT"/>
-    <!-- Su Android <12 serve anche il permesso Location per lo scan BLE -->
+
+    <!-- Per lo scan su < API 31 serve anche la location -->
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
 
-    <!-- Verifica che il dispositivo supporti BLE -->
-    <uses-feature
-        android:name="android.hardware.bluetooth_le"
-        android:required="true"/>
+    <!-- Foreground service (obbligatorio per i service in primo piano) -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
+    <!-- Notifiche (Android 13+) -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
 
     <!-- Altri permessi dell’app -->
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.READ_CALENDAR"/>
     <uses-permission android:name="android.permission.WRITE_CALENDAR"/>
-    <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
     <uses-permission android:name="android.permission.CAMERA"/>
+
+    <!-- Hardware BLE -->
+    <uses-feature android:name="android.hardware.bluetooth_le" android:required="true"/>
 
     <application
         android:allowBackup="true"
@@ -34,6 +39,12 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.PROGETTO_TOSA"
         tools:targetApi="31">
+
+        <!-- DICHIARAZIONE DEL SERVICE (path esatto del tuo file) -->
+        <service
+            android:name=".ui.progression.BleHrService"
+            android:exported="false"
+            android:foregroundServiceType="connectedDevice|dataSync" />
 
         <!-- Schermate di login/registrazione -->
         <activity
@@ -61,10 +72,9 @@
             </intent-filter>
         </activity>
 
-        <!-- Schermata di registrazione -->
+        <!-- Registrazione -->
         <activity
             android:name=".ui.account.RegisterActivity"
             android:screenOrientation="portrait" />
-
     </application>
 </manifest>

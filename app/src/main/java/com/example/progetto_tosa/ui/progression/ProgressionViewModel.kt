@@ -11,6 +11,7 @@ import com.example.progetto_tosa.data.BodyFatRepository
 import com.example.progetto_tosa.data.BodyFatViewModel
 import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions
 import java.time.LocalDate
@@ -37,11 +38,29 @@ class ProgressionViewModel(
 
     fun loadBodyFat() = bodyFatVm.load()
 
+    /** Helper: restituisce il DocumentReference di base (users/{uid} oppure personal_trainers/{uid}) */
+    private fun withBaseDocRef(onReady: (DocumentReference) -> Unit) {
+        val user = auth.currentUser ?: return
+        val ptRef = firestore.collection("personal_trainers").document(user.uid)
+        ptRef.get()
+            .addOnSuccessListener { snap ->
+                val root = if (snap.exists() || snap.getBoolean("isPersonalTrainer") == true)
+                    "personal_trainers"
+                else
+                    "users"
+                onReady(firestore.collection(root).document(user.uid))
+            }
+            .addOnFailureListener {
+                // fallback sicuro su users
+                onReady(firestore.collection("users").document(user.uid))
+            }
+    }
+
     fun loadGoals() {
         auth.currentUser?.let { user ->
             val ptRef = firestore.collection("personal_trainers").document(user.uid)
             ptRef.get().addOnSuccessListener { snap ->
-                if (snap.getBoolean("isPersonalTrainer") == true) {
+                if (snap.getBoolean("isPersonalTrainer") == true || snap.exists()) {
                     _goals.value = GoalsUi(
                         targetWeight = snap.getDouble("targetWeight"),
                         targetLean   = snap.getDouble("targetLeanMass"),
@@ -65,46 +84,51 @@ class ProgressionViewModel(
     }
 
     fun addBodyFat(percent: Float, weight: Float?, date: LocalDate = LocalDate.now()) {
+        // Salva sempre nel DB locale per i grafici
         bodyFatVm.addMeasurement(percent, weight, date)
-        auth.currentUser?.let { user ->
-            val epoch = date.toEpochDay()
-            val entry = mutableMapOf<String, Any>(
-                "epochDay" to epoch,
-                "bodyFatPercent" to percent,
-                "updatedAt" to Timestamp.now()
-            )
-            weight?.let { entry["bodyWeightKg"] = it }
-            firestore.collection("users").document(user.uid)
-                .collection("bodyFatEntries").document(epoch.toString())
+
+        val epoch = date.toEpochDay()
+        val entry = mutableMapOf<String, Any>(
+            "epochDay" to epoch,
+            "bodyFatPercent" to percent,
+            "updatedAt" to Timestamp.now()
+        )
+        weight?.let { entry["bodyWeightKg"] = it }
+
+        val summary = mutableMapOf<String, Any>(
+            "currentBodyFatPercent" to percent,
+            "lastBodyFatEpochDay"   to epoch
+        )
+        weight?.let { summary["currentBodyWeightKg"] = it }
+
+        // Scrivi su Firestore nel ramo corretto (users/ oppure personal_trainers/)
+        withBaseDocRef { baseRef ->
+            baseRef.collection("bodyFatEntries").document(epoch.toString())
                 .set(entry, SetOptions.merge())
-            val summary = mutableMapOf<String, Any>(
-                "currentBodyFatPercent" to percent,
-                "lastBodyFatEpochDay"   to epoch
-            )
-            weight?.let { summary["currentBodyWeightKg"] = it }
-            firestore.collection("users").document(user.uid)
-                .set(summary, SetOptions.merge())
+            baseRef.set(summary, SetOptions.merge())
         }
     }
 
     fun addLeanMass(lean: Float, date: LocalDate = LocalDate.now()) {
+        // Salva nel DB locale
         bodyFatVm.addLeanMass(lean, date)
-        auth.currentUser?.let { user ->
-            val epoch = date.toEpochDay()
-            val data = mapOf(
-                "epochDay" to epoch,
-                "leanMassKg" to lean,
-                "updatedAt" to Timestamp.now()
-            )
-            firestore.collection("users").document(user.uid)
-                .collection("bodyFatEntries").document(epoch.toString())
-                .set(data, SetOptions.merge())
-            val summary = mapOf(
-                "currentLeanMassKg" to lean,
-                "lastLeanEpochDay" to epoch
-            )
-            firestore.collection("users").document(user.uid)
-                .set(summary, SetOptions.merge())
+
+        val epoch = date.toEpochDay()
+        val entry = mapOf(
+            "epochDay" to epoch,
+            "leanMassKg" to lean,
+            "updatedAt" to Timestamp.now()
+        )
+        val summary = mapOf(
+            "currentLeanMassKg" to lean,
+            "lastLeanEpochDay"  to epoch
+        )
+
+        // Scrivi su Firestore nel ramo corretto (users/ oppure personal_trainers/)
+        withBaseDocRef { baseRef ->
+            baseRef.collection("bodyFatEntries").document(epoch.toString())
+                .set(entry, SetOptions.merge())
+            baseRef.set(summary, SetOptions.merge())
         }
     }
 
@@ -122,12 +146,14 @@ class ProgressionViewModel(
         auth.currentUser?.let { user ->
             val ptRef = firestore.collection("personal_trainers").document(user.uid)
             ptRef.get().addOnSuccessListener { snap ->
-                val ref = if (snap.getBoolean("isPersonalTrainer") == true)
-                    ptRef
-                else
-                    firestore.collection("users").document(user.uid)
+                val ref =
+                    if (snap.getBoolean("isPersonalTrainer") == true || snap.exists())
+                        ptRef
+                    else
+                        firestore.collection("users").document(user.uid)
+
                 val data = mutableMapOf<String, Any>()
-                newWeight?.let { data["targetWeight"] = it }
+                newWeight?.let { data["targetWeight"]   = it }
                 newLean?.let   { data["targetLeanMass"] = it }
                 newFat?.let    { data["targetFatMass"]  = it }
                 if (data.isNotEmpty()) ref.set(data, SetOptions.merge())
