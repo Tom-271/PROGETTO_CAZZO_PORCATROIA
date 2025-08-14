@@ -82,8 +82,12 @@ class GraphsFragment : Fragment(R.layout.fragment_graphs) {
     private lateinit var TitleForRVWeight: TextView
     private lateinit var TitleForRVBodyFat: TextView
 
+    private var isPtUser = false
+    private lateinit var rootRef: com.google.firebase.firestore.DocumentReference
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
         // ViewModel & UID
         uid = auth.currentUser?.uid ?: throw IllegalStateException("Devi effettuare il login")
         vm  = ViewModelProvider(this, ProgressionVmFactory(requireContext(), uid))
@@ -93,52 +97,44 @@ class GraphsFragment : Fragment(R.layout.fragment_graphs) {
         cardInsertBody     = view.findViewById(R.id.cardInsertBodyFat)
         cardInsertWeight   = view.findViewById(R.id.cardInsertWeight)
         cardInsertLean     = view.findViewById(R.id.cardInsertLean)
-
         tvCurrentBfValue   = view.findViewById(R.id.tvCurrentBfValue)
         tvCurrentBfDate    = view.findViewById(R.id.tvCurrentBfDate)
         tvCurrentWeightValue = view.findViewById(R.id.tvCurrentWeightValue)
         tvCurrentWeightDate  = view.findViewById(R.id.tvCurrentWeightDate)
         tvCurrentLeanValue  = view.findViewById(R.id.tvCurrentLeanValue)
         tvCurrentLeanDate   = view.findViewById(R.id.tvCurrentLeanDate)
-
         rvNumbersBf        = view.findViewById(R.id.rvNumbersBf)
         rvNumbersWeight    = view.findViewById(R.id.rvNumbersWeight)
         rvNumbersLean      = view.findViewById(R.id.rvNumbersLean)
-
         btnAggiungi        = view.findViewById(R.id.efabAggiungi)
         tvTitle            = view.findViewById(R.id.titoloForGraphs)
         tvSubtitle         = view.findViewById(R.id.tvSubtitleGraph)
         tvDescBody         = view.findViewById(R.id.tvDescBodyFat)
         tvDescWeight       = view.findViewById(R.id.tvDescWeight)
         tvDescLean         = view.findViewById(R.id.tvDescLean)
-
         tvDateBF           = view.findViewById(R.id.tvSelectedDate)
         etBF               = view.findViewById(R.id.etBodyFatInput)
         btnPickBF          = view.findViewById(R.id.btnPickDate)
         btnSaveBF          = view.findViewById(R.id.btnSaveBodyFat)
-
         tvDateWeight       = view.findViewById(R.id.tvSelectedDateWeight)
         etWeight           = view.findViewById(R.id.etWeightInput)
         btnPickWeight      = view.findViewById(R.id.btnPickDateWeight)
         btnSaveWeight      = view.findViewById(R.id.btnSaveWeight)
-
         tvDateLean         = view.findViewById(R.id.tvSelectedDateLean)
         etLean             = view.findViewById(R.id.etLeanInput)
         btnPickLean        = view.findViewById(R.id.btnPickDateLean)
         btnSaveLean        = view.findViewById(R.id.btnSaveLean)
-
         TitleForRVLeanMass = view.findViewById(R.id.TitleForRVLeanMass)
         TitleForRVWeight   = view.findViewById(R.id.TitleForRVWeight)
         TitleForRVBodyFat  = view.findViewById(R.id.TitleForRVBodyFat)
 
-        // RecyclerViews vertical
+        // RecyclerViews vertical + swipe
         listOf(rvNumbersBf, rvNumbersWeight, rvNumbersLean).forEach {
             it.layoutManager = LinearLayoutManager(requireContext())
+            enableSwipeReveal(it)
         }
-        listOf(rvNumbersBf, rvNumbersWeight, rvNumbersLean).forEach { recyclerView ->
-            enableSwipeReveal(recyclerView)
-        }
-        // Hide all initially
+
+        // Nascondi tutto inizialmente
         listOf<View>(
             tvCurrentBfValue, tvCurrentBfDate,
             tvCurrentWeightValue, tvCurrentWeightDate,
@@ -148,27 +144,30 @@ class GraphsFragment : Fragment(R.layout.fragment_graphs) {
             cardInsertBody, cardInsertWeight, cardInsertLean
         ).forEach { it.visibility = View.GONE }
 
-        // Mode
-        when (arguments?.getString("graphType") ?: "bodyfat") {
-            "bodyfat" -> setupBodyFatMode()
-            "weight"  -> setupWeightMode()
-            "lean"    -> setupLeanMode()
-        }
-
-        // Insert chart fragment
+        // Inserisci subito il chart fragment (non dipende da rootRef)
         val chartFrag = when (arguments?.getString("graphType")) {
             "weight" -> PesoChartFragment()
             "lean"   -> MassaMagraChartFragment()
-            else      -> BodyFatChartFragment()
+            else     -> BodyFatChartFragment()
         }
         childFragmentManager.beginTransaction()
             .replace(R.id.fragment_graphs_container, chartFrag)
             .commitNow()
 
-        vm.loadBodyFat()
-        vm.loadGoals()
-        attachCloudListener()
+        // Risolvi la root (users o personal_trainers) e SOLO poi fai setup/letture/salvataggi
+        resolveRoot {
+            when (arguments?.getString("graphType") ?: "bodyfat") {
+                "bodyfat" -> setupBodyFatMode()
+                "weight"  -> setupWeightMode()
+                "lean"    -> setupLeanMode()
+            }
+
+            vm.loadBodyFat()
+            vm.loadGoals()
+            attachCloudListener()
+        }
     }
+
 
     private fun setupBodyFatMode() {
         tvTitle.text           = "PERCENTUALE MASSA GRASSA RAGGIUNTA:"
@@ -231,8 +230,7 @@ class GraphsFragment : Fragment(R.layout.fragment_graphs) {
 
     private fun attachCloudListener() {
         listener?.remove()
-        listener = db.collection("users").document(uid)
-            .collection("bodyFatEntries")
+        listener = rootRef.collection("bodyFatEntries")
             .orderBy("epochDay", Query.Direction.DESCENDING)
             .addSnapshotListener { snap, err ->
                 if (err != null || snap == null) return@addSnapshotListener
@@ -243,24 +241,13 @@ class GraphsFragment : Fragment(R.layout.fragment_graphs) {
                     val lm    = d.getDouble("leanMassKg")?.toFloat()
                     BodyFatEntry(0, uid, epoch, bf, w, lm)
                 }
-                // 1) aggiorna il ViewModel in modo che ChartFragment riceva i dati
                 vm.replaceAllFromCloud(entries)
-
-                // 2) aggiorna i RecyclerView
-                rvNumbersBf.adapter = NumberAdapter(
-                    entries.filter { it.bodyFatPercent != null },
-                    NumberAdapter.EntryType.BODYFAT
-                )
-                rvNumbersWeight.adapter = NumberAdapter(
-                    entries.filter { it.bodyWeightKg     != null },
-                    NumberAdapter.EntryType.WEIGHT
-                )
-                rvNumbersLean.adapter = NumberAdapter(
-                    entries.filter { it.leanMassKg       != null },
-                    NumberAdapter.EntryType.LEAN
-                )
+                rvNumbersBf.adapter = NumberAdapter(entries.filter { it.bodyFatPercent != null }, NumberAdapter.EntryType.BODYFAT)
+                rvNumbersWeight.adapter = NumberAdapter(entries.filter { it.bodyWeightKg     != null }, NumberAdapter.EntryType.WEIGHT)
+                rvNumbersLean.adapter = NumberAdapter(entries.filter { it.leanMassKg       != null }, NumberAdapter.EntryType.LEAN)
             }
     }
+
 
 
 
@@ -291,22 +278,24 @@ class GraphsFragment : Fragment(R.layout.fragment_graphs) {
         vm.getMeasurement(selectedDate) { existing ->
             val wtVal = existing?.bodyWeightKg
             vm.addBodyFat(bfVal, wtVal, selectedDate)
+
             val epoch = selectedDate.toEpochDay()
             val data = mutableMapOf(
                 "epochDay" to epoch,
                 "bodyFatPercent" to bfVal,
                 "updatedAt" to Timestamp.now()
             ).apply { wtVal?.let { put("bodyWeightKg", it) } }
-            db.collection("users").document(uid)
-                .collection("bodyFatEntries").document(epoch.toString())
+
+            rootRef.collection("bodyFatEntries").document(epoch.toString())
                 .set(data, SetOptions.merge())
-            db.collection("users").document(uid)
-                .set(mutableMapOf(
-                    "currentBodyFatPercent" to bfVal,
-                    "lastBodyFatEpochDay" to epoch
-                ).apply { wtVal?.let { put("currentBodyWeightKg", it) } }, SetOptions.merge())
+
+            rootRef.set(mutableMapOf(
+                "currentBodyFatPercent" to bfVal,
+                "lastBodyFatEpochDay" to epoch
+            ).apply { wtVal?.let { put("currentBodyWeightKg", it) } }, SetOptions.merge())
         }
     }
+
 
     // Weight
     private fun setupDatePickerWeight() {
@@ -334,23 +323,20 @@ class GraphsFragment : Fragment(R.layout.fragment_graphs) {
     // Weight
     private fun saveEntryWeight(wtVal: Float) {
         val epoch = selectedDate.toEpochDay()
-        // 1) aggiorna solo il peso nel documento
         val data = mutableMapOf(
             "epochDay" to epoch,
             "bodyWeightKg" to wtVal,
             "updatedAt" to Timestamp.now()
         )
-        db.collection("users").document(uid)
-            .collection("bodyFatEntries").document(epoch.toString())
+        rootRef.collection("bodyFatEntries").document(epoch.toString())
             .set(data, SetOptions.merge())
 
-        // 2) aggiorna solo i campi "current" per il peso
-        db.collection("users").document(uid)
-            .set(mutableMapOf(
-                "currentBodyWeightKg"      to wtVal,
-                "lastBodyWeightEpochDay"   to epoch
-            ), SetOptions.merge())
+        rootRef.set(mutableMapOf(
+            "currentBodyWeightKg"    to wtVal,
+            "lastBodyWeightEpochDay" to epoch
+        ), SetOptions.merge())
     }
+
 
     // Lean
     private fun setupDatePickerLean() {
@@ -377,69 +363,61 @@ class GraphsFragment : Fragment(R.layout.fragment_graphs) {
 
     private fun saveEntryLean(leanVal: Float) {
         val epoch = selectedDate.toEpochDay()
-        db.collection("users").document(uid)
-            .collection("bodyFatEntries").document(epoch.toString())
+        rootRef.collection("bodyFatEntries").document(epoch.toString())
             .set(mutableMapOf(
                 "epochDay" to epoch,
                 "leanMassKg" to leanVal,
                 "updatedAt" to Timestamp.now()
             ), SetOptions.merge())
-        db.collection("users").document(uid)
-            .set(mutableMapOf(
-                "currentLeanMassKg" to leanVal,
-                "lastLeanEpochDay" to epoch
-            ), SetOptions.merge())
+
+        rootRef.set(mutableMapOf(
+            "currentLeanMassKg" to leanVal,
+            "lastLeanEpochDay"  to epoch
+        ), SetOptions.merge())
+
         vm.loadBodyFat()
     }
 
-    // Load last values
+
     private fun loadLastBodyFat() {
-        db.collection("users").document(uid)
-            .collection("bodyFatEntries")
-            .orderBy("epochDay", Query.Direction.DESCENDING)
-            .limit(1)
+        rootRef.collection("bodyFatEntries")
+            .orderBy("epochDay", Query.Direction.DESCENDING).limit(1)
             .get().addOnSuccessListener { snaps ->
                 val doc = snaps.documents.firstOrNull()
                 val bf = doc?.getDouble("bodyFatPercent")?.toFloat() ?: 0f
                 val epoch = doc?.getLong("epochDay") ?: 0L
                 tvCurrentBfValue.text = String.format("%.1f %%", bf)
                 val date = LocalDate.ofEpochDay(epoch)
-                tvCurrentBfDate.text = "%02d/%02d/%04d".format(
-                    date.dayOfMonth, date.monthValue, date.year)
+                tvCurrentBfDate.text = "%02d/%02d/%04d".format(date.dayOfMonth, date.monthValue, date.year)
             }
     }
 
     private fun loadLastWeight() {
-        db.collection("users").document(uid)
-            .collection("bodyFatEntries")
-            .orderBy("epochDay", Query.Direction.DESCENDING)
-            .limit(10)
+        rootRef.collection("bodyFatEntries")
+            .orderBy("epochDay", Query.Direction.DESCENDING).limit(10)
             .get().addOnSuccessListener { snaps ->
                 val doc = snaps.documents.firstOrNull { it.contains("bodyWeightKg") }
                 val wt = doc?.getDouble("bodyWeightKg")?.toFloat() ?: 0f
                 val epoch = doc?.getLong("epochDay") ?: 0L
                 tvCurrentWeightValue.text = String.format("%.1f kg", wt)
                 val date = LocalDate.ofEpochDay(epoch)
-                tvCurrentWeightDate.text = "%02d/%02d/%04d".format(
-                    date.dayOfMonth, date.monthValue, date.year)
+                tvCurrentWeightDate.text = "%02d/%02d/%04d".format(date.dayOfMonth, date.monthValue, date.year)
             }
     }
 
     private fun loadLastLean() {
-        db.collection("users").document(uid)
-            .collection("bodyFatEntries")
-            .orderBy("epochDay", Query.Direction.DESCENDING)
-            .limit(10)
+        rootRef.collection("bodyFatEntries")
+            .orderBy("epochDay", Query.Direction.DESCENDING).limit(10)
             .get().addOnSuccessListener { snaps ->
                 val doc = snaps.documents.firstOrNull { it.contains("leanMassKg") }
                 val lm = doc?.getDouble("leanMassKg")?.toFloat() ?: 0f
                 val epoch = doc?.getLong("epochDay") ?: 0L
                 tvCurrentLeanValue.text = String.format("%.1f kg", lm)
                 val date = LocalDate.ofEpochDay(epoch)
-                tvCurrentLeanDate.text = "%02d/%02d/%04d".format(
-                    date.dayOfMonth, date.monthValue, date.year)
+                tvCurrentLeanDate.text = "%02d/%02d/%04d".format(date.dayOfMonth, date.monthValue, date.year)
             }
     }
+
 
     private fun updateDateLabelBF() {
         tvDateBF.text = if (selectedDate == LocalDate.now()) "Oggi"
@@ -501,8 +479,7 @@ class GraphsFragment : Fragment(R.layout.fragment_graphs) {
             override fun onSwiped(vh: RecyclerView.ViewHolder, direction: Int) {
                 val pos = vh.adapterPosition
                 val entry = (recyclerView.adapter as NumberAdapter).getItemAt(pos)
-                db.collection("users").document(uid)
-                    .collection("bodyFatEntries").document(entry.epochDay.toString())
+                rootRef.collection("bodyFatEntries").document(entry.epochDay.toString())
                     .delete()
                     .addOnSuccessListener { toast("Elemento eliminato dal database") }
                     .addOnFailureListener { e ->
@@ -556,6 +533,26 @@ class GraphsFragment : Fragment(R.layout.fragment_graphs) {
         ItemTouchHelper(swipeCallback).attachToRecyclerView(recyclerView)
     }
 
+    private fun resolveRoot(onReady: () -> Unit) {
+        // se rootRef è già pronto, usa e torna
+        if (::rootRef.isInitialized) { onReady(); return }
+
+        db.collection("personal_trainers").document(uid).get()
+            .addOnSuccessListener { snap ->
+                isPtUser = snap.exists() || (snap.getBoolean("isPersonalTrainer") == true)
+                rootRef = if (isPtUser)
+                    db.collection("personal_trainers").document(uid)
+                else
+                    db.collection("users").document(uid)
+                onReady()
+            }
+            .addOnFailureListener {
+                // fallback sicuro
+                isPtUser = false
+                rootRef = db.collection("users").document(uid)
+                onReady()
+            }
+    }
 
     override fun onDestroyView() {
         listener?.remove()

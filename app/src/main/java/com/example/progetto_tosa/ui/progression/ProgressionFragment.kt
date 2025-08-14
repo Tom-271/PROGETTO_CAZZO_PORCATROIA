@@ -7,11 +7,14 @@ import android.animation.PropertyValuesHolder
 import android.animation.ValueAnimator
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
-import android.bluetooth.BluetoothGatt
+import com.google.firebase.Timestamp
+import android.graphics.Color
+import com.github.mikephil.charting.components.AxisBase
+import com.github.mikephil.charting.components.XAxis
+import com.github.mikephil.charting.components.YAxis
+import com.github.mikephil.charting.formatter.ValueFormatter
+import android.widget.LinearLayout
 import com.github.mikephil.charting.components.LimitLine
-import android.bluetooth.BluetoothGattCallback
-import android.bluetooth.BluetoothGattCharacteristic
-import android.bluetooth.BluetoothGattDescriptor
 import android.bluetooth.le.ScanCallback
 import android.bluetooth.le.ScanFilter
 import android.bluetooth.le.ScanResult
@@ -21,6 +24,10 @@ import android.util.TypedValue
 import android.text.SpannableStringBuilder
 import android.text.Spannable
 import android.text.style.RelativeSizeSpan
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
@@ -43,7 +50,9 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.core.os.bundleOf
+import androidx.core.view.isGone
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.example.progetto_tosa.R
 import com.github.mikephil.charting.charts.LineChart
 import com.github.mikephil.charting.data.Entry
@@ -51,11 +60,16 @@ import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
 import com.example.progetto_tosa.ui.progression.ProgressionVmFactory
 import com.example.progetto_tosa.ui.progression.ProgressionViewModel
+import com.example.progetto_tosa.ui.progression.BleHrService
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.SetOptions
 import java.util.UUID
+
+// 👉 aggiunte per leggere device connessi e nome modello al rientro
+import android.bluetooth.BluetoothManager
+import android.bluetooth.BluetoothProfile
 
 class ProgressionFragment : Fragment(R.layout.fragment_progression) {
 
@@ -63,16 +77,21 @@ class ProgressionFragment : Fragment(R.layout.fragment_progression) {
         private const val REQUEST_BLE_PERMISSIONS = 1001
         private val HR_SERVICE_UUID = UUID.fromString("0000180D-0000-1000-8000-00805f9b34fb")
         private val HR_MEASUREMENT_CHAR_UUID = UUID.fromString("00002A37-0000-1000-8000-00805f9b34fb")
+        const val EXTRA_DEVICE_NAME = "extra_device_name"
     }
 
-    // Firebase & BLE
+    // Firebase & BLE (solo scan; la connessione è nel Service)
     private val auth = FirebaseAuth.getInstance()
     private val db = FirebaseFirestore.getInstance()
     private val bluetoothAdapter: BluetoothAdapter? by lazy { BluetoothAdapter.getDefaultAdapter() }
-    private var bluetoothGatt: BluetoothGatt? = null
     private var isScanning = false
+    private var ptDocListener: com.google.firebase.firestore.ListenerRegistration? = null
     private val foundDevices = mutableListOf<BluetoothDevice>()
     private var permissionRequestedToSettings = false
+    private lateinit var btnStopConnection: TextView // o Button se preferisci
+    private var initialContainerPaddingTop = 0
+    private var initialCardContentPaddingTop = 0
+
     private val hrScanCallback = object : ScanCallback() {
         override fun onScanResult(callbackType: Int, result: ScanResult) {
             result.device?.takeIf { dev -> foundDevices.none { it.address == dev.address } }?.let {
@@ -85,6 +104,20 @@ class ProgressionFragment : Fragment(R.layout.fragment_progression) {
         }
     }
 
+    // per firebase e la registrazione dei dati registrati
+    private var todayEpochDay: Long = java.time.LocalDate.now().toEpochDay()
+    private var todayMaxBpm: Int = 0
+    private var hasLoadedDailyMax = false
+    private lateinit var chartDailyMaxHr: LineChart
+    private var hrListener: com.google.firebase.firestore.ListenerRegistration? = null
+    private lateinit var btnToggleDetails: LinearLayout
+    private lateinit var cardDailyMax: CardView
+    private lateinit var textforsecondgraph: TextView
+    private lateinit var imgToggleArrow: ImageView
+    private lateinit var tvToggleDetails: TextView
+
+    private var detailsExpanded: Boolean = false
+
     // UI elements
     private lateinit var swipeRefresh: SwipeRefreshLayout
     private lateinit var etWeightGoalValue: EditText
@@ -94,6 +127,7 @@ class ProgressionFragment : Fragment(R.layout.fragment_progression) {
     private lateinit var bfSubtitle: TextView
     private lateinit var pesoSubtitle: TextView
     private lateinit var leanSubtitle: TextView
+    private lateinit var titoloperconnessione: TextView
     private lateinit var buttonForBF: CardView
     private lateinit var buttonForWEIGHT: CardView
     private lateinit var buttonForMassaMagra: CardView
@@ -118,11 +152,143 @@ class ProgressionFragment : Fragment(R.layout.fragment_progression) {
     private val sampleIntervalMs = 50L
     private var ecgRunning = false
 
+    // Receiver dal Service
+    private val hrReceiver = object : BroadcastReceiver() {
+        override fun onReceive(ctx: Context?, intent: Intent?) {
+            when (intent?.action) {
+                BleHrService.ACTION_HR_UPDATE -> {
+                    val bpm = intent.getIntExtra(BleHrService.EXTRA_BPM, 0)
+                    tvBpmValue.visibility = View.VISIBLE
+                    ivHeartPulse.visibility = View.VISIBLE
+
+                    val label = "Rilevati: "
+                    val bpmText = "$bpm"
+                    val unit = " bpm"
+                    val ssb = SpannableStringBuilder().apply {
+                        append(label)
+                        val start = length
+                        append(bpmText)
+                        setSpan(
+                            RelativeSizeSpan(1.8f),
+                            start, start + bpmText.length,
+                            Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+                        )
+                        append(unit)
+                    }
+                    tvBpmValue.text = ssb
+
+                    animateHeart(bpm)
+                    currentBpm = bpm.toFloat()
+                    scheduleNextBeat()
+                    startEcg()
+
+                    updateDailyMaxHeartRate(bpm)
+                }
+
+                BleHrService.ACTION_STATE -> {
+                    val state = intent.getStringExtra(BleHrService.EXTRA_STATE)
+                    when (state) {
+                        BleHrService.STATE_CONNECTED -> {
+                            titoloperconnessione.visibility = View.GONE
+
+                            // mostra bottone rosso "stop"
+                            btnStopConnection.apply {
+                                visibility = View.VISIBLE
+                                setOnClickListener { stopBleService() }
+                            }
+
+                            // padding top del container (46dp)
+                            val topPx = TypedValue.applyDimension(
+                                TypedValue.COMPLEX_UNIT_DIP, 46f, resources.displayMetrics
+                            ).toInt()
+                            val left = containerHeart.paddingLeft
+                            val right = containerHeart.paddingRight
+                            val bottom = containerHeart.paddingBottom
+                            containerHeart.setPadding(left, topPx, right, bottom)
+
+                            // padding top dentro la card del grafico (es. 16dp)
+                            val cardTopPx = TypedValue.applyDimension(
+                                TypedValue.COMPLEX_UNIT_DIP, 16f, resources.displayMetrics
+                            ).toInt()
+                            cardDailyMax.setContentPadding(
+                                cardDailyMax.contentPaddingLeft,
+                                cardTopPx,
+                                cardDailyMax.contentPaddingRight,
+                                cardDailyMax.contentPaddingBottom
+                            )
+
+                            // nome modello dal broadcast (fallback su manager)
+                            val connectedName =
+                                intent.getStringExtra(BleHrService.EXTRA_DEVICE_NAME)
+                                    ?.takeIf { it.isNotBlank() }
+                                    ?: getFirstConnectedDeviceName()
+
+                            tvHeartRate.apply {
+                                text = if (connectedName.isNotEmpty())
+                                    "connesso a $connectedName"
+                                else
+                                    "connesso"
+                                setCompoundDrawablesWithIntrinsicBounds(
+                                    R.drawable.ic_green_dot, 0, 0, 0
+                                )
+                                setTextSize(TypedValue.COMPLEX_UNIT_SP, 10f)
+                                ellipsize = TextUtils.TruncateAt.END
+                                maxLines = 1
+                                isClickable = false
+                            }
+                        }
+
+                        BleHrService.STATE_DISCONNECTED -> {
+                            // nascondi bottone rosso
+                            stopAndClearEcg()
+
+                            btnStopConnection.visibility = View.GONE
+
+                            // ripristina padding originali
+                            containerHeart.setPadding(
+                                containerHeart.paddingLeft,
+                                initialContainerPaddingTop,
+                                containerHeart.paddingRight,
+                                containerHeart.paddingBottom
+                            )
+                            cardDailyMax.setContentPadding(
+                                cardDailyMax.contentPaddingLeft,
+                                initialCardContentPaddingTop,
+                                cardDailyMax.contentPaddingRight,
+                                cardDailyMax.contentPaddingBottom
+                            )
+
+                            // ripristina UI "non connesso"
+                            tvHeartRate.apply {
+                                text = "Effettua la connessione"
+                                setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, 0)
+                                setTextSize(TypedValue.COMPLEX_UNIT_SP, 10f)
+                                isClickable = true
+                            }
+                            titoloperconnessione.visibility = View.VISIBLE
+                        }
+                    }
+                }
+
+            }
+        }
+    }
+
     @SuppressLint("MissingPermission")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         bindViews(view)
         setupEcgChart()
+        titoloperconnessione.visibility = View.VISIBLE
+
+
+        detailsExpanded = savedInstanceState?.getBoolean("detailsExpanded") ?: false
+        applyToggleUi(detailsExpanded)
+
+        btnToggleDetails.setOnClickListener {
+            detailsExpanded = !detailsExpanded
+            applyToggleUi(detailsExpanded)
+        }
 
         tvHeartRate.setOnClickListener {
             foundDevices.clear()
@@ -139,12 +305,15 @@ class ProgressionFragment : Fragment(R.layout.fragment_progression) {
                 return
             }
         }
+        attachPtRoleListener()
         vm = ViewModelProvider(this, ProgressionVmFactory(requireContext(), uid!!)).get(ProgressionViewModel::class.java)
 
         loadGoals()
         loadLatestMeasurements()
         setupConfirmButton()
         setupGraphButtons()
+        setupDailyHrChart()
+        attachDailyHrListener()
     }
 
     private fun bindViews(v: View) {
@@ -164,11 +333,36 @@ class ProgressionFragment : Fragment(R.layout.fragment_progression) {
         ivHeartPulse = v.findViewById(R.id.ivHeartPulse)
         ecgChart = v.findViewById(R.id.ecgChart)
         containerHeart = v.findViewById(R.id.containerHeart)
+        chartDailyMaxHr = v.findViewById(R.id.chartDailyMaxHr)
+        titoloperconnessione = v.findViewById(R.id.titoloperconnessione)
+        btnToggleDetails = v.findViewById(R.id.btnToggleDetails)
+        cardDailyMax     = v.findViewById(R.id.cardDailyMax)
+        textforsecondgraph = v.findViewById(R.id.textforsecondgraph)
+        imgToggleArrow   = v.findViewById(R.id.imgToggleArrow)
+        tvToggleDetails  = v.findViewById(R.id.tvToggleDetails)
+        btnStopConnection = v.findViewById(R.id.btnStopConnection)
+        btnStopConnection.visibility = View.GONE
+
+        initialContainerPaddingTop = containerHeart.paddingTop
+        initialCardContentPaddingTop = cardDailyMax.contentPaddingTop
 
         etWeightGoalValue.isEnabled = false
         etLeanGoalValue.isEnabled = false
         etBodyFatGoalValue.isEnabled = false
         btnConfirm.visibility = View.GONE
+
+        setGoalsEditable(false)
+    }
+
+    private fun stopBleService() {
+        // UI immediata
+        stopAndClearEcg()
+        btnStopConnection.visibility = View.GONE
+        // invia lo STOP al service
+        val i = Intent(requireContext(), BleHrService::class.java).apply {
+            action = BleHrService.ACTION_STOP
+        }
+        requireContext().startService(i)
     }
 
     private fun setupEcgChart() {
@@ -178,7 +372,6 @@ class ProgressionFragment : Fragment(R.layout.fragment_progression) {
             setDrawValues(false)
         }
 
-        // ① Le 3 limit line
         val llWarmup = LimitLine(90f, "Riscaldamento").apply {
             lineWidth = 2f
             enableDashedLine(10f, 10f, 0f)
@@ -218,7 +411,7 @@ class ProgressionFragment : Fragment(R.layout.fragment_progression) {
                 addLimitLine(llHigh)
 
                 axisMinimum = 0f
-                axisMaximum = 160f  // assicurati che sia ≥ della soglia più alta
+                axisMaximum = 160f
                 granularity = 10f
                 setLabelCount(17, true)
             }
@@ -226,124 +419,39 @@ class ProgressionFragment : Fragment(R.layout.fragment_progression) {
         }
     }
 
-
-
-    @SuppressLint("MissingPermission")
-    private fun connectToHeartRateDevice(device: BluetoothDevice) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S &&
-            ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.BLUETOOTH_CONNECT)
-            != PackageManager.PERMISSION_GRANTED) {
-            requestPermissions(arrayOf(Manifest.permission.BLUETOOTH_CONNECT), REQUEST_BLE_PERMISSIONS)
-            return
-        }
-        try { bluetoothAdapter?.bluetoothLeScanner?.stopScan(hrScanCallback) } catch (_: SecurityException) {}
-        try {
-            bluetoothGatt = device.connectGatt(requireContext(), false, object : BluetoothGattCallback() {
-                override fun onConnectionStateChange(
-                    gatt: BluetoothGatt,
-                    status: Int,
-                    newState: Int
-                ) {
-                    if (newState == BluetoothGatt.STATE_CONNECTED) {
-                        requireActivity().runOnUiThread {
-                            // 1) Calcola 16 dp in pixel
-                            val topPx = TypedValue.applyDimension(
-                                TypedValue.COMPLEX_UNIT_DIP,
-                                46f,
-                                resources.displayMetrics
-                            ).toInt()
-
-                            // 2) Mantieni gli altri padding di containerHeart e applica solo il top
-                            val left   = containerHeart.paddingLeft
-                            val right  = containerHeart.paddingRight
-                            val bottom = containerHeart.paddingBottom
-                            containerHeart.setPadding(left, topPx, right, bottom)
-
-                            // 3) Aggiorna tvHeartRate con pallino verde e nome dispositivo
-                            tvHeartRate.apply {
-                                text = "connesso a: ${gatt.device.name ?: gatt.device.address}"
-                                setCompoundDrawablesWithIntrinsicBounds(
-                                    R.drawable.ic_green_dot, 0, 0, 0
-                                )
-                                setTextSize(TypedValue.COMPLEX_UNIT_SP, 10f)
-                                ellipsize = TextUtils.TruncateAt.END
-                                maxLines = 1
-                                isClickable = false
-                            }
-                        }
-                        // 4) Continua con la discovery dei servizi
-                        gatt.discoverServices()
-                    }
-                }
-
-
-
-
-                override fun onServicesDiscovered(gatt: BluetoothGatt, status: Int) {
-                    gatt.getService(HR_SERVICE_UUID)?.getCharacteristic(HR_MEASUREMENT_CHAR_UUID)?.let { hrChar ->
-                        gatt.setCharacteristicNotification(hrChar, true)
-                        val cccUuid = UUID.fromString("00002902-0000-1000-8000-00805f9b34fb")
-                        hrChar.getDescriptor(cccUuid)?.apply {
-                            value = BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE
-                            gatt.writeDescriptor(this)
-                        }
-                    }
-                }
-                override fun onCharacteristicChanged(
-                    gatt: BluetoothGatt,
-                    characteristic: BluetoothGattCharacteristic
-                ) {
-                    if (characteristic.uuid == HR_MEASUREMENT_CHAR_UUID) {
-                        val data = characteristic.value ?: return
-                        val flag = data[0].toInt()
-                        val bpm = if (flag and 0x01 == 0) {
-                            data[1].toInt() and 0xFF
-                        } else {
-                            ((data[2].toInt() and 0xFF) shl 8) or (data[1].toInt() and 0xFF)
-                        }
-
-                        requireActivity().runOnUiThread {
-                            // Assicurati che la View sia visibile
-                            tvBpmValue.visibility = View.VISIBLE
-                            ivHeartPulse.visibility = View.VISIBLE
-
-                            // Costruisci lo Spannable (come prima)
-                            val label   = "Rilevati: "
-                            val bpmText = "$bpm"
-                            val unit    = " bpm"
-                            val ssb = SpannableStringBuilder().apply {
-                                append(label)
-                                val start = length
-                                append(bpmText)
-                                setSpan(RelativeSizeSpan(1.8f), start, start + bpmText.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
-                                append(unit)
-                            }
-
-                            // Imposta il testo completo
-                            tvBpmValue.text = ssb
-
-                            // (non serve più ellipsize—il testo non verrà tagliato)
-                            tvBpmValue.ellipsize = null
-                            tvBpmValue.maxLines = Integer.MAX_VALUE
-
-                            // avvia animazioni e ECG
-                            animateHeart(bpm)
-                            currentBpm = bpm.toFloat()
-                            scheduleNextBeat()
-                            startEcg()
-                        }
-
-
-
-                    }
-                }
-
-
-            })
-        } catch (e: SecurityException) {
-            // ignore
-        }
+    private fun attachPtRoleListener() {
+        val uidSafe = uid ?: return
+        ptDocListener?.remove()
+        ptDocListener = db.collection("personal_trainers").document(uidSafe)
+            .addSnapshotListener { snap, err ->
+                val isPT = (err == null && snap?.exists() == true) ||
+                        (snap?.getBoolean("isPersonalTrainer") == true)
+                isPtUser = isPT
+                btnConfirm.visibility = if (isPtUser) View.VISIBLE else View.GONE
+                Log.d("ProgressionFragment", "PT? $isPtUser (exists=${snap?.exists()})")
+            }
     }
+
+    private fun stopAndClearEcg() {
+        // ferma animazione cuore e nascondi UI HR
+        heartAnimator?.cancel()
+        ivHeartPulse.visibility = View.GONE
+        tvBpmValue.visibility = View.GONE
+
+        // ferma il loop ECG
+        ecgRunning = false
+        ecgHandler.removeCallbacks(ecgSampleRunnable)
+        ecgHandler.removeCallbacksAndMessages(null) // extra safety
+
+        // reset valori e SVUOTA il dataset
+        ecgTime = 0f
+        currentBpm = 60f
+        nextBeatTime = 0f
+        ecgDataSet.clear()
+        ecgChart.data = LineData(ecgDataSet)
+        ecgChart.invalidate()
+    }
+
 
     private fun animateHeart(bpm: Int) {
         heartAnimator?.cancel()
@@ -351,7 +459,147 @@ class ProgressionFragment : Fragment(R.layout.fragment_progression) {
         heartAnimator = ObjectAnimator.ofPropertyValuesHolder(ivHeartPulse,
             PropertyValuesHolder.ofFloat("scaleX", 0.8f, 1.1f),
             PropertyValuesHolder.ofFloat("scaleY", 0.8f, 1.1f)
-        ).apply { duration = cycleMs; repeatCount = ValueAnimator.INFINITE; repeatMode = ValueAnimator.REVERSE; start() }
+        ).apply {
+            duration = cycleMs
+            repeatCount = ValueAnimator.INFINITE
+            repeatMode = ValueAnimator.REVERSE
+            start()
+        }
+    }
+
+    // salva su Firestore se il bpm supera il massimo odierno
+    private fun updateDailyMaxHeartRate(bpm: Int) {
+        val uidLocal = uid ?: return
+        val nowEpoch = java.time.LocalDate.now().toEpochDay()
+
+        if (nowEpoch != todayEpochDay) {
+            todayEpochDay = nowEpoch
+            todayMaxBpm = 0
+            hasLoadedDailyMax = false
+        }
+
+        if (!hasLoadedDailyMax) {
+            db.collection("users").document(uidLocal)
+            hrDailyCol()?.document(todayEpochDay.toString())
+                ?.get()
+                ?.addOnSuccessListener { snap ->
+                    val existing = snap.getLong("maxBpm")?.toInt() ?: 0
+                    todayMaxBpm = existing
+                    hasLoadedDailyMax = true
+                    if (bpm > todayMaxBpm) writeDailyMax(uidLocal, bpm)
+                }
+                ?.addOnFailureListener {
+                    hasLoadedDailyMax = true
+                    if (bpm > todayMaxBpm) writeDailyMax(uidLocal, bpm)
+                }
+            return
+        }
+
+        if (bpm > todayMaxBpm) writeDailyMax(uidLocal, bpm)
+    }
+
+    private fun writeDailyMax(uidLocal: String, bpm: Int) {
+        todayMaxBpm = bpm
+
+        val data = mapOf(
+            "epochDay" to todayEpochDay,
+            "maxBpm" to bpm,
+            "updatedAt" to com.google.firebase.Timestamp.now()
+        )
+
+        db.collection("users").document(uidLocal)
+            .collection("heartRateDaily").document(todayEpochDay.toString())
+            .set(data, SetOptions.merge())
+
+        db.collection("users").document(uidLocal)
+            .set(
+                mapOf(
+                    "currentDailyMaxBpm" to bpm,
+                    "lastHeartRateEpochDay" to todayEpochDay
+                ),
+                SetOptions.merge()
+            )
+    }
+
+    private fun setupDailyHrChart() = chartDailyMaxHr.apply {
+        description.isEnabled = false
+        setNoDataText("Nessun dato HR giornaliero")
+        setTouchEnabled(true)
+        setPinchZoom(true)
+        legend.isEnabled = false
+        axisRight.isEnabled = false
+
+        xAxis.position = XAxis.XAxisPosition.BOTTOM
+        xAxis.setDrawGridLines(false)
+        axisLeft.setDrawGridLines(true)
+
+        xAxis.textColor = Color.LTGRAY
+        axisLeft.textColor = Color.LTGRAY
+
+        setExtraOffsets(8f, 16f, 8f, 16f)
+    }
+
+    private fun attachDailyHrListener() {
+        hrListener?.remove()
+        val col = hrDailyCol() ?: return
+        hrListener = col
+            .orderBy("epochDay", Query.Direction.ASCENDING)
+            .addSnapshotListener { snap, err ->
+                if (err != null || snap == null) return@addSnapshotListener
+                val points = snap.documents.mapNotNull { d ->
+                    val epoch = d.getLong("epochDay") ?: return@mapNotNull null
+                    val maxBpm = d.getLong("maxBpm")?.toInt() ?: return@mapNotNull null
+                    epoch to maxBpm
+                }
+                updateDailyHrChart(points)
+            }
+    }
+
+    private fun updateDailyHrChart(points: List<Pair<Long, Int>>) {
+        if (points.isEmpty()) {
+            chartDailyMaxHr.clear()
+            chartDailyMaxHr.invalidate()
+            return
+        }
+
+        val sorted = points.sortedBy { it.first }
+        val entries = sorted.mapIndexed { idx, p -> Entry(idx.toFloat(), p.second.toFloat()) }
+
+        val ds = LineDataSet(entries, "Daily Max HR").apply {
+            axisDependency = YAxis.AxisDependency.LEFT
+            mode = LineDataSet.Mode.LINEAR
+            setDrawValues(false)
+            lineWidth = 2f
+            setDrawCircles(true)
+            circleRadius = 3f
+            color = Color.WHITE
+            setCircleColor(Color.WHITE)
+            highLightColor = Color.YELLOW
+            setDrawFilled(true)
+            fillColor = Color.parseColor("#33FFFFFF")
+            fillAlpha = 60
+        }
+
+        chartDailyMaxHr.xAxis.valueFormatter = object : ValueFormatter() {
+            override fun getAxisLabel(value: Float, axis: AxisBase?): String {
+                val idx = value.toInt()
+                return if (idx in sorted.indices) {
+                    val d = java.time.LocalDate.ofEpochDay(sorted[idx].first)
+                    "${d.dayOfMonth}/${d.monthValue}"
+                } else ""
+            }
+        }
+
+        val maxHr = sorted.maxOfOrNull { it.second }?.toFloat() ?: 0f
+        val maxY = (maxHr + 10f).coerceAtLeast(160f)
+        chartDailyMaxHr.axisLeft.apply {
+            axisMinimum = 0f
+            axisMaximum = maxY
+        }
+
+        chartDailyMaxHr.data = LineData(ds)
+        chartDailyMaxHr.notifyDataSetChanged()
+        chartDailyMaxHr.invalidate()
     }
 
     private fun scheduleNextBeat() {
@@ -384,6 +632,15 @@ class ProgressionFragment : Fragment(R.layout.fragment_progression) {
         }
     }
 
+    private fun applyToggleUi(expanded: Boolean) {
+        cardDailyMax.visibility = if (expanded) View.VISIBLE else View.GONE
+        textforsecondgraph.visibility = if(expanded) View.VISIBLE else View.GONE
+        imgToggleArrow.setImageResource(
+            if (expanded) R.drawable.ic_arrow_up else R.drawable.ic_arrow_down
+        )
+        tvToggleDetails.text = if (expanded) "Nascondi dettagli" else "Maggiori dettagli"
+    }
+
     @SuppressLint("MissingPermission")
     private fun checkAndStartBleScan() {
         val needed = mutableListOf<String>()
@@ -407,8 +664,11 @@ class ProgressionFragment : Fragment(R.layout.fragment_progression) {
         foundDevices.clear()
         bluetoothAdapter?.bluetoothLeScanner?.let { scanner ->
             try {
-                scanner.startScan(listOf(ScanFilter.Builder().setServiceUuid(ParcelUuid(HR_SERVICE_UUID)).build()),
-                    ScanSettings.Builder().setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY).build(), hrScanCallback)
+                scanner.startScan(
+                    listOf(ScanFilter.Builder().setServiceUuid(ParcelUuid(HR_SERVICE_UUID)).build()),
+                    ScanSettings.Builder().setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY).build(),
+                    hrScanCallback
+                )
             } catch (e: SecurityException) {
                 toast("Permesso BLE mancante per scan")
                 isScanning = false
@@ -430,89 +690,141 @@ class ProgressionFragment : Fragment(R.layout.fragment_progression) {
         val names = foundDevices.map { it.name ?: it.address }.toTypedArray()
         AlertDialog.Builder(requireContext())
             .setTitle("Scegli dispositivo HR")
-            .setItems(names) { _, which -> connectToHeartRateDevice(foundDevices[which]) }
+            .setItems(names) { _, which ->
+                val addr = foundDevices[which].address
+                startBleService(addr)
+            }
             .setNegativeButton("Annulla", null)
             .show()
     }
 
+    private fun startBleService(address: String) {
+        val i = Intent(requireContext(), BleHrService::class.java).apply {
+            action = BleHrService.ACTION_START
+            putExtra(BleHrService.EXTRA_DEVICE_ADDRESS, address)
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            requireContext().startForegroundService(i)
+        } else {
+            requireContext().startService(i)
+        }
+    }
+
     private fun loadLatestMeasurements() {
-        val entriesRef = db.collection("users").document(uid!!).collection("bodyFatEntries")
-        entriesRef.orderBy("epochDay", Query.Direction.DESCENDING).limit(10).get().addOnSuccessListener { snaps ->
+        val col = entriesCol() ?: run { swipeRefresh.isRefreshing = false; return }
+        col.orderBy("epochDay", Query.Direction.DESCENDING).limit(10).get().addOnSuccessListener { snaps ->
             val bf = snaps.documents.firstOrNull { it.contains("bodyFatPercent") }?.getDouble("bodyFatPercent")?.toFloat()
             bfSubtitle.text = bf?.let { "%.1f %%".format(it) } ?: "—"
         }
-        entriesRef.orderBy("epochDay", Query.Direction.DESCENDING).limit(10).get().addOnSuccessListener { snaps ->
+        col.orderBy("epochDay", Query.Direction.DESCENDING).limit(10).get().addOnSuccessListener { snaps ->
             val w = snaps.documents.firstOrNull { it.contains("bodyWeightKg") }?.getDouble("bodyWeightKg")?.toFloat()
             pesoSubtitle.text = w?.let { "%.1f kg".format(it) } ?: "—"
         }
-        entriesRef.orderBy("epochDay", Query.Direction.DESCENDING).limit(10).get().addOnSuccessListener { snaps ->
+        col.orderBy("epochDay", Query.Direction.DESCENDING).limit(10).get().addOnSuccessListener { snaps ->
             val lm = snaps.documents.firstOrNull { it.contains("leanMassKg") }?.getDouble("leanMassKg")?.toFloat()
             leanSubtitle.text = lm?.let { "%.1f kg".format(it) } ?: "—"
             swipeRefresh.isRefreshing = false
-        }
+        }.addOnFailureListener { swipeRefresh.isRefreshing = false }
     }
 
     private fun loadGoals() {
-        db.collection("personal_trainers").document(uid!!).get().addOnSuccessListener { snap ->
-            isPtUser = snap.getBoolean("isPersonalTrainer") == true
-            btnConfirm.visibility = if (isPtUser) View.VISIBLE else View.GONE
-            if (isPtUser) {
-                snap.getDouble("targetWeight")?.let { etWeightGoalValue.setText("%.1f".format(it)) }
-                snap.getDouble("targetLeanMass")?.let { etLeanGoalValue.setText("%.1f".format(it)) }
-                snap.getDouble("targetFatMass")?.let { etBodyFatGoalValue.setText("%.1f".format(it)) }
-            } else {
-                db.collection("users").document(uid!!).get().addOnSuccessListener { uSnap ->
-                    uSnap.getDouble("targetWeight")?.let { etWeightGoalValue.setText("%.1f".format(it)) }
-                    uSnap.getDouble("targetLeanMass")?.let { etLeanGoalValue.setText("%.1f".format(it)) }
-                    uSnap.getDouble("targetFatMass")?.let { etBodyFatGoalValue.setText("%.1f".format(it)) }
-                }
+        val uidSafe = uid ?: return
+
+        db.collection("personal_trainers").document(uidSafe)
+            .get()
+            .addOnSuccessListener { ptSnap ->
+                isPtUser = ptSnap.exists() || (ptSnap.getBoolean("isPersonalTrainer") == true)
+
+                btnConfirm.visibility = if (isPtUser) View.VISIBLE else View.GONE
+
+                val targetRef = if (isPtUser)
+                    db.collection("personal_trainers").document(uidSafe)
+                else
+                    db.collection("users").document(uidSafe)
+
+                targetRef.get()
+                    .addOnSuccessListener { tSnap ->
+                        fun num(k: String) = (tSnap.get(k) as? Number)?.toDouble()
+                        num("targetWeight")?.let { etWeightGoalValue.setText(String.format("%.1f", it)) }
+                        num("targetLeanMass")?.let { etLeanGoalValue.setText(String.format("%.1f", it)) }
+                        num("targetFatMass")?.let  { etBodyFatGoalValue.setText(String.format("%.1f", it)) }
+
+                        editingGoals = false
+                        btnConfirm.text = "modifica parametri"
+                        setGoalsEditable(false)
+                        swipeRefresh.isRefreshing = false
+                    }
+                    .addOnFailureListener {
+                        swipeRefresh.isRefreshing = false
+                    }
             }
-            swipeRefresh.isRefreshing = false
-        }
+            .addOnFailureListener {
+                isPtUser = false
+                btnConfirm.visibility = View.GONE
+                swipeRefresh.isRefreshing = false
+            }
     }
+
+    // Ritorna la root del documento in base al ruolo
+    private fun roleRootDoc() =
+        uid?.let { if (isPtUser) db.collection("personal_trainers").document(it)
+        else           db.collection("users").document(it) }
+
+    // La collection dove salvi/leggi i daily HR
+    private fun hrDailyCol() = roleRootDoc()?.collection("heartRateDaily")
+    private fun entriesCol() = roleRootDoc()?.collection("bodyFatEntries")
 
     private fun setupConfirmButton() {
         btnConfirm.text = if (!editingGoals) "modifica parametri" else "salva obiettivi"
+
         btnConfirm.setOnClickListener {
+            if (!isPtUser) {
+                toast("Solo il personal trainer può modificare gli obiettivi")
+                return@setOnClickListener
+            }
+
             if (!editingGoals) {
                 editingGoals = true
                 btnConfirm.text = "salva obiettivi"
-                etWeightGoalValue.isEnabled = true
-                etLeanGoalValue.isEnabled = true
-                etBodyFatGoalValue.isEnabled = true
+                setGoalsEditable(true)
                 etWeightGoalValue.imeOptions = EditorInfo.IME_ACTION_DONE
-                etLeanGoalValue.imeOptions = EditorInfo.IME_ACTION_DONE
-                etBodyFatGoalValue.imeOptions = EditorInfo.IME_ACTION_DONE
-            } else {
-                val w = etWeightGoalValue.text.toString().replace(',', '.').toDoubleOrNull()
-                val lean = etLeanGoalValue.text.toString().replace(',', '.').toDoubleOrNull()
-                val fat = etBodyFatGoalValue.text.toString().replace(',', '.').toDoubleOrNull()
-                when {
-                    w == null -> toast("Peso obiettivo non valido")
-                    lean == null -> toast("M. magra obiettivo non valida")
-                    fat == null -> toast("% grasso obiettivo non valido")
-                    else -> {
-                        vm.updateGoals(newWeight = w, newLean = lean, newFat = fat)
-                        val targetRef = if (isPtUser)
-                            db.collection("personal_trainers").document(uid!!)
-                        else
-                            db.collection("users").document(uid!!)
-                        targetRef.set(
-                            mapOf(
-                                "targetWeight" to w,
-                                "targetLeanMass" to lean,
-                                "targetFatMass" to fat
-                            ), SetOptions.merge()
-                        )
-                        toast("Obiettivi salvati")
-                        etWeightGoalValue.isEnabled = false
-                        etLeanGoalValue.isEnabled = false
-                        etBodyFatGoalValue.isEnabled = false
-                        editingGoals = false
-                        btnConfirm.text = "modifica parametri"
-                    }
-                }
+                etLeanGoalValue.imeOptions   = EditorInfo.IME_ACTION_DONE
+                etBodyFatGoalValue.imeOptions= EditorInfo.IME_ACTION_DONE
+                etWeightGoalValue.requestFocus()
+                return@setOnClickListener
             }
+
+            val w    = etWeightGoalValue.text.toString().replace(',', '.').toDoubleOrNull()
+            val lean = etLeanGoalValue.text.toString().replace(',', '.').toDoubleOrNull()
+            val fat  = etBodyFatGoalValue.text.toString().replace(',', '.').toDoubleOrNull()
+
+            when {
+                w == null   -> { toast("Peso obiettivo non valido"); return@setOnClickListener }
+                lean == null-> { toast("Massa magra obiettivo non valida"); return@setOnClickListener }
+                fat == null -> { toast("% grasso obiettivo non valido"); return@setOnClickListener }
+            }
+
+            vm.updateGoals(newWeight = w, newLean = lean, newFat = fat)
+
+            val uidSafe = uid ?: return@setOnClickListener
+            db.collection("personal_trainers").document(uidSafe)
+                .set(
+                    mapOf(
+                        "targetWeight" to w,
+                        "targetLeanMass" to lean,
+                        "targetFatMass"  to fat
+                    ),
+                    SetOptions.merge()
+                )
+                .addOnSuccessListener {
+                    toast("Obiettivi salvati")
+                    editingGoals = false
+                    btnConfirm.text = "modifica parametri"
+                    setGoalsEditable(false)
+                }
+                .addOnFailureListener { e ->
+                    toast("Errore salvataggio obiettivi: ${e.localizedMessage}")
+                }
         }
     }
 
@@ -523,30 +835,105 @@ class ProgressionFragment : Fragment(R.layout.fragment_progression) {
         buttonForMassaMagra.setOnClickListener { nav.navigate(R.id.action_progressionFragment_to_graphsFragment, bundleOf("graphType" to "lean")) }
     }
 
+    override fun onStart() {
+        super.onStart()
+        LocalBroadcastManager.getInstance(requireContext()).registerReceiver(
+            hrReceiver,
+            IntentFilter().apply {
+                addAction(BleHrService.ACTION_HR_UPDATE)
+                addAction(BleHrService.ACTION_STATE)
+            }
+        )
+        applyConnectedUiIfNeeded()
+    }
+
+    override fun onStop() {
+        LocalBroadcastManager.getInstance(requireContext()).unregisterReceiver(hrReceiver)
+        super.onStop()
+    }
+
     override fun onDestroyView() {
+        hrListener?.remove()
+        hrListener = null
         super.onDestroyView()
-        // Ferma animazioni e handler
         heartAnimator?.cancel()
         ecgHandler.removeCallbacksAndMessages(null)
-        // Chiudi GATT con check permessi
-        if (bluetoothGatt != null) {
-            try {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                    if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.BLUETOOTH_CONNECT)
-                        == PackageManager.PERMISSION_GRANTED) {
-                        bluetoothGatt?.close()
-                    }
-                } else {
-                    bluetoothGatt?.close()
-                }
-            } catch (e: SecurityException) {
-                // permesso mancante, ignora
-                Log.w("ProgressionFragment", "Impossibile chiudere BluetoothGatt", e)
-            }
-            bluetoothGatt = null
-        }
+        // NON chiudere la connessione BLE qui: la gestisce BleHrService
     }
 
     private fun toast(msg: String) =
         android.widget.Toast.makeText(requireContext(), msg, android.widget.Toast.LENGTH_SHORT).show()
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putBoolean("detailsExpanded", detailsExpanded)
+    }
+
+    private fun setGoalsEditable(enabled: Boolean) {
+        listOf(etWeightGoalValue, etLeanGoalValue, etBodyFatGoalValue).forEach {
+            it.isEnabled = enabled
+            it.isFocusable = enabled
+            it.isFocusableInTouchMode = enabled
+        }
+    }
+
+    // ===== Helpers aggiunti SOLO per il ripristino della UI con nome modello =====
+
+    private fun getFirstConnectedDeviceName(): String {
+        return try {
+            val mgr = requireContext().getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S &&
+                ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.BLUETOOTH_CONNECT)
+                != PackageManager.PERMISSION_GRANTED) {
+                return ""
+            }
+            val dev = mgr.getConnectedDevices(BluetoothProfile.GATT).firstOrNull()
+            dev?.name ?: dev?.address ?: ""
+        } catch (_: Exception) {
+            ""
+        }
+    }
+
+    private fun applyConnectedUiIfNeeded() {
+        val name = getFirstConnectedDeviceName()
+        if (name.isEmpty()) {
+            btnStopConnection.visibility = View.GONE
+            return
+        }
+
+        // padding container
+        val topPx = TypedValue.applyDimension(
+            TypedValue.COMPLEX_UNIT_DIP, 46f, resources.displayMetrics
+        ).toInt()
+        containerHeart.setPadding(
+            containerHeart.paddingLeft, topPx, containerHeart.paddingRight, containerHeart.paddingBottom
+        )
+
+        // padding dentro card
+        val cardTopPx = TypedValue.applyDimension(
+            TypedValue.COMPLEX_UNIT_DIP, 16f, resources.displayMetrics
+        ).toInt()
+        cardDailyMax.setContentPadding(
+            cardDailyMax.contentPaddingLeft,
+            cardTopPx,
+            cardDailyMax.contentPaddingRight,
+            cardDailyMax.contentPaddingBottom
+        )
+
+        tvHeartRate.apply {
+            text = "connesso a $name"
+            setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_green_dot, 0, 0, 0)
+            setTextSize(TypedValue.COMPLEX_UNIT_SP, 10f)
+            ellipsize = TextUtils.TruncateAt.END
+            maxLines = 1
+            isClickable = false
+        }
+
+        titoloperconnessione.visibility = View.GONE
+
+        btnStopConnection.apply {
+            visibility = View.VISIBLE
+            setOnClickListener { stopBleService() }
+        }
+    }
 }

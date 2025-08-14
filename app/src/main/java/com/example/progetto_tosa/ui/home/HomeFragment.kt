@@ -57,15 +57,17 @@ class HomeFragment : Fragment() {
             // aggiungi toggle nel modulo se non l'hai già fatto
             // fun toggle() { if (overlayRoot.isVisible) hide() else show() }
         }
+        // nascondi davvero la chat per evitare che copra i click
+        chatOverlay.hide()
         binding.buttonForChatGPT.setOnClickListener {
             // se hai implementato toggle():
             chatOverlay.toggle()
         }
         /* ---------------------------- */
 
-
         setupBannerDate()
         binding.fabBannerStatus.hide()
+        binding.fabBannerStatus.visibility = View.GONE // assicura che non intercetti tocchi
 
         val user = auth.currentUser
         if (user == null) {
@@ -73,10 +75,23 @@ class HomeFragment : Fragment() {
             return
         }
 
+        // rende sempre disponibile il bottone progressi per qualsiasi utente loggato
+        binding.Myprogression.apply {
+            visibility = View.VISIBLE
+            isEnabled = true
+            isClickable = true
+            bringToFront()
+            translationZ = 1f
+            setOnClickListener {
+                findNavController().navigate(R.id.action_navigation_home_to_progressionFragment)
+            }
+        }
+
         val prefs = requireActivity().getSharedPreferences("user_data", Context.MODE_PRIVATE)
         val isTrainer = prefs.getBoolean("is_trainer", false)
         if (isTrainer) {
             binding.fabBannerStatus.hide()
+            binding.fabBannerStatus.visibility = View.GONE
             showButtonsForPT()
             return
         }
@@ -102,12 +117,7 @@ class HomeFragment : Fragment() {
                     binding.fabBannerStatus.alpha = 1f
                 }
         }
-
-        binding.Myprogression.setOnClickListener {
-            findNavController().navigate(R.id.action_navigation_home_to_progressionFragment)
-        }
     }
-
 
     private fun setupBannerDate() {
         val dayNameFmt = SimpleDateFormat("EEEE", Locale.getDefault())

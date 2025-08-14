@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import com.google.firebase.firestore.FirebaseFirestore
 import com.example.progetto_tosa.R
 import com.example.progetto_tosa.data.BodyFatEntry
 import com.github.mikephil.charting.charts.LineChart
@@ -38,6 +39,7 @@ class BodyFatChartFragment : Fragment(R.layout.fragment_chart_bodyfat) {
             requireParentFragment(),
             ProgressionVmFactory(requireContext(), uid)
         )[ProgressionViewModel::class.java]
+
 
         setupChart()
         observeData()
