@@ -134,8 +134,6 @@
                             android:textSize="20sp"/>
                     </LinearLayout>
                 </LinearLayout>
-
-
             </androidx.cardview.widget.CardView>
 
             <!-- Titolo e pacchetti -->
@@ -143,7 +141,7 @@
                 android:id="@+id/titolone"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="120dp"
+                android:layout_marginTop="80dp"
                 android:text="LE MIE SCHEDE DI ALLENAMENTO:"
                 android:textSize="20sp"
                 android:textStyle="bold"
@@ -366,28 +364,26 @@
 
     <LinearLayout
         android:id="@+id/buttonForChatGPT"
-        android:layout_width="72dp"
-        android:layout_height="72dp"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
         android:layout_gravity="bottom|start"
-        android:layout_margin="16dp"
+        android:layout_marginBottom="4dp"
         android:orientation="vertical"
         android:gravity="center"
-        android:background="@drawable/ai_message"
+        android:background="@drawable/bg_white_rounded"
         android:padding="12dp"
         android:clickable="true"
         android:focusable="true">
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            android:text="AI"
-            android:textSize="20sp"
-            android:textStyle="bold"
-            android:layout_marginStart="10dp"
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:src="@drawable/finalmentegemini"
+            android:scaleType="fitCenter" />
 
-            android:textColor="@color/black"/>
     </LinearLayout>
+
+
 
 
 </FrameLayout>

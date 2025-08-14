@@ -240,7 +240,7 @@
                 android:id="@+id/tvDescWeight"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:text="Peso corporeo (kg) è il peso totale del corpo misurato sulla bilancia. Monitorare la sua variazione nel tempo aiuta a valutare l'efficacia di diete e allenamenti, bilanciando massa magra e grasso per un benessere ottimale."
+                android:text="Rappresenta il peso complessivo del corpo, così come rilevato dalla bilancia, includendo massa magra, massa grassa, acqua e ossa. Tenere traccia della sua variazione nel tempo permette di comprendere come il corpo reagisce a dieta, allenamento e stile di vita. Un monitoraggio costante aiuta a mantenere un equilibrio sano tra massa muscolare e grasso corporeo, prevenendo squilibri e favorendo un benessere ottimale nel lungo periodo."
                 android:textSize="12sp"
                 android:textColor="@color/light_gray"
                 android:lineSpacingExtra="2dp"

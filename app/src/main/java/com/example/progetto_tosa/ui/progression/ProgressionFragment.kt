@@ -7,7 +7,14 @@ import android.animation.PropertyValuesHolder
 import android.animation.ValueAnimator
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
+import com.example.progetto_tosa.chat.* // ChatOverlay, ChatViewModel, ChatVMFactory, ChatRepository, Secrets
 import com.google.firebase.Timestamp
+import com.example.progetto_tosa.chat.ChatOverlay
+import com.example.progetto_tosa.chat.ChatRepository
+import com.example.progetto_tosa.chat.ChatViewModel
+import com.example.progetto_tosa.chat.ChatVMFactory
+import com.example.progetto_tosa.chat.Secrets
+import android.view.ViewGroup
 import android.graphics.Color
 import com.github.mikephil.charting.components.AxisBase
 import com.github.mikephil.charting.components.XAxis
@@ -51,7 +58,6 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.core.os.bundleOf
 import androidx.core.view.isGone
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.example.progetto_tosa.R
 import com.github.mikephil.charting.charts.LineChart
@@ -91,6 +97,11 @@ class ProgressionFragment : Fragment(R.layout.fragment_progression) {
     private lateinit var btnStopConnection: TextView // o Button se preferisci
     private var initialContainerPaddingTop = 0
     private var initialCardContentPaddingTop = 0
+    // Chat
+    private lateinit var chatOverlay: ChatOverlay
+    private lateinit var chatVM: ChatViewModel
+    // Chat Gemini
+
 
     private val hrScanCallback = object : ScanCallback() {
         override fun onScanResult(callbackType: Int, result: ScanResult) {
@@ -119,7 +130,6 @@ class ProgressionFragment : Fragment(R.layout.fragment_progression) {
     private var detailsExpanded: Boolean = false
 
     // UI elements
-    private lateinit var swipeRefresh: SwipeRefreshLayout
     private lateinit var etWeightGoalValue: EditText
     private lateinit var etLeanGoalValue: EditText
     private lateinit var etBodyFatGoalValue: EditText
@@ -294,10 +304,6 @@ class ProgressionFragment : Fragment(R.layout.fragment_progression) {
             foundDevices.clear()
             checkAndStartBleScan()
         }
-        swipeRefresh.setOnRefreshListener {
-            loadGoals()
-            loadLatestMeasurements()
-        }
 
         uid = auth.currentUser?.uid.also {
             if (it.isNullOrEmpty()) {
@@ -317,7 +323,6 @@ class ProgressionFragment : Fragment(R.layout.fragment_progression) {
     }
 
     private fun bindViews(v: View) {
-        swipeRefresh = v.findViewById(R.id.swipeRefresh)
         etWeightGoalValue = v.findViewById(R.id.etWeightGoalValue)
         etLeanGoalValue = v.findViewById(R.id.etLeanGoalValue)
         etBodyFatGoalValue = v.findViewById(R.id.etBodyFatGoalValue)
@@ -343,6 +348,25 @@ class ProgressionFragment : Fragment(R.layout.fragment_progression) {
         btnStopConnection = v.findViewById(R.id.btnStopConnection)
         btnStopConnection.visibility = View.GONE
 
+        // --- CHAT SETUP (Gemini) ---
+        val repo = ChatRepository.create(apiKey = Secrets.GEMINI_KEY)
+        chatVM = ViewModelProvider(this, ChatVMFactory(repo))[ChatViewModel::class.java]
+
+        val overlayRoot = v.findViewById<ViewGroup>(R.id.rootContainer)
+        chatOverlay = ChatOverlay(overlayRoot, chatVM, viewLifecycleOwner)
+        chatOverlay.hide()  // visibilità GONE -> non intercetta i tocchi
+
+        // pulsante: visivamente “piatto”, ma cliccabile
+        v.findViewById<View>(R.id.buttonForChatGPT)?.apply {
+            elevation = 0f
+            translationZ = 0f
+            isEnabled = true
+            isClickable = true
+            isFocusable = true
+            setOnClickListener { chatOverlay.toggle() }
+        }
+        // --- FINE CHAT SETUP ---
+
         initialContainerPaddingTop = containerHeart.paddingTop
         initialCardContentPaddingTop = cardDailyMax.contentPaddingTop
 
@@ -353,6 +377,9 @@ class ProgressionFragment : Fragment(R.layout.fragment_progression) {
 
         setGoalsEditable(false)
     }
+
+
+
 
     private fun stopBleService() {
         // UI immediata
@@ -711,7 +738,7 @@ class ProgressionFragment : Fragment(R.layout.fragment_progression) {
     }
 
     private fun loadLatestMeasurements() {
-        val col = entriesCol() ?: run { swipeRefresh.isRefreshing = false; return }
+        val col = entriesCol() ?: return
         col.orderBy("epochDay", Query.Direction.DESCENDING).limit(10).get().addOnSuccessListener { snaps ->
             val bf = snaps.documents.firstOrNull { it.contains("bodyFatPercent") }?.getDouble("bodyFatPercent")?.toFloat()
             bfSubtitle.text = bf?.let { "%.1f %%".format(it) } ?: "—"
@@ -723,8 +750,7 @@ class ProgressionFragment : Fragment(R.layout.fragment_progression) {
         col.orderBy("epochDay", Query.Direction.DESCENDING).limit(10).get().addOnSuccessListener { snaps ->
             val lm = snaps.documents.firstOrNull { it.contains("leanMassKg") }?.getDouble("leanMassKg")?.toFloat()
             leanSubtitle.text = lm?.let { "%.1f kg".format(it) } ?: "—"
-            swipeRefresh.isRefreshing = false
-        }.addOnFailureListener { swipeRefresh.isRefreshing = false }
+        }
     }
 
     private fun loadGoals() {
@@ -752,16 +778,11 @@ class ProgressionFragment : Fragment(R.layout.fragment_progression) {
                         editingGoals = false
                         btnConfirm.text = "modifica parametri"
                         setGoalsEditable(false)
-                        swipeRefresh.isRefreshing = false
-                    }
-                    .addOnFailureListener {
-                        swipeRefresh.isRefreshing = false
                     }
             }
             .addOnFailureListener {
                 isPtUser = false
                 btnConfirm.visibility = View.GONE
-                swipeRefresh.isRefreshing = false
             }
     }
 
