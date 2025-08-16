@@ -4,7 +4,11 @@
     <selectionStates>
       <SelectionState runConfigName="PROGETTO_TOSA.app">
         <option name="selectionMode" value="DROPDOWN" />
+<<<<<<< Updated upstream
         <DropdownSelection timestamp="2025-08-12T14:57:11.181014100Z">
+=======
+        <DropdownSelection timestamp="2025-08-14T10:03:24.492128600Z">
+>>>>>>> Stashed changes
           <Target type="DEFAULT_BOOT">
             <handle>
               <DeviceId pluginId="LocalEmulator" identifier="path=C:\Users\samu0\.android\avd\Pixel_7.avd" />
