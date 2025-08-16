@@ -34,7 +34,7 @@ class TrainingStartDialogFragment : DialogFragment() {
     private var countDownTimer: CountDownTimer? = null
     private val handler = Handler(Looper.getMainLooper())
 
-    // timer di recupero
+    // recovery timer
     private var totalSecs = 30L
     private var timeLeft = totalSecs
     private var isRunning = false
@@ -83,30 +83,37 @@ class TrainingStartDialogFragment : DialogFragment() {
         binding.buttonExit.setOnClickListener { dismiss() }
 
         binding.EndExercise.setOnClickListener {
+            // ensure clock container visible when duration-mode is active
+            binding.stepwatchContainer.visibility = VISIBLE
+
             val current = exercises.getOrNull(currentExerciseIndex) ?: return@setOnClickListener
             val hasDuration = parseDurationSecsStrict(current.durata) > 0
 
-            // quando premi, entri nello stato di recupero (UI recupero)
+            // show clock area; hide lower card in duration-mode
             binding.cardClock.visibility = VISIBLE
             binding.progressTimer.visibility = VISIBLE
-            // in modalità durata mostriamo trainingSet sopra all'orologio
             if (hasDuration) {
-                keepOnlyTrainingSetVisible(current.sets)
-                placeTrainingSetAboveClock()
+                binding.trainingCard.visibility = GONE
+                current.sets -= 1
+                ensureSetsAbovePost(current.sets)
             } else {
                 binding.trainingCard.visibility = GONE
             }
 
             if (!inRecovery) {
-                // finita una serie -> avvia recupero
+                // end a set -> start recovery
                 if (current.sets > 0) {
                     current.sets -= 1
-                    binding.exerciseSet.text = current.sets.toString()
+                    if (hasDuration) {
+                        ensureSetsAbove(current.sets)
+                    } else {
+                        binding.exerciseSet.text = current.sets.toString()
+                    }
                 }
                 startRecovery()
                 inRecovery = true
             } else {
-                // inizia la serie prima della fine del recupero
+                // resume set before recovery finishes
                 stopRecovery()
                 binding.EndExercise.text = "termina serie"
                 inRecovery = false
@@ -114,7 +121,6 @@ class TrainingStartDialogFragment : DialogFragment() {
                 if (current.sets <= 0) {
                     goToNextExerciseOrFinish()
                 } else {
-                    // ripristina UI in base alla durata
                     if (hasDuration) {
                         showClockWithTrainingSet(current.durata.orEmpty(), current.sets)
                     } else {
@@ -126,44 +132,45 @@ class TrainingStartDialogFragment : DialogFragment() {
     }
 
     private fun showExercise(exercise: ScheduledExercise) {
-        // titoli/valori base
+        // base info
         binding.eserciseName.text = exercise.nome
         binding.exerciseSet.text = exercise.sets.toString()
         binding.exerciseReps.text = exercise.reps.toString()
         binding.exerciseRecover.text = exercise.recupero.toString()
 
-        // visibilità base (verrà eventualmente sovrascritta in modalità durata)
+        // visibility for the lower card (used only if no duration)
         toggleVisibility(binding.trainingSet, exercise.sets)
         toggleVisibility(binding.trainingReps, exercise.reps)
         toggleVisibility(binding.trainingRecover, exercise.recupero)
 
-        // durata strict
+        // duration strict
         val durSecs = parseDurationSecsStrict(exercise.durata)
         val hasDuration = durSecs > 0
 
-        // timer recupero
+        // recovery timer
         totalSecs = parseMinSec(exercise.recupero)
         timeLeft = totalSecs
+        updateProgressFor(timeLeft, totalSecs)
 
         if (hasDuration) {
-            // mostra orologio e SOPRA solo trainingSet
+            binding.stepwatchContainer.visibility = VISIBLE
+            ensureSetsAbovePost(exercise.sets)
             showClockWithTrainingSet(exercise.durata.orEmpty(), exercise.sets)
         } else {
-            // UI completa come prima
             showFullCard()
-            updateDisplay(timeLeft) // mm:ss del recupero
+            updateDisplay(timeLeft)
         }
 
         binding.EndExercise.text = "termina serie"
         inRecovery = false
         isRunning = false
 
-        // immagini esercizio
+        // exercise image
         loadExerciseImageResId(category ?: "null", exercise.nome) { resId ->
             if (resId != 0) binding.exerciseImage.setImageResource(resId)
         }
 
-        // SLOT WEIGHT/DURATION (solo quando UI completa)
+        // weight/duration slot only when not in duration-mode
         if (!hasDuration) {
             val weightStr = exercise.peso?.toString()?.trim()
             val weightNum = weightStr?.replace(",", ".")?.toDoubleOrNull()
@@ -191,70 +198,35 @@ class TrainingStartDialogFragment : DialogFragment() {
 
     // === UI helpers ===
 
-    // mostra SOLO trainingSet (sopra) + orologio (sotto)
     private fun showClockWithTrainingSet(durationStr: String, remainingSets: Int) {
-        // mostra solo trainingSet all'interno della card
-        binding.trainingCard.visibility = VISIBLE
-        keepOnlyTrainingSetVisible(remainingSets)
-        placeTrainingSetAboveClock()
+        // only "sets above" + clock in duration-mode
+        binding.trainingCard.visibility = GONE
+        binding.stepwatchContainer.visibility = VISIBLE
 
-        // mostra orologio; se è figlio di progressTimer tieni visibile il parent
+        ensureSetsAbovePost(remainingSets)
+
+
         binding.cardClock.visibility = VISIBLE
-        val isChildOfProgress = (binding.cardClock.parent === binding.progressTimer)
-        binding.progressTimer.visibility = if (isChildOfProgress) VISIBLE else GONE
-
+        binding.progressTimer.visibility = VISIBLE
         binding.EndExercise.visibility = VISIBLE
 
-        // testo orologio = SOLO durata (i set sono nel blocco sopra)
         binding.textStepwatch.text = durationStr
     }
 
-    // rende visibile solo trainingSet nella card e aggiorna il numero
-    private fun keepOnlyTrainingSetVisible(remainingSets: Int) {
-        binding.trainingSet.visibility = VISIBLE
-        binding.exerciseSet.text = remainingSets.toString()
-
-        binding.trainingReps.visibility = GONE
-        binding.trainingRecover.visibility = GONE
-        binding.trainingWeight.visibility = GONE
-    }
-
-    // UI completa (come prima)
     private fun showFullCard() {
         binding.cardClock.visibility = GONE
         binding.progressTimer.visibility = GONE
-
+        binding.trainingSetAbove.visibility = GONE
+        binding.stepwatchContainer.visibility = VISIBLE
         binding.trainingCard.visibility = VISIBLE
-        // riabilita visibilità base (gli specifici toggle restano in showExercise)
-        // qui NON forziamo i singoli layout, per non sovrascrivere i toggle di showExercise
         binding.EndExercise.visibility = VISIBLE
     }
-
-    // === fine UI helpers ===
 
     private fun toggleVisibility(layout: LinearLayout, value: Any?) {
         layout.visibility = if (value == null || value.toString().isEmpty() || value == "00:00") GONE else VISIBLE
     }
 
-    private fun placeTrainingSetAboveClock() {
-        val clockParent = binding.cardClock.parent as? ViewGroup ?: return
-        // se trainingSet non è già nello stesso parent, spostalo
-        if (binding.exerciseSetAbove.parent != clockParent) {
-            (binding.exerciseSetAbove.parent as? ViewGroup)?.removeView(binding.exerciseSetAbove)
-            // inseriscilo subito PRIMA di cardClock
-            val clockIndex = clockParent.indexOfChild(binding.cardClock)
-            clockParent.addView(binding.exerciseSetAbove, clockIndex)
-        } else {
-            // è già nel parent: assicurati che stia prima di cardClock
-            val clockIndex = clockParent.indexOfChild(binding.cardClock)
-            val setIndex = clockParent.indexOfChild(binding.exerciseSetAbove)
-            if (setIndex > clockIndex) {
-                clockParent.removeView(binding.exerciseSetAbove)
-                clockParent.addView(binding.exerciseSetAbove, clockIndex)
-            }
-        }
-        binding.trainingSet.visibility = VISIBLE
-    }
+    // === recovery timer ===
 
     private fun startRecovery() {
         Log.d("TrainingStartDialog", "Inizio recupero per esercizio: ${exercises.getOrNull(currentExerciseIndex)?.nome}")
@@ -264,16 +236,21 @@ class TrainingStartDialogFragment : DialogFragment() {
         isRunning = true
         animatePulse(true)
 
+        // setup ring for current recovery
+        updateProgressFor(totalSecs, totalSecs)
+
         countDownTimer = object : CountDownTimer(timeLeft * 1000, 1000) {
             override fun onTick(ms: Long) {
                 timeLeft = ms / 1000
                 updateDisplay(timeLeft)
+                updateProgressFor(timeLeft, totalSecs)
             }
 
             override fun onFinish() {
                 isRunning = false
                 inRecovery = false
                 updateDisplay(0)
+                updateProgressFor(0, totalSecs)
 
                 if (_binding == null) return
 
@@ -296,15 +273,12 @@ class TrainingStartDialogFragment : DialogFragment() {
                 } else {
                     if (hasDuration) {
                         _binding?.let {
-                            // torna alla vista "trainingSet sopra + orologio"
-                            it.trainingCard.visibility = VISIBLE
-                            keepOnlyTrainingSetVisible(current!!.sets)
-                            placeTrainingSetAboveClock()
+                            it.trainingCard.visibility = GONE
+                            it.stepwatchContainer.visibility = VISIBLE
+                            ensureSetsAbovePost(current!!.sets)
 
                             it.cardClock.visibility = VISIBLE
-                            val isChildOfProgress = (it.cardClock.parent === it.progressTimer)
-                            it.progressTimer.visibility = if (isChildOfProgress) VISIBLE else GONE
-
+                            it.progressTimer.visibility = VISIBLE
                             it.textStepwatch.text = current.durata.orEmpty()
                         }
                     } else {
@@ -317,6 +291,13 @@ class TrainingStartDialogFragment : DialogFragment() {
                 animatePulse(false)
             }
         }.start()
+    }
+
+    private fun updateProgressFor(current: Long, total: Long) {
+        val b = _binding ?: return
+        val t = total.coerceAtLeast(1).toInt()
+        b.progressTimer.max = t
+        b.progressTimer.progress = current.coerceIn(0, total).toInt()
     }
 
     private fun isLastExercise(): Boolean = currentExerciseIndex >= (exercises.size - 1)
@@ -357,7 +338,7 @@ class TrainingStartDialogFragment : DialogFragment() {
         animatePulse(false)
     }
 
-    // "MM:SS" -> secondi; 0 se null/vuota/formato errato
+    // "MM:SS" -> seconds; 0 if null/invalid
     private fun parseDurationSecsStrict(d: String?): Long {
         if (d.isNullOrBlank()) return 0L
         return try {
@@ -368,7 +349,7 @@ class TrainingStartDialogFragment : DialogFragment() {
         } catch (_: Exception) { 0L }
     }
 
-    // recupero "MM:SS" -> secondi; default 30s
+    // recovery "MM:SS" -> seconds; default 30s
     private fun parseMinSec(s: String?): Long {
         if (s.isNullOrBlank()) return 30L
         return try {
@@ -377,6 +358,18 @@ class TrainingStartDialogFragment : DialogFragment() {
             val ss = p.getOrNull(1)?.toLongOrNull() ?: 0L
             (mm * 60 + ss).coerceAtLeast(0)
         } catch (_: Exception) { 30L }
+    }
+
+    private fun ensureSetsAbove(remaining: Int) {
+        binding.trainingSetAbove.visibility = View.VISIBLE
+        binding.exerciseSetAbove.text = remaining.toString()
+        binding.trainingSetAbove.bringToFront()
+        binding.trainingSetAbove.elevation = binding.cardClock.elevation + 2f
+        binding.trainingSetAbove.translationZ = binding.cardClock.translationZ + 2f
+    }
+
+    private fun ensureSetsAbovePost(remaining: Int) {
+        binding.root.post { ensureSetsAbove(remaining) } // forza dopo il primo layout pass
     }
 
     private fun fmt(seconds: Long): String {
